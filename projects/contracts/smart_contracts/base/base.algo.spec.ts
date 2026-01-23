@@ -5,14 +5,10 @@ import { describe, expect, it } from 'vitest'
 import { AccountIdContract } from './base.algo'
 import { u32 } from './utils.algo'
 
-// class to make subroutines public for testing
+// Expose subroutines for testing
 class AccountIdContractTest extends AccountIdContract {
-  public getAccountIdIfExists(account: Account): Uint32 {
-    return super.getAccountIdIfExists(account)
-  }
-  public createAccountId(account: Account): Uint32 {
-    return super.createAccountId(account)
-  }
+  declare public getAccountIdIfExists: (account: Account) => Uint32
+  declare public createAccountId: (account: Account) => Uint32
 }
 
 describe('Base AccountIdContract contract', () => {
