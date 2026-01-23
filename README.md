@@ -1,55 +1,153 @@
 # xgov-delegator
 
-This starter full stack project has been generated using AlgoKit. See below for default getting started instructions.
+Smart contract to delegate xGov voting power for pooled and liquid staking systems.
 
-## Setup
+- xgov committees
+  - needs data to be synced to contract:
+    - committee ID
+      - read this from proposals to know if delegated account has voting power
+    - period start round (inclusive)
+    - period end round (exclusive)
+    - would currently need trusted offchain component
+      - would be good to have this onchain, see xgov-committee-oracle
 
-### Initial setup
-1. Clone this repository to your local machine.
-2. Ensure [Docker](https://www.docker.com/) is installed and operational. Then, install `AlgoKit` following this [guide](https://github.com/algorandfoundation/algokit-cli#install).
-3. Run `algokit project bootstrap all` in the project directory. This command sets up your environment by installing necessary dependencies, setting up a Python virtual environment, and preparing your `.env` file.
-4. In the case of a smart contract project, execute `algokit generate env-file -a target_network localnet` from the `xgov-delegator-contracts` directory to create a `.env.localnet` file with default configuration for `localnet`.
-5. To build your project, execute `algokit project run build`. This compiles your project and prepares it for running.
-6. For project-specific instructions, refer to the READMEs of the child projects:
-   - Smart Contracts: [xgov-delegator-contracts](projects/xgov-delegator-contracts/README.md)
-   - Frontend Application: [xgov-delegator-frontend](projects/xgov-delegator-frontend/README.md)
+- external voting power: xgov votes for delegated account (e.g. reti pool, dualstake token, etc)
 
-> This project is structured as a monorepo, refer to the [documentation](https://github.com/algorandfoundation/algokit-cli/blob/main/docs/features/project/run.md) to learn more about custom command orchestration via `algokit project run`.
+- internal voting power
+  - voting power split between accounts participating
+  - metric: algohours
+    - corresponds to 1 hour of 1 algo staked in the system
+  - offchain/trusted component to generate algohours per committee period.
+  - stored per 1M rounds to reduce stored state
 
-### Subsequently
+## State
 
-1. If you update to the latest source code and there are new dependencies, you will need to run `algokit project bootstrap all` again.
-2. Follow step 3 above.
+### Global
 
-### Continuous Integration / Continuous Deployment (CI/CD)
+last_account_id: 0
 
-This project uses [GitHub Actions](https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions) to define CI/CD workflows, which are located in the [`.github/workflows`](./.github/workflows) folder. You can configure these actions to suit your project's needs, including CI checks, audits, linting, type checking, testing, and deployments to TestNet.
+vote_end_threshold: 21600 # earliest we can vote before vote end threshold. e.g. 21600 == 6 hrs in seconds == we can vote 6 hours before proposal vote end time
 
-For pushes to `main` branch, after the above checks pass, the following deployment actions are performed:
-  - The smart contract(s) are deployed to TestNet using [AlgoNode](https://algonode.io).
-  - The frontend application is deployed to a provider of your choice (Netlify, Vercel, etc.). See [frontend README](frontend/README.md) for more information.
+### Account boxes
 
-> Please note deployment of smart contracts is done via `algokit deploy` command which can be invoked both via CI as seen on this project, or locally. For more information on how to use `algokit deploy` please see [AlgoKit documentation](https://github.com/algorandfoundation/algokit-cli/blob/main/docs/features/deploy.md).
+prefix: a
+key: address
+value: uint32 incrementing ID
 
-## Tools
+Assigns uint32 ids to accounts to save 28 bytes per reference
 
-This project makes use of Python and React to build Algorand smart contracts and to provide a base project configuration to develop frontends for your Algorand dApps and interactions with smart contracts. The following tools are in use:
+### 1M Algohour totals - total voting power fragment
 
-- Algorand, AlgoKit, and AlgoKit Utils
-- Python dependencies including Poetry, Black, Ruff or Flake8, mypy, pytest, and pip-audit
-- React and related dependencies including AlgoKit Utils, Tailwind CSS, daisyUI, use-wallet, npm, jest, playwright, Prettier, ESLint, and Github Actions workflows for build validation
+prefix: M
+key: period_start
+value: total algohours between [period_start, period_start+1M), uint64
 
-### VS Code
+### 1M Algohour per account - voting power fragment
 
-It has also been configured to have a productive dev experience out of the box in [VS Code](https://code.visualstudio.com/), see the [backend .vscode](./backend/.vscode) and [frontend .vscode](./frontend/.vscode) folders for more details.
+prefix: H
+key: [period_start][account_id]
+value: algohours, uint64
 
-## Integrating with smart contracts and application clients
+### Committee Metadata
 
-Refer to the [xgov-delegator-contracts](projects/xgov-delegator-contracts/README.md) folder for overview of working with smart contracts, [projects/xgov-delegator-frontend](projects/xgov-delegator-frontend/README.md) for overview of the React project and the [projects/xgov-delegator-frontend/contracts](projects/xgov-delegator-frontend/src/contracts/README.md) folder for README on adding new smart contracts from backend as application clients on your frontend. The templates provided in these folders will help you get started.
-When you compile and generate smart contract artifacts, your frontend component will automatically generate typescript application clients from smart contract artifacts and move them to `frontend/src/contracts` folder, see [`generate:app-clients` in package.json](projects/xgov-delegator-frontend/package.json). Afterwards, you are free to import and use them in your frontend application.
+prefix: c
 
-The frontend starter also provides an example of interactions with your DelegatorClient in [`AppCalls.tsx`](projects/xgov-delegator-frontend/src/components/AppCalls.tsx) component by default.
+- committee_id
+- period_start
+- period_end
+- own_total_voting_power
+- own_total_algohours
+  - sum of [1M Algohour totals] for $period_start, $period_start+1M, $period_start+2M
 
-## Next Steps
+### Proposal Metadata
 
-You can take this project and customize it to build your own decentralized applications on Algorand. Make sure to understand how to use AlgoKit and how to write smart contracts for Algorand before you start.
+prefix: p
+
+key: proposal_id
+
+value: ProposalMetadata struct
+- committee_id
+- vote_end_time
+- total_voting_power
+- total_algohours
+- voted_algohours
+- votes_yes_algohours uint64
+- votes_no_algohours uint64
+- has_voted_on_xgov_registry bool
+
+### Vote Receipts
+
+prefix: v
+
+key: [account id][proposal_id]
+value: empty                  # if no changing vote allowed
+value: [votes_yes,votes_no]   # if changing vote is allowed
+
+receipt to ensure each subdelegator votes once
+
+changing votes could be allowed, subtract previous votes_yes / votes_no and add new ones
+
+# xgov-committee-oracle
+
+- global
+  - last_account_id: 0
+
+- boxes
+  - account_[account] -> id (uint32)
+    - store IDs in committees, not full addresses
+  - committee_[id] -> committee_struct
+    - period_start
+    - period_end
+    - total_votes
+    - total_xgovs
+    - state
+    - ingested_votes
+  - (superbox?) committee_voters_[committee_id] -> [id, votes][]
+  - period_end_round -> committee_id
+
+## methods
+
+- upload_committee_metadata(id, start, end, total_votes, total_xgovs)
+  - ensure box.p_end_round not set
+  - create box.committee_[id]
+
+- ingest_committee_voters(committee_id, tuples: [id, account, votes][])
+  // get committee record for metadata
+  - committee = self.committee_[committee_id]
+  // account/xgov ingest progress uses superbox size
+  - ingested_accounts = sb_exists ? count() : 0
+  // get last ingested ID to ensure ascending ID order, deduplication enforcement
+  - last_ingested_id = ingested_accounts > 0 ? [ingested_accounts - 1].id : 0
+  // ensure we are not going over by # of accounts
+  - ensure(ingested_accounts + tuples.length <= committee.total_xgovs)
+  // buffer to write to superbox once
+  - write_chunk: bytes of shape [id, votes][]
+  // iterate tuples
+  - foreach tuple in tupes:
+    // new account, who dis. create ID
+    - if id === 0
+      - assert account_[account] not exists
+      - id = global.last_account_id + 1
+      - account_[account] = id
+      - global.last_account_id + 1
+    - else:
+      - assert account_[account] === id
+    // assert ascending ID ingestion for dedupe/uniqueness enforcement
+    -  assert id > last_ingested_id
+    // keep track of ingested votes
+    - committee.ingested_votes += votes
+    // assert not going over available votes
+    - assert committee.ingested_votes <= committee.total_votes
+    // increase counter
+    - last_ingested_id = id
+    - write_chunk += [id, votes]
+
+- get_account_id(account) -> uint32
+
+- log_account_ids(accounts[]) -> none
+
+- get_xgov_voting_power(committee_id, xgov_account, xgov_id_hint, xgov_offset_hint): uint64
+  - ensure box.accounts[xgov_account] == xgov_id_hint
+  - xgov_tuple = get superbox committee_voters[committee_id] offset xgov_offset_hint
+  - ensure xgov_tuple.id === xgov_id_hint
+  - return xgov_tuple.votes
