@@ -1,0 +1,81 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 0 1
+    txn ApplicationID
+    bnz main_after_if_else@2
+    // smart_contracts/base/base.algo.ts:6
+    // lastAccountId = GlobalState<uint64>({ initialValue: 0 })
+    pushbytes "lastAccountId"
+    intc_0 // 0
+    app_global_put
+
+main_after_if_else@2:
+    // smart_contracts/delegator/contract.algo.ts:3
+    // export class Delegator extends AccountIdContract {
+    txn NumAppArgs
+    bz main___algots__.defaultCreate@7
+    pushbytes 0x02bece11 // method "hello(string)string"
+    txna ApplicationArgs 0
+    match main_hello_route@5
+    err
+
+main_hello_route@5:
+    // smart_contracts/delegator/contract.algo.ts:4
+    // public hello(name: string): string {
+    txn OnCompletion
+    !
+    txn ApplicationID
+    &&
+    assert // OnCompletion must be NoOp && can only call when not creating
+    b hello
+
+main___algots__.defaultCreate@7:
+    // smart_contracts/delegator/contract.algo.ts:3
+    // export class Delegator extends AccountIdContract {
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    assert // OnCompletion must be NoOp && can only call when creating
+    intc_1 // 1
+    return
+
+
+// smart_contracts/delegator/contract.algo.ts::Delegator.hello[routing]() -> void:
+hello:
+    // smart_contracts/delegator/contract.algo.ts:4
+    // public hello(name: string): string {
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    // smart_contracts/delegator/contract.algo.ts:5
+    // return `Hello, ${name}`
+    pushbytes "Hello, "
+    swap
+    concat
+    // smart_contracts/delegator/contract.algo.ts:4
+    // public hello(name: string): string {
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
