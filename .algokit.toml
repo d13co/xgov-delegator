@@ -6,4 +6,4 @@ type = 'workspace'
 projects_root_path = 'projects'
 
 [project.run]
-build = ['xgov-delegator-contracts', 'xgov-delegator-frontend']
+build = ['contracts', 'frontend']
