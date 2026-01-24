@@ -40,15 +40,15 @@ export class CommitteeOracle extends AccountIdContract {
     totalVotes: Uint32,
   ): void {
     const committeeBox = this.committees(committeeId)
-    ensure(!committeeBox.exists, 'C_EX')
-    ensure(periodEnd.asUint64() > periodStart.asUint64(), 'PE_LT')
+    ensure(!committeeBox.exists, 'ERR:C_EX')
+    ensure(periodEnd.asUint64() > periodStart.asUint64(), 'ERR:PE_LT')
     committeeBox.value = {
       periodStart,
       periodEnd,
       totalMembers,
       totalVotes,
       ingestedVotes: u32(0),
-      superboxPrefix: this.lastSuperboxPrefix.value.toString(),
+      superboxPrefix: 'S' + this.lastSuperboxPrefix.value.toString(),
     }
     sbCreate(this.getCommitteeSBName(committeeId), 4096, MEMBER_STORED_SIZE, '[uint32,uint32]')
     this.lastSuperboxPrefix.value = this.lastSuperboxPrefix.value + 1
@@ -60,8 +60,8 @@ export class CommitteeOracle extends AccountIdContract {
    */
   public unregisterCommittee(committeeId: StaticBytes<32>): void {
     const committeeBox = this.committees(committeeId)
-    ensure(committeeBox.exists, 'C_NEX')
-    ensure(committeeBox.value.ingestedVotes === u32(0), 'IV_NC')
+    ensure(committeeBox.exists, 'ERR:C_NEX')
+    ensure(committeeBox.value.ingestedVotes === u32(0), 'ERR:IV_NZ')
     committeeBox.delete()
     sbDeleteSuperbox(this.getCommitteeSBName(committeeId))
   }
@@ -79,7 +79,7 @@ export class CommitteeOracle extends AccountIdContract {
     // figure out ingested accounts from superbox size
     const ingestedAccounts: uint64 = getCommitteeSBMembers(sbMeta)
     // not exceeding total members
-    ensure(ingestedAccounts + members.length <= committee.totalMembers.asUint64(), 'TM_EX')
+    ensure(ingestedAccounts + members.length <= committee.totalMembers.asUint64(), 'ERR:TM_EX')
 
     let lastAccountId = u32(0)
     if (ingestedAccounts > 0) {
@@ -93,7 +93,7 @@ export class CommitteeOracle extends AccountIdContract {
       // get or create account id
       member.accountId = this.getOrCreateAccountId(member)
       // ensure members are added in ascending order
-      ensure(member.accountId.asUint64() > lastAccountId.asUint64(), 'OOO')
+      ensure(member.accountId.asUint64() > lastAccountId.asUint64(), 'ERR:OOO')
       // store variant removes account
       const memberStored: MemberStored = {
         accountId: member.accountId,
@@ -106,14 +106,14 @@ export class CommitteeOracle extends AccountIdContract {
     }
 
     // ensure we did not exceed total votes
-    ensure(ingestedVotes <= committee.totalVotes.asUint64(), 'TV_EX')
+    ensure(ingestedVotes <= committee.totalVotes.asUint64(), 'ERR:TV_XC')
 
     log(sbAppend(superboxName, writeBuffer))
 
     committee.ingestedVotes = u32(ingestedVotes)
     // if we are finished, ensure total votes match
     if (ingestedAccounts + members.length === committee.totalMembers.asUint64()) {
-      ensure(committee.ingestedVotes === committee.totalVotes, 'TV_MM')
+      ensure(committee.ingestedVotes === committee.totalVotes, 'ERR:TV_MM')
     }
     this.committees(committeeId).value = clone(committee)
   }
@@ -128,7 +128,7 @@ export class CommitteeOracle extends AccountIdContract {
     const superboxName = this.getCommitteeSBName(committeeId)
     const sbMeta = sbMetaBox(superboxName)
     const totalMembers = getCommitteeSBMembers(sbMeta)
-    ensure(numMembers <= totalMembers, 'NM_EX')
+    ensure(numMembers <= totalMembers, 'ERR:NM_XC')
     let ingestedVotes = committee.ingestedVotes.asUint64()
     for (let i: uint64 = totalMembers - 1; i >= totalMembers - numMembers; i--) {
       const memberStored = this.getStoredMemberAt(superboxName, i)
@@ -195,10 +195,10 @@ export class CommitteeOracle extends AccountIdContract {
     this.mustGetCommittee(committeeId)
 
     const accountId = this.getAccountIdIfExists(account)
-    ensure(accountId.asUint64() !== 0, 'A_NEX')
+    ensure(accountId.asUint64() !== 0, 'ERR:A_NEX')
 
     const member = this.getStoredMemberAt(this.getCommitteeSBName(committeeId), accountOffsetHint.asUint64())
-    ensureExtra(member.accountId === accountId, 'AH', accountId.bytes)
+    ensureExtra(member.accountId === accountId, 'ERR:AH', accountId.bytes)
 
     return member.votes
   }
@@ -213,7 +213,7 @@ export class CommitteeOracle extends AccountIdContract {
     if (accountId.asUint64() === 0) {
       return this.createAccountId(member.account)
     } else {
-      ensureExtra(accountId === member.accountId, 'ID', member.accountId.bytes)
+      ensureExtra(accountId === member.accountId, 'ERR:ID', member.accountId.bytes)
       return accountId
     }
   }
@@ -225,7 +225,7 @@ export class CommitteeOracle extends AccountIdContract {
    */
   private mustGetCommittee(committeeId: StaticBytes<32>): CommitteeMetadata {
     const committeeBox = this.committees(committeeId)
-    ensure(committeeBox.exists, 'C_NEX')
+    ensure(committeeBox.exists, 'ERR:C_NEX')
     return committeeBox.value
   }
 

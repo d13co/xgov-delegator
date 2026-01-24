@@ -72,15 +72,15 @@ add:
     concat
     dup
     // smart_contracts/base/base.algo.ts:17
-    // ensure(!box.exists, 'A_EX')
+    // ensure(!box.exists, 'ERR:A_EX')
     box_len
     bury 1
     // smart_contracts/base/utils.algo.ts:9
     // if (!cond) {
     bz add_after_if_else@3
     // smart_contracts/base/base.algo.ts:17
-    // ensure(!box.exists, 'A_EX')
-    pushbytes "A_EX"
+    // ensure(!box.exists, 'ERR:A_EX')
+    pushbytes "ERR:A_EX"
     // smart_contracts/base/utils.algo.ts:10
     // log(code)
     log

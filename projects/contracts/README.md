@@ -81,9 +81,9 @@ value: ProposalMetadata struct
 
 key: [account id][proposal_id]
 
-value: empty                  # if no changing vote allowed
+value: empty # if no changing vote allowed
 
-value: [votes_yes,votes_no]   # if changing vote is allowed
+value: [votes_yes,votes_no] # if changing vote is allowed
 
 receipt to ensure each subdelegator votes once
 
@@ -145,12 +145,16 @@ create box.committee_[id]
 ```
 // get committee record for metadata
 committee = self.committee_[committee_id]
+
 // account/xgov ingest progress uses superbox size
 ingested_accounts = sb_exists ? count() : 0
+
 // get last ingested ID to ensure ascending ID order, deduplication enforcement
 last_ingested_id = ingested_accounts > 0 ? [ingested_accounts 1].id : 0
+
 // ensure we are not going over by # of accounts
 ensure(ingested_accounts + tuples.length <= committee.total_xgovs)
+
 // buffer to write to superbox once
 write_chunk: bytes of shape [id, votes][]
 // iterate tuples
@@ -180,7 +184,7 @@ foreach tuple in tuples:
 
 For quick fetching with simulate
 
-### get_xgov_voting_power(committee_id, xgov_account, xgov_id_hint, xgov_offset_hint): uint64
+### get_xgov_voting_power(committee_id, xgov_account, xgov_offset_hint): uint64
 
 ```
 ensure box.accounts[xgov_account] == xgov_id_hint

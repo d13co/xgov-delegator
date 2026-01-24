@@ -26,6 +26,6 @@ export function getConstructorConfig(args: ConstructorArgsOptions): { appId: big
     return { appId: config.oracleAppId, readerAccount: config.readerAccount ?? defaultReaderAccount };
   } else {
     const { oracleAppId, readerAccount: r } = args;
-    return { appId: BigInt(oracleAppId), readerAccount: r };
+    return { appId: BigInt(oracleAppId), readerAccount: r ?? defaultReaderAccount };
   }
 }

@@ -18,9 +18,12 @@ export type SenderWithSigner = {
 };
 
 export type ConstructorArgs = {
+  writerAccount?: SenderWithSigner;
+} & ReaderConstructorArgs;
+
+export type ReaderConstructorArgs = {
   algorand: AlgorandClient;
   concurrency?: number;
-  sender?: SenderWithSigner;
 } & ConstructorArgsOptions;
 
 export interface XGovCommitteeFile {
@@ -43,3 +46,5 @@ export type Member = {
 type ID = number
 type Votes = number
 export type StoredMember = [ID, Votes]
+
+export type CommitteeId = Uint8Array | Buffer | string

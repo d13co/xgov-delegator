@@ -1,6 +1,7 @@
 import { AlgorandClient } from "@algorandfoundation/algokit-utils";
 import { XGovCommitteesOracleSDK, CommitteeOracleFactory, calculateCommitteeId } from "../src";
 import { readFileSync } from "fs";
+import { writer } from "repl";
 
 (async () => {
   const file = JSON.parse(readFileSync(process.argv[2], "utf-8"));
@@ -18,7 +19,7 @@ import { readFileSync } from "fs";
 
   const sdk = new XGovCommitteesOracleSDK({
     algorand,
-    sender: { sender: deployer.addr, signer: deployer.signer },
+    writerAccount: { sender: deployer.addr, signer: deployer.signer },
     oracleAppId: appId,
   });
 

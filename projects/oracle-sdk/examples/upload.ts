@@ -18,7 +18,7 @@ import { readFileSync } from "fs";
 
   const sdk = new XGovCommitteesOracleSDK({
     algorand,
-    sender: { sender: deployer.addr, signer: deployer.signer },
+    writerAccount: { sender: deployer.addr, signer: deployer.signer },
     oracleAppId: appId,
   });
 

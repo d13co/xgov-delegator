@@ -14,7 +14,7 @@ export abstract class AccountIdContract extends Contract {
 
   protected createAccountId(account: Account): Uint32 {
     const box = this.accountIds(account)
-    ensure(!box.exists, 'A_EX')
+    ensure(!box.exists, 'ERR:A_EX')
     this.lastAccountId.value++
     const accountId = u32(this.lastAccountId.value)
     box.value = accountId

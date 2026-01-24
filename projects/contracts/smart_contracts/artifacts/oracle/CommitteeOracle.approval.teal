@@ -4,7 +4,7 @@
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
     intcblock 0 1 2 32
-    bytecblock "c" "_m" "" "lastSuperboxPrefix" 0x30313233343536373839 0x151f7c75 "lastAccountId" "C_NEX"
+    bytecblock "c" "_m" "" "lastSuperboxPrefix" 0x30313233343536373839 0x151f7c75 "lastAccountId" "ERR:C_NEX"
     txn ApplicationID
     bnz main_after_if_else@2
     // smart_contracts/base/base.algo.ts:6
@@ -386,15 +386,15 @@ registerCommittee:
     concat
     dup
     // smart_contracts/oracle/oracle.algo.ts:43
-    // ensure(!committeeBox.exists, 'C_EX')
+    // ensure(!committeeBox.exists, 'ERR:C_EX')
     box_len
     bury 1
     // smart_contracts/base/utils.algo.ts:9
     // if (!cond) {
     bz registerCommittee_after_if_else@3
     // smart_contracts/oracle/oracle.algo.ts:43
-    // ensure(!committeeBox.exists, 'C_EX')
-    pushbytes "C_EX"
+    // ensure(!committeeBox.exists, 'ERR:C_EX')
+    pushbytes "ERR:C_EX"
     // smart_contracts/base/utils.algo.ts:10
     // log(code)
     log
@@ -404,7 +404,7 @@ registerCommittee:
 
 registerCommittee_after_if_else@3:
     // smart_contracts/oracle/oracle.algo.ts:44
-    // ensure(periodEnd.asUint64() > periodStart.asUint64(), 'PE_LT')
+    // ensure(periodEnd.asUint64() > periodStart.asUint64(), 'ERR:PE_LT')
     dig 3
     btoi
     dig 5
@@ -414,8 +414,8 @@ registerCommittee_after_if_else@3:
     // if (!cond) {
     bnz registerCommittee_after_if_else@7
     // smart_contracts/oracle/oracle.algo.ts:44
-    // ensure(periodEnd.asUint64() > periodStart.asUint64(), 'PE_LT')
-    pushbytes "PE_LT"
+    // ensure(periodEnd.asUint64() > periodStart.asUint64(), 'ERR:PE_LT')
+    pushbytes "ERR:PE_LT"
     // smart_contracts/base/utils.algo.ts:10
     // log(code)
     log
@@ -429,16 +429,19 @@ registerCommittee_after_if_else@7:
     intc_0 // 0
     callsub u32
     // smart_contracts/oracle/oracle.algo.ts:51
-    // superboxPrefix: this.lastSuperboxPrefix.value.toString(),
+    // superboxPrefix: 'S' + this.lastSuperboxPrefix.value.toString(),
     intc_0 // 0
     // smart_contracts/oracle/oracle.algo.ts:25
     // lastSuperboxPrefix = GlobalState<uint64>({ initialValue: 0 })
     bytec_3 // "lastSuperboxPrefix"
     // smart_contracts/oracle/oracle.algo.ts:51
-    // superboxPrefix: this.lastSuperboxPrefix.value.toString(),
+    // superboxPrefix: 'S' + this.lastSuperboxPrefix.value.toString(),
     app_global_get_ex
     assert // check GlobalState exists
     callsub itoa
+    pushbytes "S"
+    swap
+    concat
     // smart_contracts/oracle/oracle.algo.ts:45-52
     // committeeBox.value = {
     //   periodStart,
@@ -446,7 +449,7 @@ registerCommittee_after_if_else@7:
     //   totalMembers,
     //   totalVotes,
     //   ingestedVotes: u32(0),
-    //   superboxPrefix: this.lastSuperboxPrefix.value.toString(),
+    //   superboxPrefix: 'S' + this.lastSuperboxPrefix.value.toString(),
     // }
     dig 6
     dig 6
@@ -554,15 +557,15 @@ unregisterCommittee:
     concat
     dup
     // smart_contracts/oracle/oracle.algo.ts:63
-    // ensure(committeeBox.exists, 'C_NEX')
+    // ensure(committeeBox.exists, 'ERR:C_NEX')
     box_len
     bury 1
     // smart_contracts/base/utils.algo.ts:9
     // if (!cond) {
     bnz unregisterCommittee_after_if_else@3
     // smart_contracts/oracle/oracle.algo.ts:63
-    // ensure(committeeBox.exists, 'C_NEX')
-    bytec 7 // "C_NEX"
+    // ensure(committeeBox.exists, 'ERR:C_NEX')
+    bytec 7 // "ERR:C_NEX"
     // smart_contracts/base/utils.algo.ts:10
     // log(code)
     log
@@ -572,7 +575,7 @@ unregisterCommittee:
 
 unregisterCommittee_after_if_else@3:
     // smart_contracts/oracle/oracle.algo.ts:64
-    // ensure(committeeBox.value.ingestedVotes === u32(0), 'IV_NC')
+    // ensure(committeeBox.value.ingestedVotes === u32(0), 'ERR:IV_NZ')
     dup
     pushints 16 4 // 16, 4
     box_extract
@@ -583,8 +586,8 @@ unregisterCommittee_after_if_else@3:
     // if (!cond) {
     bnz unregisterCommittee_after_if_else@7
     // smart_contracts/oracle/oracle.algo.ts:64
-    // ensure(committeeBox.value.ingestedVotes === u32(0), 'IV_NC')
-    pushbytes "IV_NC"
+    // ensure(committeeBox.value.ingestedVotes === u32(0), 'ERR:IV_NZ')
+    pushbytes "ERR:IV_NZ"
     // smart_contracts/base/utils.algo.ts:10
     // log(code)
     log
@@ -692,7 +695,7 @@ ingestMembers:
     dup
     cover 3
     // smart_contracts/oracle/oracle.algo.ts:82
-    // ensure(ingestedAccounts + members.length <= committee.totalMembers.asUint64(), 'TM_EX')
+    // ensure(ingestedAccounts + members.length <= committee.totalMembers.asUint64(), 'ERR:TM_EX')
     +
     dup
     uncover 2
@@ -703,8 +706,8 @@ ingestMembers:
     // if (!cond) {
     bnz ingestMembers_after_if_else@64
     // smart_contracts/oracle/oracle.algo.ts:82
-    // ensure(ingestedAccounts + members.length <= committee.totalMembers.asUint64(), 'TM_EX')
-    pushbytes "TM_EX"
+    // ensure(ingestedAccounts + members.length <= committee.totalMembers.asUint64(), 'ERR:TM_EX')
+    pushbytes "ERR:TM_EX"
     // smart_contracts/base/utils.algo.ts:10
     // log(code)
     log
@@ -785,15 +788,15 @@ ingestMembers_for_header@4:
     dup
     bury 33
     // smart_contracts/base/base.algo.ts:17
-    // ensure(!box.exists, 'A_EX')
+    // ensure(!box.exists, 'ERR:A_EX')
     box_len
     bury 1
     // smart_contracts/base/utils.algo.ts:9
     // if (!cond) {
     bz ingestMembers_after_if_else@58
     // smart_contracts/base/base.algo.ts:17
-    // ensure(!box.exists, 'A_EX')
-    pushbytes "A_EX"
+    // ensure(!box.exists, 'ERR:A_EX')
+    pushbytes "ERR:A_EX"
     // smart_contracts/base/utils.algo.ts:10
     // log(code)
     log
@@ -839,7 +842,7 @@ ingestMembers_after_inlined_smart_contracts/oracle/oracle.algo.ts::CommitteeOrac
     dup
     bury 27
     // smart_contracts/oracle/oracle.algo.ts:96
-    // ensure(member.accountId.asUint64() > lastAccountId.asUint64(), 'OOO')
+    // ensure(member.accountId.asUint64() > lastAccountId.asUint64(), 'ERR:OOO')
     dup
     extract 0 4
     bury 28
@@ -852,8 +855,8 @@ ingestMembers_after_inlined_smart_contracts/oracle/oracle.algo.ts::CommitteeOrac
     // if (!cond) {
     bnz ingestMembers_after_if_else@50
     // smart_contracts/oracle/oracle.algo.ts:96
-    // ensure(member.accountId.asUint64() > lastAccountId.asUint64(), 'OOO')
-    pushbytes "OOO"
+    // ensure(member.accountId.asUint64() > lastAccountId.asUint64(), 'ERR:OOO')
+    pushbytes "ERR:OOO"
     // smart_contracts/base/utils.algo.ts:10
     // log(code)
     log
@@ -901,7 +904,7 @@ ingestMembers_after_if_else@50:
 
 ingestMembers_else_body@34:
     // smart_contracts/oracle/oracle.algo.ts:216
-    // ensureExtra(accountId === member.accountId, 'ID', member.accountId.bytes)
+    // ensureExtra(accountId === member.accountId, 'ERR:ID', member.accountId.bytes)
     dig 23
     extract 0 4
     dup
@@ -916,8 +919,8 @@ ingestMembers_else_body@34:
     dig 28
     log
     // smart_contracts/oracle/oracle.algo.ts:216
-    // ensureExtra(accountId === member.accountId, 'ID', member.accountId.bytes)
-    pushbytes "ID"
+    // ensureExtra(accountId === member.accountId, 'ERR:ID', member.accountId.bytes)
+    pushbytes "ERR:ID"
     // smart_contracts/base/utils.algo.ts:18
     // log(code)
     log
@@ -933,7 +936,7 @@ ingestMembers_after_if_else@54:
 
 ingestMembers_after_for@7:
     // smart_contracts/oracle/oracle.algo.ts:109
-    // ensure(ingestedVotes <= committee.totalVotes.asUint64(), 'TV_EX')
+    // ensure(ingestedVotes <= committee.totalVotes.asUint64(), 'ERR:TV_XC')
     dig 4
     pushint 12 // 12
     extract_uint32
@@ -943,8 +946,8 @@ ingestMembers_after_for@7:
     // if (!cond) {
     bnz ingestMembers_after_if_else@46
     // smart_contracts/oracle/oracle.algo.ts:109
-    // ensure(ingestedVotes <= committee.totalVotes.asUint64(), 'TV_EX')
-    pushbytes "TV_EX"
+    // ensure(ingestedVotes <= committee.totalVotes.asUint64(), 'ERR:TV_XC')
+    pushbytes "ERR:TV_XC"
     // smart_contracts/base/utils.algo.ts:10
     // log(code)
     log
@@ -1440,7 +1443,7 @@ ingestMembers_after_while@30:
     ==
     bz ingestMembers_after_if_else@9
     // smart_contracts/oracle/oracle.algo.ts:116
-    // ensure(committee.ingestedVotes === committee.totalVotes, 'TV_MM')
+    // ensure(committee.ingestedVotes === committee.totalVotes, 'ERR:TV_MM')
     dig 4
     dup
     extract 16 4
@@ -1451,8 +1454,8 @@ ingestMembers_after_while@30:
     // if (!cond) {
     bnz ingestMembers_after_if_else@9
     // smart_contracts/oracle/oracle.algo.ts:116
-    // ensure(committee.ingestedVotes === committee.totalVotes, 'TV_MM')
-    pushbytes "TV_MM"
+    // ensure(committee.ingestedVotes === committee.totalVotes, 'ERR:TV_MM')
+    pushbytes "ERR:TV_MM"
     // smart_contracts/base/utils.algo.ts:10
     // log(code)
     log
@@ -1536,14 +1539,14 @@ uningestMembers:
     dup
     cover 2
     // smart_contracts/oracle/oracle.algo.ts:131
-    // ensure(numMembers <= totalMembers, 'NM_EX')
+    // ensure(numMembers <= totalMembers, 'ERR:NM_XC')
     <=
     // smart_contracts/base/utils.algo.ts:9
     // if (!cond) {
     bnz uningestMembers_after_if_else@17
     // smart_contracts/oracle/oracle.algo.ts:131
-    // ensure(numMembers <= totalMembers, 'NM_EX')
-    pushbytes "NM_EX"
+    // ensure(numMembers <= totalMembers, 'ERR:NM_XC')
+    pushbytes "ERR:NM_XC"
     // smart_contracts/base/utils.algo.ts:10
     // log(code)
     log
@@ -2020,14 +2023,14 @@ getMemberVotingPower:
     callsub getAccountIdIfExists
     dup
     // smart_contracts/oracle/oracle.algo.ts:198
-    // ensure(accountId.asUint64() !== 0, 'A_NEX')
+    // ensure(accountId.asUint64() !== 0, 'ERR:A_NEX')
     btoi
     // smart_contracts/base/utils.algo.ts:9
     // if (!cond) {
     bnz getMemberVotingPower_after_if_else@3
     // smart_contracts/oracle/oracle.algo.ts:198
-    // ensure(accountId.asUint64() !== 0, 'A_NEX')
-    pushbytes "A_NEX"
+    // ensure(accountId.asUint64() !== 0, 'ERR:A_NEX')
+    pushbytes "ERR:A_NEX"
     // smart_contracts/base/utils.algo.ts:10
     // log(code)
     log
@@ -2046,7 +2049,7 @@ getMemberVotingPower_after_if_else@3:
     dup
     bury 5
     // smart_contracts/oracle/oracle.algo.ts:201
-    // ensureExtra(member.accountId === accountId, 'AH', accountId.bytes)
+    // ensureExtra(member.accountId === accountId, 'ERR:AH', accountId.bytes)
     extract 0 4
     dig 1
     ==
@@ -2058,8 +2061,8 @@ getMemberVotingPower_after_if_else@3:
     dup
     log
     // smart_contracts/oracle/oracle.algo.ts:201
-    // ensureExtra(member.accountId === accountId, 'AH', accountId.bytes)
-    pushbytes "AH"
+    // ensureExtra(member.accountId === accountId, 'ERR:AH', accountId.bytes)
+    pushbytes "ERR:AH"
     // smart_contracts/base/utils.algo.ts:18
     // log(code)
     log
@@ -2094,15 +2097,15 @@ mustGetCommittee:
     concat
     dup
     // smart_contracts/oracle/oracle.algo.ts:228
-    // ensure(committeeBox.exists, 'C_NEX')
+    // ensure(committeeBox.exists, 'ERR:C_NEX')
     box_len
     bury 1
     // smart_contracts/base/utils.algo.ts:9
     // if (!cond) {
     bnz mustGetCommittee_after_if_else@3
     // smart_contracts/oracle/oracle.algo.ts:228
-    // ensure(committeeBox.exists, 'C_NEX')
-    bytec 7 // "C_NEX"
+    // ensure(committeeBox.exists, 'ERR:C_NEX')
+    bytec 7 // "ERR:C_NEX"
     // smart_contracts/base/utils.algo.ts:10
     // log(code)
     log
