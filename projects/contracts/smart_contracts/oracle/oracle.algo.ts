@@ -1,47 +1,17 @@
-import { Account, Box, BoxMap, Bytes, clone, log, uint64 } from '@algorandfoundation/algorand-typescript'
-import { decodeArc4, encodeArc4, StaticBytes, Uint32 } from '@algorandfoundation/algorand-typescript/arc4'
+import { Account, Box, BoxMap, Bytes, clone, GlobalState, log, uint64 } from '@algorandfoundation/algorand-typescript'
+import { abimethod, decodeArc4, encodeArc4, StaticBytes, Uint32 } from '@algorandfoundation/algorand-typescript/arc4'
 import { sbAppend, sbCreate, sbDeleteIndex, sbDeleteSuperbox, sbGetData } from '@d13co/superbox'
 import { SuperboxMeta } from '@d13co/superbox/smart_contracts/superbox/lib/types.algo'
 import { sbMetaBox } from '@d13co/superbox/smart_contracts/superbox/lib/utils.algo'
 import { AccountIdContract } from '../base/base.algo'
 import { ensure, ensureExtra, u32 } from '../base/utils.algo'
-
-/**
- * Committee Metadata
- */
-export interface Committee {
-  periodStart: Uint32
-  periodEnd: Uint32 // exclusive
-  totalMembers: Uint32
-  totalVotes: Uint32
-  ingestedVotes: Uint32
-}
-
-/**
- * Input representation of a committee member
- */
-export type MemberInput = {
-  accountId: Uint32
-  account: Account
-  votes: Uint32
-}
-
-/**
- * Stored representation of a committee member
- */
-export type MemberStored = {
-  accountId: Uint32
-  votes: Uint32
-}
-
-const MEMBER_STORED_SIZE: uint64 = 4 + 4 // AccountID + Votes
-
-/**
- * Get superbox name for committee
- */
-function getCommitteeSBName(committeeId: StaticBytes<32>): string {
-  return committeeId.bytes.toString()
-}
+import {
+  CommitteeMetadata,
+  getEmptyCommitteeMetadata,
+  MEMBER_STORED_SIZE,
+  MemberInput,
+  MemberStored,
+} from './types.algo'
 
 /**
  * Count total members stored in committee superbox
@@ -51,7 +21,8 @@ function getCommitteeSBMembers(sbMeta: Box<SuperboxMeta>): uint64 {
 }
 
 export class CommitteeOracle extends AccountIdContract {
-  committees = BoxMap<StaticBytes<32>, Committee>({ keyPrefix: 'c' })
+  committees = BoxMap<StaticBytes<32>, CommitteeMetadata>({ keyPrefix: 'c' })
+  lastSuperboxPrefix = GlobalState<uint64>({ initialValue: 0 })
 
   /**
    * Register a committee
@@ -70,14 +41,17 @@ export class CommitteeOracle extends AccountIdContract {
   ): void {
     const committeeBox = this.committees(committeeId)
     ensure(!committeeBox.exists, 'C_EX')
+    ensure(periodEnd.asUint64() > periodStart.asUint64(), 'PE_LT')
     committeeBox.value = {
       periodStart,
       periodEnd,
       totalMembers,
       totalVotes,
       ingestedVotes: u32(0),
+      superboxPrefix: this.lastSuperboxPrefix.value.toString(),
     }
-    sbCreate(getCommitteeSBName(committeeId), 4096, MEMBER_STORED_SIZE, '[uint32,uint32]')
+    sbCreate(this.getCommitteeSBName(committeeId), 4096, MEMBER_STORED_SIZE, '[uint32,uint32]')
+    this.lastSuperboxPrefix.value = this.lastSuperboxPrefix.value + 1
   }
 
   /**
@@ -89,7 +63,7 @@ export class CommitteeOracle extends AccountIdContract {
     ensure(committeeBox.exists, 'C_NEX')
     ensure(committeeBox.value.ingestedVotes === u32(0), 'IV_NC')
     committeeBox.delete()
-    sbDeleteSuperbox(getCommitteeSBName(committeeId))
+    sbDeleteSuperbox(this.getCommitteeSBName(committeeId))
   }
 
   /**
@@ -100,15 +74,18 @@ export class CommitteeOracle extends AccountIdContract {
   public ingestMembers(committeeId: StaticBytes<32>, members: MemberInput[]): void {
     const committee = this.mustGetCommittee(committeeId)
 
-    const superboxName = getCommitteeSBName(committeeId)
+    const superboxName = this.getCommitteeSBName(committeeId)
     const sbMeta = sbMetaBox(superboxName)
     // figure out ingested accounts from superbox size
     const ingestedAccounts: uint64 = getCommitteeSBMembers(sbMeta)
     // not exceeding total members
     ensure(ingestedAccounts + members.length <= committee.totalMembers.asUint64(), 'TM_EX')
 
-    const lastMember = decodeArc4<MemberStored>(sbGetData(superboxName, ingestedAccounts - 1))
-    let lastAccountId = lastMember.accountId
+    let lastAccountId = u32(0)
+    if (ingestedAccounts > 0) {
+      const lastMember = this.getStoredMemberAt(superboxName, ingestedAccounts - 1)
+      lastAccountId = lastMember.accountId
+    }
 
     let ingestedVotes = committee.ingestedVotes.asUint64()
     let writeBuffer = Bytes``
@@ -131,7 +108,7 @@ export class CommitteeOracle extends AccountIdContract {
     // ensure we did not exceed total votes
     ensure(ingestedVotes <= committee.totalVotes.asUint64(), 'TV_EX')
 
-    sbAppend(superboxName, writeBuffer)
+    log(sbAppend(superboxName, writeBuffer))
 
     committee.ingestedVotes = u32(ingestedVotes)
     // if we are finished, ensure total votes match
@@ -148,7 +125,7 @@ export class CommitteeOracle extends AccountIdContract {
    */
   public uningestMembers(committeeId: StaticBytes<32>, numMembers: uint64): void {
     const committee = this.mustGetCommittee(committeeId)
-    const superboxName = getCommitteeSBName(committeeId)
+    const superboxName = this.getCommitteeSBName(committeeId)
     const sbMeta = sbMetaBox(superboxName)
     const totalMembers = getCommitteeSBMembers(sbMeta)
     ensure(numMembers <= totalMembers, 'NM_EX')
@@ -162,6 +139,7 @@ export class CommitteeOracle extends AccountIdContract {
     this.committees(committeeId).value = clone(committee)
   }
 
+  @abimethod({ readonly: true })
   public getAccountId(account: Account): Uint32 {
     return this.getAccountIdIfExists(account)
   }
@@ -171,10 +149,38 @@ export class CommitteeOracle extends AccountIdContract {
    * Used to fetch account>ID quickly off-chain
    * @param accounts accounts to log
    */
+  @abimethod({ readonly: true })
   public logAccountIds(accounts: Account[]): void {
     for (const account of accounts) {
       log(this.getAccountIdIfExists(account).bytes)
     }
+  }
+
+  @abimethod({ readonly: true })
+  public getCommitteeMetadata(committeeId: StaticBytes<32>): CommitteeMetadata {
+    const committeeBox = this.committees(committeeId)
+    if (committeeBox.exists) {
+      return committeeBox.value
+    }
+    return getEmptyCommitteeMetadata()
+  }
+
+  @abimethod({ readonly: true })
+  public logCommitteeMetadata(committeeIds: StaticBytes<32>[]): void {
+    for (const committeeId of committeeIds) {
+      const metadata = this.committees(committeeId)
+      if (metadata.exists) {
+        log(encodeArc4(metadata.value))
+      } else {
+        log(encodeArc4(getEmptyCommitteeMetadata()))
+      }
+    }
+  }
+
+  @abimethod({ readonly: true })
+  public getCommitteeSuperboxMeta(committeeId: StaticBytes<32>): SuperboxMeta {
+    const superboxName = this.getCommitteeSBName(committeeId)
+    return sbMetaBox(superboxName).value
   }
 
   /**
@@ -184,13 +190,14 @@ export class CommitteeOracle extends AccountIdContract {
    * @param accountOffsetHint Offset of account in committee superbox
    * @returns Member voting power
    */
+  @abimethod({ readonly: true })
   public getMemberVotingPower(committeeId: StaticBytes<32>, account: Account, accountOffsetHint: Uint32): Uint32 {
     this.mustGetCommittee(committeeId)
 
     const accountId = this.getAccountIdIfExists(account)
     ensure(accountId.asUint64() !== 0, 'A_NEX')
 
-    const member = this.getStoredMemberAt(getCommitteeSBName(committeeId), accountOffsetHint.asUint64())
+    const member = this.getStoredMemberAt(this.getCommitteeSBName(committeeId), accountOffsetHint.asUint64())
     ensureExtra(member.accountId === accountId, 'AH', accountId.bytes)
 
     return member.votes
@@ -216,10 +223,14 @@ export class CommitteeOracle extends AccountIdContract {
    * @param committeeId
    * @returns Committee
    */
-  private mustGetCommittee(committeeId: StaticBytes<32>): Committee {
+  private mustGetCommittee(committeeId: StaticBytes<32>): CommitteeMetadata {
     const committeeBox = this.committees(committeeId)
     ensure(committeeBox.exists, 'C_NEX')
     return committeeBox.value
+  }
+
+  private getCommitteeSBName(committeeId: StaticBytes<32>): string {
+    return this.mustGetCommittee(committeeId).superboxPrefix
   }
 
   private getStoredMemberAt(superboxName: string, index: uint64): MemberStored {

@@ -5,11 +5,9 @@ export function u32(v: uint64) {
   return new Uint32(v)
 }
 
-const ARC65_PREFIX = 'ERR:'
-
 export function ensure(cond: boolean, code: string) {
   if (!cond) {
-    log(ARC65_PREFIX + code)
+    log(code)
     err()
   }
 }
@@ -17,7 +15,7 @@ export function ensure(cond: boolean, code: string) {
 export function ensureExtra(cond: boolean, code: string, extra: bytes) {
   if (!cond) {
     log(extra)
-    log(ARC65_PREFIX + code)
+    log(code)
     err()
   }
 }

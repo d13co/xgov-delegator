@@ -59,29 +59,6 @@ u32:
     retsub
 
 
-// smart_contracts/base/utils.algo.ts::ensure(cond: uint64, code: bytes) -> void:
-ensure:
-    // smart_contracts/base/utils.algo.ts:10
-    // export function ensure(cond: boolean, code: string) {
-    proto 2 0
-    // smart_contracts/base/utils.algo.ts:11
-    // if (!cond) {
-    frame_dig -2
-    bnz ensure_after_if_else@2
-    // smart_contracts/base/utils.algo.ts:12
-    // log(ARC65_PREFIX + code)
-    pushbytes "ERR:"
-    frame_dig -1
-    concat
-    log
-    // smart_contracts/base/utils.algo.ts:13
-    // err()
-    err
-
-ensure_after_if_else@2:
-    retsub
-
-
 // smart_contracts/delegator/delegator.algo.ts::Delegator.add[routing]() -> void:
 add:
     // smart_contracts/base/base.algo.ts:7
@@ -93,14 +70,25 @@ add:
     // smart_contracts/base/base.algo.ts:7
     // accountIds = BoxMap<Account, Uint32>({ keyPrefix: 'a' })
     concat
+    dup
     // smart_contracts/base/base.algo.ts:17
     // ensure(!box.exists, 'A_EX')
-    dup
     box_len
     bury 1
-    !
+    // smart_contracts/base/utils.algo.ts:9
+    // if (!cond) {
+    bz add_after_if_else@3
+    // smart_contracts/base/base.algo.ts:17
+    // ensure(!box.exists, 'A_EX')
     pushbytes "A_EX"
-    callsub ensure
+    // smart_contracts/base/utils.algo.ts:10
+    // log(code)
+    log
+    // smart_contracts/base/utils.algo.ts:11
+    // err()
+    err
+
+add_after_if_else@3:
     // smart_contracts/base/base.algo.ts:18
     // this.lastAccountId.value++
     intc_0 // 0
@@ -125,8 +113,7 @@ add:
     callsub u32
     // smart_contracts/base/base.algo.ts:20
     // box.value = accountId
-    swap
-    dig 1
+    dup2
     box_put
     // smart_contracts/delegator/delegator.algo.ts:7
     // public add(): Uint32 {
@@ -140,6 +127,7 @@ add:
 
 // smart_contracts/delegator/delegator.algo.ts::Delegator.get[routing]() -> void:
 get:
+    intc_0 // 0
     // smart_contracts/base/base.algo.ts:7
     // accountIds = BoxMap<Account, Uint32>({ keyPrefix: 'a' })
     bytec_1 // "a"
@@ -158,20 +146,33 @@ get:
     dup
     box_get
     assert // Box must have value
+    bury 2
 
 get_after_inlined_smart_contracts/base/base.algo.ts::AccountIdContract.getAccountIdIfExists@4:
     // smart_contracts/delegator/delegator.algo.ts:14
     // ensure(id !== u32(0), 'Z')
     intc_0 // 0
     callsub u32
-    dig 1
+    dig 2
     !=
+    // smart_contracts/base/utils.algo.ts:9
+    // if (!cond) {
+    bnz get_after_if_else@7
+    // smart_contracts/delegator/delegator.algo.ts:14
+    // ensure(id !== u32(0), 'Z')
     pushbytes "Z"
-    callsub ensure
+    // smart_contracts/base/utils.algo.ts:10
+    // log(code)
+    log
+    // smart_contracts/base/utils.algo.ts:11
+    // err()
+    err
+
+get_after_if_else@7:
     // smart_contracts/delegator/delegator.algo.ts:11
     // public get(): Uint32 {
     bytec_2 // 0x151f7c75
-    swap
+    dig 2
     concat
     log
     intc_1 // 1
@@ -182,6 +183,7 @@ get_else_body@3:
     // else return u32(0)
     intc_0 // 0
     callsub u32
+    bury 2
     // smart_contracts/delegator/delegator.algo.ts:12
     // const id = this.getAccountIdIfExists(Txn.sender)
     b get_after_inlined_smart_contracts/base/base.algo.ts::AccountIdContract.getAccountIdIfExists@4
