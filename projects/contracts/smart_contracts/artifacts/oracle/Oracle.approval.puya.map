@@ -168,7 +168,7 @@
       "stack_out": []
     },
     "41": {
-      "subroutine": "smart_contracts/oracle/oracle.algo.ts::Delegator.hello[routing]",
+      "subroutine": "smart_contracts/oracle/oracle.algo.ts::Oracle.hello[routing]",
       "params": {},
       "block": "hello",
       "stack_in": [],

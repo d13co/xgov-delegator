@@ -23,7 +23,7 @@ import { TransactionComposer, AppCallMethodCall, AppMethodCallTransactionArgumen
 import { SendParams, SendSingleTransactionResult, SendAtomicTransactionComposerResults } from '@algorandfoundation/algokit-utils/types/transaction'
 import { Address, encodeAddress, modelsv2, OnApplicationComplete, Transaction, TransactionSigner } from 'algosdk'
 
-export const APP_SPEC: Arc56Contract = {"name":"Delegator","structs":{},"methods":[{"name":"hello","args":[{"type":"string","name":"name"}],"returns":{"type":"string"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"events":[],"recommendations":{}}],"arcs":[22,28],"networks":{},"state":{"schema":{"global":{"ints":0,"bytes":0},"local":{"ints":0,"bytes":0}},"keys":{"global":{},"local":{},"box":{}},"maps":{"global":{},"local":{},"box":{}}},"bareActions":{"create":["NoOp"],"call":[]},"sourceInfo":{"approval":{"sourceInfo":[{"pc":[37],"errorMessage":"OnCompletion must be NoOp && can only call when creating"},{"pc":[26],"errorMessage":"OnCompletion must be NoOp && can only call when not creating"},{"pc":[47],"errorMessage":"invalid array length header"},{"pc":[55],"errorMessage":"invalid number of bytes for arc4.dynamic_array<arc4.uint8>"}],"pcOffsetMethod":"none"},"clear":{"sourceInfo":[],"pcOffsetMethod":"none"}},"source":{"approval":"I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBAYWxnb3JhbmRmb3VuZGF0aW9uL2FsZ29yYW5kLXR5cGVzY3JpcHQvYXJjNC9pbmRleC5kLnRzOjpDb250cmFjdC5hcHByb3ZhbFByb2dyYW0oKSAtPiB1aW50NjQ6Cm1haW46CiAgICAvLyBzbWFydF9jb250cmFjdHMvb3JhY2xlL29yYWNsZS5hbGdvLnRzOjMKICAgIC8vIGV4cG9ydCBjbGFzcyBEZWxlZ2F0b3IgZXh0ZW5kcyBDb250cmFjdCB7CiAgICB0eG4gTnVtQXBwQXJncwogICAgYnogbWFpbl9fX2FsZ290c19fLmRlZmF1bHRDcmVhdGVANQogICAgcHVzaGJ5dGVzIDB4MDJiZWNlMTEgLy8gbWV0aG9kICJoZWxsbyhzdHJpbmcpc3RyaW5nIgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMAogICAgbWF0Y2ggbWFpbl9oZWxsb19yb3V0ZUAzCiAgICBlcnIKCm1haW5faGVsbG9fcm91dGVAMzoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9vcmFjbGUvb3JhY2xlLmFsZ28udHM6NAogICAgLy8gcHVibGljIGhlbGxvKG5hbWU6IHN0cmluZyk6IHN0cmluZyB7CiAgICB0eG4gT25Db21wbGV0aW9uCiAgICAhCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgJiYKICAgIGFzc2VydCAvLyBPbkNvbXBsZXRpb24gbXVzdCBiZSBOb09wICYmIGNhbiBvbmx5IGNhbGwgd2hlbiBub3QgY3JlYXRpbmcKICAgIGIgaGVsbG8KCm1haW5fX19hbGdvdHNfXy5kZWZhdWx0Q3JlYXRlQDU6CiAgICAvLyBzbWFydF9jb250cmFjdHMvb3JhY2xlL29yYWNsZS5hbGdvLnRzOjMKICAgIC8vIGV4cG9ydCBjbGFzcyBEZWxlZ2F0b3IgZXh0ZW5kcyBDb250cmFjdCB7CiAgICB0eG4gT25Db21wbGV0aW9uCiAgICAhCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgIQogICAgJiYKICAgIGFzc2VydCAvLyBPbkNvbXBsZXRpb24gbXVzdCBiZSBOb09wICYmIGNhbiBvbmx5IGNhbGwgd2hlbiBjcmVhdGluZwogICAgcHVzaGludCAxIC8vIDEKICAgIHJldHVybgoKCi8vIHNtYXJ0X2NvbnRyYWN0cy9vcmFjbGUvb3JhY2xlLmFsZ28udHM6OkRlbGVnYXRvci5oZWxsb1tyb3V0aW5nXSgpIC0+IHZvaWQ6CmhlbGxvOgogICAgLy8gc21hcnRfY29udHJhY3RzL29yYWNsZS9vcmFjbGUuYWxnby50czo0CiAgICAvLyBwdWJsaWMgaGVsbG8obmFtZTogc3RyaW5nKTogc3RyaW5nIHsKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDEKICAgIGR1cAogICAgcHVzaGludCAwIC8vIDAKICAgIGV4dHJhY3RfdWludDE2IC8vIG9uIGVycm9yOiBpbnZhbGlkIGFycmF5IGxlbmd0aCBoZWFkZXIKICAgIHB1c2hpbnQgMiAvLyAyCiAgICArCiAgICBkaWcgMQogICAgbGVuCiAgICA9PQogICAgYXNzZXJ0IC8vIGludmFsaWQgbnVtYmVyIG9mIGJ5dGVzIGZvciBhcmM0LmR5bmFtaWNfYXJyYXk8YXJjNC51aW50OD4KICAgIGV4dHJhY3QgMiAwCiAgICAvLyBzbWFydF9jb250cmFjdHMvb3JhY2xlL29yYWNsZS5hbGdvLnRzOjUKICAgIC8vIHJldHVybiBgSGVsbG8sICR7bmFtZX1gCiAgICBwdXNoYnl0ZXMgIkhlbGxvLCAiCiAgICBzd2FwCiAgICBjb25jYXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9vcmFjbGUvb3JhY2xlLmFsZ28udHM6NAogICAgLy8gcHVibGljIGhlbGxvKG5hbWU6IHN0cmluZyk6IHN0cmluZyB7CiAgICBkdXAKICAgIGxlbgogICAgaXRvYgogICAgZXh0cmFjdCA2IDIKICAgIHN3YXAKICAgIGNvbmNhdAogICAgcHVzaGJ5dGVzIDB4MTUxZjdjNzUKICAgIHN3YXAKICAgIGNvbmNhdAogICAgbG9nCiAgICBwdXNoaW50IDEgLy8gMQogICAgcmV0dXJuCg==","clear":"I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBAYWxnb3JhbmRmb3VuZGF0aW9uL2FsZ29yYW5kLXR5cGVzY3JpcHQvYmFzZS1jb250cmFjdC5kLnRzOjpCYXNlQ29udHJhY3QuY2xlYXJTdGF0ZVByb2dyYW0oKSAtPiB1aW50NjQ6Cm1haW46CiAgICBwdXNoaW50IDEgLy8gMQogICAgcmV0dXJuCg=="},"byteCode":{"approval":"CzEbQQAYgAQCvs4RNhoAjgEAAQAxGRQxGBBEQgALMRkUMRgUEESBAUM2GgFJgQBZgQIISwEVEkRXAgCAB0hlbGxvLCBMUEkVFlcGAkxQgAQVH3x1TFCwgQFD","clear":"C4EBQw=="},"events":[],"templateVariables":{}} as unknown as Arc56Contract
+export const APP_SPEC: Arc56Contract = {"name":"Oracle","structs":{},"methods":[{"name":"hello","args":[{"type":"string","name":"name"}],"returns":{"type":"string"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"events":[],"recommendations":{}}],"arcs":[22,28],"networks":{},"state":{"schema":{"global":{"ints":0,"bytes":0},"local":{"ints":0,"bytes":0}},"keys":{"global":{},"local":{},"box":{}},"maps":{"global":{},"local":{},"box":{}}},"bareActions":{"create":["NoOp"],"call":[]},"sourceInfo":{"approval":{"sourceInfo":[{"pc":[37],"errorMessage":"OnCompletion must be NoOp && can only call when creating"},{"pc":[26],"errorMessage":"OnCompletion must be NoOp && can only call when not creating"},{"pc":[47],"errorMessage":"invalid array length header"},{"pc":[55],"errorMessage":"invalid number of bytes for arc4.dynamic_array<arc4.uint8>"}],"pcOffsetMethod":"none"},"clear":{"sourceInfo":[],"pcOffsetMethod":"none"}},"source":{"approval":"I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBAYWxnb3JhbmRmb3VuZGF0aW9uL2FsZ29yYW5kLXR5cGVzY3JpcHQvYXJjNC9pbmRleC5kLnRzOjpDb250cmFjdC5hcHByb3ZhbFByb2dyYW0oKSAtPiB1aW50NjQ6Cm1haW46CiAgICAvLyBzbWFydF9jb250cmFjdHMvb3JhY2xlL29yYWNsZS5hbGdvLnRzOjMKICAgIC8vIGV4cG9ydCBjbGFzcyBPcmFjbGUgZXh0ZW5kcyBDb250cmFjdCB7CiAgICB0eG4gTnVtQXBwQXJncwogICAgYnogbWFpbl9fX2FsZ290c19fLmRlZmF1bHRDcmVhdGVANQogICAgcHVzaGJ5dGVzIDB4MDJiZWNlMTEgLy8gbWV0aG9kICJoZWxsbyhzdHJpbmcpc3RyaW5nIgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMAogICAgbWF0Y2ggbWFpbl9oZWxsb19yb3V0ZUAzCiAgICBlcnIKCm1haW5faGVsbG9fcm91dGVAMzoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9vcmFjbGUvb3JhY2xlLmFsZ28udHM6NAogICAgLy8gcHVibGljIGhlbGxvKG5hbWU6IHN0cmluZyk6IHN0cmluZyB7CiAgICB0eG4gT25Db21wbGV0aW9uCiAgICAhCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgJiYKICAgIGFzc2VydCAvLyBPbkNvbXBsZXRpb24gbXVzdCBiZSBOb09wICYmIGNhbiBvbmx5IGNhbGwgd2hlbiBub3QgY3JlYXRpbmcKICAgIGIgaGVsbG8KCm1haW5fX19hbGdvdHNfXy5kZWZhdWx0Q3JlYXRlQDU6CiAgICAvLyBzbWFydF9jb250cmFjdHMvb3JhY2xlL29yYWNsZS5hbGdvLnRzOjMKICAgIC8vIGV4cG9ydCBjbGFzcyBPcmFjbGUgZXh0ZW5kcyBDb250cmFjdCB7CiAgICB0eG4gT25Db21wbGV0aW9uCiAgICAhCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgIQogICAgJiYKICAgIGFzc2VydCAvLyBPbkNvbXBsZXRpb24gbXVzdCBiZSBOb09wICYmIGNhbiBvbmx5IGNhbGwgd2hlbiBjcmVhdGluZwogICAgcHVzaGludCAxIC8vIDEKICAgIHJldHVybgoKCi8vIHNtYXJ0X2NvbnRyYWN0cy9vcmFjbGUvb3JhY2xlLmFsZ28udHM6Ok9yYWNsZS5oZWxsb1tyb3V0aW5nXSgpIC0+IHZvaWQ6CmhlbGxvOgogICAgLy8gc21hcnRfY29udHJhY3RzL29yYWNsZS9vcmFjbGUuYWxnby50czo0CiAgICAvLyBwdWJsaWMgaGVsbG8obmFtZTogc3RyaW5nKTogc3RyaW5nIHsKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDEKICAgIGR1cAogICAgcHVzaGludCAwIC8vIDAKICAgIGV4dHJhY3RfdWludDE2IC8vIG9uIGVycm9yOiBpbnZhbGlkIGFycmF5IGxlbmd0aCBoZWFkZXIKICAgIHB1c2hpbnQgMiAvLyAyCiAgICArCiAgICBkaWcgMQogICAgbGVuCiAgICA9PQogICAgYXNzZXJ0IC8vIGludmFsaWQgbnVtYmVyIG9mIGJ5dGVzIGZvciBhcmM0LmR5bmFtaWNfYXJyYXk8YXJjNC51aW50OD4KICAgIGV4dHJhY3QgMiAwCiAgICAvLyBzbWFydF9jb250cmFjdHMvb3JhY2xlL29yYWNsZS5hbGdvLnRzOjUKICAgIC8vIHJldHVybiBgSGVsbG8sICR7bmFtZX1gCiAgICBwdXNoYnl0ZXMgIkhlbGxvLCAiCiAgICBzd2FwCiAgICBjb25jYXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9vcmFjbGUvb3JhY2xlLmFsZ28udHM6NAogICAgLy8gcHVibGljIGhlbGxvKG5hbWU6IHN0cmluZyk6IHN0cmluZyB7CiAgICBkdXAKICAgIGxlbgogICAgaXRvYgogICAgZXh0cmFjdCA2IDIKICAgIHN3YXAKICAgIGNvbmNhdAogICAgcHVzaGJ5dGVzIDB4MTUxZjdjNzUKICAgIHN3YXAKICAgIGNvbmNhdAogICAgbG9nCiAgICBwdXNoaW50IDEgLy8gMQogICAgcmV0dXJuCg==","clear":"I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBAYWxnb3JhbmRmb3VuZGF0aW9uL2FsZ29yYW5kLXR5cGVzY3JpcHQvYmFzZS1jb250cmFjdC5kLnRzOjpCYXNlQ29udHJhY3QuY2xlYXJTdGF0ZVByb2dyYW0oKSAtPiB1aW50NjQ6Cm1haW46CiAgICBwdXNoaW50IDEgLy8gMQogICAgcmV0dXJuCg=="},"byteCode":{"approval":"CzEbQQAYgAQCvs4RNhoAjgEAAQAxGRQxGBBEQgALMRkUMRgUEESBAUM2GgFJgQBZgQIISwEVEkRXAgCAB0hlbGxvLCBMUEkVFlcGAkxQgAQVH3x1TFCwgQFD","clear":"C4EBQw=="},"events":[],"templateVariables":{}} as unknown as Arc56Contract
 
 /**
  * A state record containing binary data
@@ -63,9 +63,9 @@ export type Expand<T> = T extends (...args: infer A) => infer R
 
 
 /**
- * The argument types for the Delegator contract
+ * The argument types for the Oracle contract
  */
-export type DelegatorArgs = {
+export type OracleArgs = {
   /**
    * The object representation of the arguments for each method
    */
@@ -85,33 +85,33 @@ export type DelegatorArgs = {
 /**
  * The return type for each method
  */
-export type DelegatorReturns = {
+export type OracleReturns = {
   'hello(string)string': string
 }
 
 /**
- * Defines the types of available calls and state of the Delegator smart contract.
+ * Defines the types of available calls and state of the Oracle smart contract.
  */
-export type DelegatorTypes = {
+export type OracleTypes = {
   /**
    * Maps method signatures / names to their argument and return types.
    */
   methods:
     & Record<'hello(string)string' | 'hello', {
-      argsObj: DelegatorArgs['obj']['hello(string)string']
-      argsTuple: DelegatorArgs['tuple']['hello(string)string']
-      returns: DelegatorReturns['hello(string)string']
+      argsObj: OracleArgs['obj']['hello(string)string']
+      argsTuple: OracleArgs['tuple']['hello(string)string']
+      returns: OracleReturns['hello(string)string']
     }>
 }
 
 /**
  * Defines the possible abi call signatures.
  */
-export type DelegatorSignatures = keyof DelegatorTypes['methods']
+export type OracleSignatures = keyof OracleTypes['methods']
 /**
  * Defines the possible abi call signatures for methods that return a non-void value.
  */
-export type DelegatorNonVoidMethodSignatures = keyof DelegatorTypes['methods'] extends infer T ? T extends keyof DelegatorTypes['methods'] ? MethodReturn<T> extends void ? never : T  : never : never
+export type OracleNonVoidMethodSignatures = keyof OracleTypes['methods'] extends infer T ? T extends keyof OracleTypes['methods'] ? MethodReturn<T> extends void ? never : T  : never : never
 /**
  * Defines an object containing all relevant parameters for a single call to the contract.
  */
@@ -123,42 +123,42 @@ export type CallParams<TArgs> = Expand<
     }
 >
 /**
- * Maps a method signature from the Delegator smart contract to the method's arguments in either tuple or struct form
+ * Maps a method signature from the Oracle smart contract to the method's arguments in either tuple or struct form
  */
-export type MethodArgs<TSignature extends DelegatorSignatures> = DelegatorTypes['methods'][TSignature]['argsObj' | 'argsTuple']
+export type MethodArgs<TSignature extends OracleSignatures> = OracleTypes['methods'][TSignature]['argsObj' | 'argsTuple']
 /**
- * Maps a method signature from the Delegator smart contract to the method's return type
+ * Maps a method signature from the Oracle smart contract to the method's return type
  */
-export type MethodReturn<TSignature extends DelegatorSignatures> = DelegatorTypes['methods'][TSignature]['returns']
+export type MethodReturn<TSignature extends OracleSignatures> = OracleTypes['methods'][TSignature]['returns']
 
 
 /**
  * Defines supported create method params for this smart contract
  */
-export type DelegatorCreateCallParams =
+export type OracleCreateCallParams =
   | Expand<AppClientBareCallParams & {method?: never} & {onComplete?: OnApplicationComplete.NoOpOC} & CreateSchema>
 /**
  * Defines arguments required for the deploy method.
  */
-export type DelegatorDeployParams = Expand<Omit<AppFactoryDeployParams, 'createParams' | 'updateParams' | 'deleteParams'> & {
+export type OracleDeployParams = Expand<Omit<AppFactoryDeployParams, 'createParams' | 'updateParams' | 'deleteParams'> & {
   /**
    * Create transaction parameters to use if a create needs to be issued as part of deployment; use `method` to define ABI call (if available) or leave out for a bare call (if available)
    */
-  createParams?: DelegatorCreateCallParams
+  createParams?: OracleCreateCallParams
 }>
 
 
 /**
- * Exposes methods for constructing `AppClient` params objects for ABI calls to the Delegator smart contract
+ * Exposes methods for constructing `AppClient` params objects for ABI calls to the Oracle smart contract
  */
-export abstract class DelegatorParamsFactory {
+export abstract class OracleParamsFactory {
   /**
    * Constructs a no op call for the hello(string)string ABI method
    *
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static hello(params: CallParams<DelegatorArgs['obj']['hello(string)string'] | DelegatorArgs['tuple']['hello(string)string']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static hello(params: CallParams<OracleArgs['obj']['hello(string)string'] | OracleArgs['tuple']['hello(string)string']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
       method: 'hello(string)string' as const,
@@ -168,16 +168,16 @@ export abstract class DelegatorParamsFactory {
 }
 
 /**
- * A factory to create and deploy one or more instance of the Delegator smart contract and to create one or more app clients to interact with those (or other) app instances
+ * A factory to create and deploy one or more instance of the Oracle smart contract and to create one or more app clients to interact with those (or other) app instances
  */
-export class DelegatorFactory {
+export class OracleFactory {
   /**
    * The underlying `AppFactory` for when you want to have more flexibility
    */
   public readonly appFactory: _AppFactory
 
   /**
-   * Creates a new instance of `DelegatorFactory`
+   * Creates a new instance of `OracleFactory`
    *
    * @param params The parameters to initialise the app factory with
    */
@@ -212,7 +212,7 @@ export class DelegatorFactory {
    * @returns The `AppClient`
    */
   public getAppClientById(params: AppFactoryAppClientParams) {
-    return new DelegatorClient(this.appFactory.getAppClientById(params))
+    return new OracleClient(this.appFactory.getAppClientById(params))
   }
   
   /**
@@ -227,20 +227,20 @@ export class DelegatorFactory {
   public async getAppClientByCreatorAndName(
     params: AppFactoryResolveAppClientByCreatorAndNameParams,
   ) {
-    return new DelegatorClient(await this.appFactory.getAppClientByCreatorAndName(params))
+    return new OracleClient(await this.appFactory.getAppClientByCreatorAndName(params))
   }
 
   /**
-   * Idempotently deploys the Delegator smart contract.
+   * Idempotently deploys the Oracle smart contract.
    *
    * @param params The arguments for the contract calls and any additional parameters for the call
    * @returns The deployment result
    */
-  public async deploy(params: DelegatorDeployParams = {}) {
+  public async deploy(params: OracleDeployParams = {}) {
     const result = await this.appFactory.deploy({
       ...params,
     })
-    return { result: result.result, appClient: new DelegatorClient(result.appClient) }
+    return { result: result.result, appClient: new OracleClient(result.appClient) }
   }
 
   /**
@@ -252,7 +252,7 @@ export class DelegatorFactory {
      */
     create: {
       /**
-       * Creates a new instance of the Delegator smart contract using a bare call.
+       * Creates a new instance of the Oracle smart contract using a bare call.
        *
        * @param params The params for the bare (raw) call
        * @returns The params for a create call
@@ -273,7 +273,7 @@ export class DelegatorFactory {
      */
     create: {
       /**
-       * Creates a new instance of the Delegator smart contract using a bare call.
+       * Creates a new instance of the Oracle smart contract using a bare call.
        *
        * @param params The params for the bare (raw) call
        * @returns The transaction for a create call
@@ -294,14 +294,14 @@ export class DelegatorFactory {
      */
     create: {
       /**
-       * Creates a new instance of the Delegator smart contract using a bare call.
+       * Creates a new instance of the Oracle smart contract using a bare call.
        *
        * @param params The params for the bare (raw) call
        * @returns The create result
        */
       bare: async (params?: Expand<AppClientBareCallParams & AppClientCompilationParams & CreateSchema & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}>) => {
         const result = await this.appFactory.send.bare.create(params)
-        return { result: result.result, appClient: new DelegatorClient(result.appClient) }
+        return { result: result.result, appClient: new OracleClient(result.appClient) }
       },
     },
 
@@ -309,22 +309,22 @@ export class DelegatorFactory {
 
 }
 /**
- * A client to make calls to the Delegator smart contract
+ * A client to make calls to the Oracle smart contract
  */
-export class DelegatorClient {
+export class OracleClient {
   /**
    * The underlying `AppClient` for when you want to have more flexibility
    */
   public readonly appClient: _AppClient
 
   /**
-   * Creates a new instance of `DelegatorClient`
+   * Creates a new instance of `OracleClient`
    *
-   * @param appClient An `AppClient` instance which has been created with the Delegator app spec
+   * @param appClient An `AppClient` instance which has been created with the Oracle app spec
    */
   constructor(appClient: _AppClient)
   /**
-   * Creates a new instance of `DelegatorClient`
+   * Creates a new instance of `OracleClient`
    *
    * @param params The parameters to initialise the app client with
    */
@@ -340,21 +340,21 @@ export class DelegatorClient {
    * Checks for decode errors on the given return value and maps the return value to the return type for the given method
    * @returns The typed return value or undefined if there was no value
    */
-  decodeReturnValue<TSignature extends DelegatorNonVoidMethodSignatures>(method: TSignature, returnValue: ABIReturn | undefined) {
+  decodeReturnValue<TSignature extends OracleNonVoidMethodSignatures>(method: TSignature, returnValue: ABIReturn | undefined) {
     return returnValue !== undefined ? getArc56ReturnValue<MethodReturn<TSignature>>(returnValue, this.appClient.getABIMethod(method), APP_SPEC.structs) : undefined
   }
 
   /**
-   * Returns a new `DelegatorClient` client, resolving the app by creator address and name
+   * Returns a new `OracleClient` client, resolving the app by creator address and name
    * using AlgoKit app deployment semantics (i.e. looking for the app creation transaction note).
    * @param params The parameters to create the app client
    */
-  public static async fromCreatorAndName(params: Omit<ResolveAppClientByCreatorAndName, 'appSpec'>): Promise<DelegatorClient> {
-    return new DelegatorClient(await _AppClient.fromCreatorAndName({...params, appSpec: APP_SPEC}))
+  public static async fromCreatorAndName(params: Omit<ResolveAppClientByCreatorAndName, 'appSpec'>): Promise<OracleClient> {
+    return new OracleClient(await _AppClient.fromCreatorAndName({...params, appSpec: APP_SPEC}))
   }
   
   /**
-   * Returns an `DelegatorClient` instance for the current network based on
+   * Returns an `OracleClient` instance for the current network based on
    * pre-determined network-specific app IDs specified in the ARC-56 app spec.
    *
    * If no IDs are in the app spec or the network isn't recognised, an error is thrown.
@@ -362,8 +362,8 @@ export class DelegatorClient {
    */
   static async fromNetwork(
     params: Omit<ResolveAppClientByNetwork, 'appSpec'>
-  ): Promise<DelegatorClient> {
-    return new DelegatorClient(await _AppClient.fromNetwork({...params, appSpec: APP_SPEC}))
+  ): Promise<OracleClient> {
+    return new OracleClient(await _AppClient.fromNetwork({...params, appSpec: APP_SPEC}))
   }
   
   /** The ID of the app instance this client is linked to. */
@@ -396,7 +396,7 @@ export class DelegatorClient {
    */
   readonly params = {
     /**
-     * Makes a clear_state call to an existing instance of the Delegator smart contract.
+     * Makes a clear_state call to an existing instance of the Oracle smart contract.
      *
      * @param params The params for the bare (raw) call
      * @returns The clearState result
@@ -406,13 +406,13 @@ export class DelegatorClient {
     },
 
     /**
-     * Makes a call to the Delegator smart contract using the `hello(string)string` ABI method.
+     * Makes a call to the Oracle smart contract using the `hello(string)string` ABI method.
      *
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    hello: (params: CallParams<DelegatorArgs['obj']['hello(string)string'] | DelegatorArgs['tuple']['hello(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.params.call(DelegatorParamsFactory.hello(params))
+    hello: (params: CallParams<OracleArgs['obj']['hello(string)string'] | OracleArgs['tuple']['hello(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.params.call(OracleParamsFactory.hello(params))
     },
 
   }
@@ -422,7 +422,7 @@ export class DelegatorClient {
    */
   readonly createTransaction = {
     /**
-     * Makes a clear_state call to an existing instance of the Delegator smart contract.
+     * Makes a clear_state call to an existing instance of the Oracle smart contract.
      *
      * @param params The params for the bare (raw) call
      * @returns The clearState result
@@ -432,13 +432,13 @@ export class DelegatorClient {
     },
 
     /**
-     * Makes a call to the Delegator smart contract using the `hello(string)string` ABI method.
+     * Makes a call to the Oracle smart contract using the `hello(string)string` ABI method.
      *
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    hello: (params: CallParams<DelegatorArgs['obj']['hello(string)string'] | DelegatorArgs['tuple']['hello(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.createTransaction.call(DelegatorParamsFactory.hello(params))
+    hello: (params: CallParams<OracleArgs['obj']['hello(string)string'] | OracleArgs['tuple']['hello(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      return this.appClient.createTransaction.call(OracleParamsFactory.hello(params))
     },
 
   }
@@ -448,7 +448,7 @@ export class DelegatorClient {
    */
   readonly send = {
     /**
-     * Makes a clear_state call to an existing instance of the Delegator smart contract.
+     * Makes a clear_state call to an existing instance of the Oracle smart contract.
      *
      * @param params The params for the bare (raw) call
      * @returns The clearState result
@@ -458,14 +458,14 @@ export class DelegatorClient {
     },
 
     /**
-     * Makes a call to the Delegator smart contract using the `hello(string)string` ABI method.
+     * Makes a call to the Oracle smart contract using the `hello(string)string` ABI method.
      *
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    hello: async (params: CallParams<DelegatorArgs['obj']['hello(string)string'] | DelegatorArgs['tuple']['hello(string)string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      const result = await this.appClient.send.call(DelegatorParamsFactory.hello(params))
-      return {...result, return: result.return as unknown as (undefined | DelegatorReturns['hello(string)string'])}
+    hello: async (params: CallParams<OracleArgs['obj']['hello(string)string'] | OracleArgs['tuple']['hello(string)string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
+      const result = await this.appClient.send.call(OracleParamsFactory.hello(params))
+      return {...result, return: result.return as unknown as (undefined | OracleReturns['hello(string)string'])}
     },
 
   }
@@ -477,31 +477,31 @@ export class DelegatorClient {
    * @returns A new app client with the altered params
    */
   public clone(params: CloneAppClientParams) {
-    return new DelegatorClient(this.appClient.clone(params))
+    return new OracleClient(this.appClient.clone(params))
   }
 
   /**
-   * Methods to access state for the current Delegator app
+   * Methods to access state for the current Oracle app
    */
   state = {
   }
 
-  public newGroup(): DelegatorComposer {
+  public newGroup(): OracleComposer {
     const client = this
     const composer = this.algorand.newGroup()
     let promiseChain:Promise<unknown> = Promise.resolve()
     const resultMappers: Array<undefined | ((x: ABIReturn | undefined) => any)> = []
     return {
       /**
-       * Add a hello(string)string method call against the Delegator contract
+       * Add a hello(string)string method call against the Oracle contract
        */
-      hello(params: CallParams<DelegatorArgs['obj']['hello(string)string'] | DelegatorArgs['tuple']['hello(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+      hello(params: CallParams<OracleArgs['obj']['hello(string)string'] | OracleArgs['tuple']['hello(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
         promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.hello(params)))
         resultMappers.push((v) => client.decodeReturnValue('hello(string)string', v))
         return this
       },
       /**
-       * Add a clear state call to the Delegator contract
+       * Add a clear state call to the Oracle contract
        */
       clearState(params: AppClientBareCallParams) {
         promiseChain = promiseChain.then(() => composer.addAppCall(client.params.clearState(params)))
@@ -531,10 +531,10 @@ export class DelegatorClient {
           returns: result.returns?.map((val, i) => resultMappers[i] !== undefined ? resultMappers[i]!(val) : val.returnValue)
         }
       }
-    } as unknown as DelegatorComposer
+    } as unknown as OracleComposer
   }
 }
-export type DelegatorComposer<TReturns extends [...any[]] = []> = {
+export type OracleComposer<TReturns extends [...any[]] = []> = {
   /**
    * Calls the hello(string)string ABI method.
    *
@@ -542,15 +542,15 @@ export type DelegatorComposer<TReturns extends [...any[]] = []> = {
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  hello(params?: CallParams<DelegatorArgs['obj']['hello(string)string'] | DelegatorArgs['tuple']['hello(string)string']>): DelegatorComposer<[...TReturns, DelegatorReturns['hello(string)string'] | undefined]>
+  hello(params?: CallParams<OracleArgs['obj']['hello(string)string'] | OracleArgs['tuple']['hello(string)string']>): OracleComposer<[...TReturns, OracleReturns['hello(string)string'] | undefined]>
 
   /**
-   * Makes a clear_state call to an existing instance of the Delegator smart contract.
+   * Makes a clear_state call to an existing instance of the Oracle smart contract.
    *
    * @param args The arguments for the bare call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  clearState(params?: AppClientBareCallParams): DelegatorComposer<[...TReturns, undefined]>
+  clearState(params?: AppClientBareCallParams): OracleComposer<[...TReturns, undefined]>
 
   /**
    * Adds a transaction to the composer
@@ -558,7 +558,7 @@ export type DelegatorComposer<TReturns extends [...any[]] = []> = {
    * @param txn A transaction to add to the transaction group
    * @param signer The optional signer to use when signing this transaction.
    */
-  addTransaction(txn: Transaction, signer?: TransactionSigner): DelegatorComposer<TReturns>
+  addTransaction(txn: Transaction, signer?: TransactionSigner): OracleComposer<TReturns>
   /**
    * Returns the underlying AtomicTransactionComposer instance
    */
@@ -566,15 +566,15 @@ export type DelegatorComposer<TReturns extends [...any[]] = []> = {
   /**
    * Simulates the transaction group and returns the result
    */
-  simulate(): Promise<DelegatorComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
-  simulate(options: SkipSignaturesSimulateOptions): Promise<DelegatorComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
-  simulate(options: RawSimulateOptions): Promise<DelegatorComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
+  simulate(): Promise<OracleComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
+  simulate(options: SkipSignaturesSimulateOptions): Promise<OracleComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
+  simulate(options: RawSimulateOptions): Promise<OracleComposerResults<TReturns> & { simulateResponse: modelsv2.SimulateResponse }>
   /**
    * Sends the transaction group to the network and returns the results
    */
-  send(params?: SendParams): Promise<DelegatorComposerResults<TReturns>>
+  send(params?: SendParams): Promise<OracleComposerResults<TReturns>>
 }
-export type DelegatorComposerResults<TReturns extends [...any[]]> = Expand<SendAtomicTransactionComposerResults & {
+export type OracleComposerResults<TReturns extends [...any[]]> = Expand<SendAtomicTransactionComposerResults & {
   returns: TReturns
 }>
 

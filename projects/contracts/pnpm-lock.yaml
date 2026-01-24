@@ -11,6 +11,9 @@ importers:
       '@algorandfoundation/algorand-typescript':
         specifier: ^1.0.1
         version: 1.1.0(tslib@2.8.1)
+      '@d13co/superbox':
+        specifier: ^1.1.0
+        version: 1.1.0(tslib@2.8.1)
     devDependencies:
       '@algorandfoundation/algokit-client-generator':
         specifier: ^6.0.0
@@ -93,6 +96,11 @@ packages:
   '@algorandfoundation/algorand-typescript-testing@1.1.0':
     resolution: {integrity: sha512-2tyAqj/fbOugluMzsQaUPEpznbiPGfaF10AXz3VvwhbASPDjg8iS6TprdDEjPfFw4yiQ3IElpZ/bG0iztnKzMQ==}
 
+  '@algorandfoundation/algorand-typescript@1.0.0-alpha.91':
+    resolution: {integrity: sha512-f2BzH+ALtTRvUmxiBF4urgsBsXwqAlD6IqIVB/r634sOi2jmyPVjhVPB+cZAv2nzxx7lmKzt7HU6oxaW7es0PA==}
+    peerDependencies:
+      tslib: ^2.6.2
+
   '@algorandfoundation/algorand-typescript@1.1.0':
     resolution: {integrity: sha512-nH2aH3gH2mtW3ow6pjAgPVNjmYxIoYwP7Xh5SUQ2kKsQaP3QUs6I3c+EAAo+Hc5jqS8bF1T23MxpLeWbh+BbKQ==}
     peerDependencies:
@@ -133,6 +141,10 @@ packages:
   '@cspotcode/source-map-support@0.8.1':
     resolution: {integrity: sha512-IchNf6dN4tHoMFIn/7OE8LWZ19Y6q/67Bmf6vnGREv8RSbBVb9LPJxEcnwrcwX6ixSvaiGoomAUvu4YSxXrVgw==}
     engines: {node: '>=12'}
+
+  '@d13co/superbox@1.1.0':
+    resolution: {integrity: sha512-EBZTrvSUYoXM2DxFzRETsmXaIrQo3DybMXT4drKUejM8z+AsPdeMcMQerBVSHqGHw4ff8/YNEd719Gp3UVIQEg==}
+    engines: {node: '>=22.0', npm: '>=9.0'}
 
   '@esbuild/aix-ppc64@0.21.5':
     resolution: {integrity: sha512-1SDgH6ZSPTlggy1yI6+Dbkiz8xzpHJEVAlF/AM1tHPLsf5STom9rwtjE4hKAF20FfXXNTFqEYXyJNWh1GiZedQ==}
@@ -1673,6 +1685,10 @@ snapshots:
     transitivePeerDependencies:
       - tslib
 
+  '@algorandfoundation/algorand-typescript@1.0.0-alpha.91(tslib@2.8.1)':
+    dependencies:
+      tslib: 2.8.1
+
   '@algorandfoundation/algorand-typescript@1.1.0(tslib@2.8.1)':
     dependencies:
       tslib: 2.8.1
@@ -1719,6 +1735,12 @@ snapshots:
   '@cspotcode/source-map-support@0.8.1':
     dependencies:
       '@jridgewell/trace-mapping': 0.3.9
+
+  '@d13co/superbox@1.1.0(tslib@2.8.1)':
+    dependencies:
+      '@algorandfoundation/algorand-typescript': 1.0.0-alpha.91(tslib@2.8.1)
+    transitivePeerDependencies:
+      - tslib
 
   '@esbuild/aix-ppc64@0.21.5':
     optional: true

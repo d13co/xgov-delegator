@@ -23,7 +23,7 @@ import { TransactionComposer, AppCallMethodCall, AppMethodCallTransactionArgumen
 import { SendParams, SendSingleTransactionResult, SendAtomicTransactionComposerResults } from '@algorandfoundation/algokit-utils/types/transaction'
 import { Address, encodeAddress, modelsv2, OnApplicationComplete, Transaction, TransactionSigner } from 'algosdk'
 
-export const APP_SPEC: Arc56Contract = {"name":"Delegator","structs":{},"methods":[{"name":"hello","args":[{"type":"string","name":"name"}],"returns":{"type":"string"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"events":[],"recommendations":{}}],"arcs":[22,28],"networks":{},"state":{"schema":{"global":{"ints":1,"bytes":0},"local":{"ints":0,"bytes":0}},"keys":{"global":{"lastAccountId":{"keyType":"AVMString","valueType":"AVMUint64","key":"bGFzdEFjY291bnRJZA=="}},"local":{},"box":{}},"maps":{"global":{},"local":{},"box":{"accountIds":{"keyType":"address","valueType":"uint32","prefix":"YQ=="}}}},"bareActions":{"create":["NoOp"],"call":[]},"sourceInfo":{"approval":{"sourceInfo":[{"pc":[63],"errorMessage":"OnCompletion must be NoOp && can only call when creating"},{"pc":[52],"errorMessage":"OnCompletion must be NoOp && can only call when not creating"},{"pc":[71],"errorMessage":"invalid array length header"},{"pc":[79],"errorMessage":"invalid number of bytes for arc4.dynamic_array<arc4.uint8>"}],"pcOffsetMethod":"none"},"clear":{"sourceInfo":[],"pcOffsetMethod":"none"}},"source":{"approval":"I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBAYWxnb3JhbmRmb3VuZGF0aW9uL2FsZ29yYW5kLXR5cGVzY3JpcHQvYXJjNC9pbmRleC5kLnRzOjpDb250cmFjdC5hcHByb3ZhbFByb2dyYW0oKSAtPiB1aW50NjQ6Cm1haW46CiAgICBpbnRjYmxvY2sgMCAxCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgYm56IG1haW5fYWZ0ZXJfaWZfZWxzZUAyCiAgICAvLyBzbWFydF9jb250cmFjdHMvYmFzZS9iYXNlLmFsZ28udHM6NgogICAgLy8gbGFzdEFjY291bnRJZCA9IEdsb2JhbFN0YXRlPHVpbnQ2ND4oeyBpbml0aWFsVmFsdWU6IDAgfSkKICAgIHB1c2hieXRlcyAibGFzdEFjY291bnRJZCIKICAgIGludGNfMCAvLyAwCiAgICBhcHBfZ2xvYmFsX3B1dAoKbWFpbl9hZnRlcl9pZl9lbHNlQDI6CiAgICAvLyBzbWFydF9jb250cmFjdHMvZGVsZWdhdG9yL2NvbnRyYWN0LmFsZ28udHM6MwogICAgLy8gZXhwb3J0IGNsYXNzIERlbGVnYXRvciBleHRlbmRzIEFjY291bnRJZENvbnRyYWN0IHsKICAgIHR4biBOdW1BcHBBcmdzCiAgICBieiBtYWluX19fYWxnb3RzX18uZGVmYXVsdENyZWF0ZUA3CiAgICBwdXNoYnl0ZXMgMHgwMmJlY2UxMSAvLyBtZXRob2QgImhlbGxvKHN0cmluZylzdHJpbmciCiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAwCiAgICBtYXRjaCBtYWluX2hlbGxvX3JvdXRlQDUKICAgIGVycgoKbWFpbl9oZWxsb19yb3V0ZUA1OgogICAgLy8gc21hcnRfY29udHJhY3RzL2RlbGVnYXRvci9jb250cmFjdC5hbGdvLnRzOjQKICAgIC8vIHB1YmxpYyBoZWxsbyhuYW1lOiBzdHJpbmcpOiBzdHJpbmcgewogICAgdHhuIE9uQ29tcGxldGlvbgogICAgIQogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgICYmCiAgICBhc3NlcnQgLy8gT25Db21wbGV0aW9uIG11c3QgYmUgTm9PcCAmJiBjYW4gb25seSBjYWxsIHdoZW4gbm90IGNyZWF0aW5nCiAgICBiIGhlbGxvCgptYWluX19fYWxnb3RzX18uZGVmYXVsdENyZWF0ZUA3OgogICAgLy8gc21hcnRfY29udHJhY3RzL2RlbGVnYXRvci9jb250cmFjdC5hbGdvLnRzOjMKICAgIC8vIGV4cG9ydCBjbGFzcyBEZWxlZ2F0b3IgZXh0ZW5kcyBBY2NvdW50SWRDb250cmFjdCB7CiAgICB0eG4gT25Db21wbGV0aW9uCiAgICAhCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgIQogICAgJiYKICAgIGFzc2VydCAvLyBPbkNvbXBsZXRpb24gbXVzdCBiZSBOb09wICYmIGNhbiBvbmx5IGNhbGwgd2hlbiBjcmVhdGluZwogICAgaW50Y18xIC8vIDEKICAgIHJldHVybgoKCi8vIHNtYXJ0X2NvbnRyYWN0cy9kZWxlZ2F0b3IvY29udHJhY3QuYWxnby50czo6RGVsZWdhdG9yLmhlbGxvW3JvdXRpbmddKCkgLT4gdm9pZDoKaGVsbG86CiAgICAvLyBzbWFydF9jb250cmFjdHMvZGVsZWdhdG9yL2NvbnRyYWN0LmFsZ28udHM6NAogICAgLy8gcHVibGljIGhlbGxvKG5hbWU6IHN0cmluZyk6IHN0cmluZyB7CiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAxCiAgICBkdXAKICAgIGludGNfMCAvLyAwCiAgICBleHRyYWN0X3VpbnQxNiAvLyBvbiBlcnJvcjogaW52YWxpZCBhcnJheSBsZW5ndGggaGVhZGVyCiAgICBwdXNoaW50IDIgLy8gMgogICAgKwogICAgZGlnIDEKICAgIGxlbgogICAgPT0KICAgIGFzc2VydCAvLyBpbnZhbGlkIG51bWJlciBvZiBieXRlcyBmb3IgYXJjNC5keW5hbWljX2FycmF5PGFyYzQudWludDg+CiAgICBleHRyYWN0IDIgMAogICAgLy8gc21hcnRfY29udHJhY3RzL2RlbGVnYXRvci9jb250cmFjdC5hbGdvLnRzOjUKICAgIC8vIHJldHVybiBgSGVsbG8sICR7bmFtZX1gCiAgICBwdXNoYnl0ZXMgIkhlbGxvLCAiCiAgICBzd2FwCiAgICBjb25jYXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9kZWxlZ2F0b3IvY29udHJhY3QuYWxnby50czo0CiAgICAvLyBwdWJsaWMgaGVsbG8obmFtZTogc3RyaW5nKTogc3RyaW5nIHsKICAgIGR1cAogICAgbGVuCiAgICBpdG9iCiAgICBleHRyYWN0IDYgMgogICAgc3dhcAogICAgY29uY2F0CiAgICBwdXNoYnl0ZXMgMHgxNTFmN2M3NQogICAgc3dhcAogICAgY29uY2F0CiAgICBsb2cKICAgIGludGNfMSAvLyAxCiAgICByZXR1cm4K","clear":"I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBAYWxnb3JhbmRmb3VuZGF0aW9uL2FsZ29yYW5kLXR5cGVzY3JpcHQvYmFzZS1jb250cmFjdC5kLnRzOjpCYXNlQ29udHJhY3QuY2xlYXJTdGF0ZVByb2dyYW0oKSAtPiB1aW50NjQ6Cm1haW46CiAgICBwdXNoaW50IDEgLy8gMQogICAgcmV0dXJuCg=="},"byteCode":{"approval":"CyACAAExGEAAEYANbGFzdEFjY291bnRJZCJnMRtBABiABAK+zhE2GgCOAQABADEZFDEYEERCAAoxGRQxGBQQRCNDNhoBSSJZgQIISwEVEkRXAgCAB0hlbGxvLCBMUEkVFlcGAkxQgAQVH3x1TFCwI0M=","clear":"C4EBQw=="},"events":[],"templateVariables":{}} as unknown as Arc56Contract
+export const APP_SPEC: Arc56Contract = {"name":"Delegator","structs":{},"methods":[{"name":"add","args":[],"returns":{"type":"uint32"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"events":[],"recommendations":{}},{"name":"get","args":[],"returns":{"type":"uint32"},"actions":{"create":[],"call":["NoOp"]},"readonly":false,"events":[],"recommendations":{}}],"arcs":[22,28],"networks":{},"state":{"schema":{"global":{"ints":1,"bytes":0},"local":{"ints":0,"bytes":0}},"keys":{"global":{"lastAccountId":{"keyType":"AVMString","valueType":"AVMUint64","key":"bGFzdEFjY291bnRJZA=="}},"local":{},"box":{}},"maps":{"global":{},"local":{},"box":{"accountIds":{"keyType":"address","valueType":"uint32","prefix":"YQ=="}}}},"bareActions":{"create":["NoOp"],"call":[]},"sourceInfo":{"approval":{"sourceInfo":[{"pc":[170],"errorMessage":"Box must have value"},{"pc":[44],"errorMessage":"OnCompletion must be NoOp"},{"pc":[77],"errorMessage":"OnCompletion must be NoOp && can only call when creating"},{"pc":[137],"errorMessage":"check GlobalState exists"},{"pc":[91],"errorMessage":"overflow"}],"pcOffsetMethod":"none"},"clear":{"sourceInfo":[],"pcOffsetMethod":"none"}},"source":{"approval":"I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBAYWxnb3JhbmRmb3VuZGF0aW9uL2FsZ29yYW5kLXR5cGVzY3JpcHQvYXJjNC9pbmRleC5kLnRzOjpDb250cmFjdC5hcHByb3ZhbFByb2dyYW0oKSAtPiB1aW50NjQ6Cm1haW46CiAgICBpbnRjYmxvY2sgMCAxCiAgICBieXRlY2Jsb2NrICJsYXN0QWNjb3VudElkIiAiYSIgMHgxNTFmN2M3NQogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGJueiBtYWluX2FmdGVyX2lmX2Vsc2VAMgogICAgLy8gc21hcnRfY29udHJhY3RzL2Jhc2UvYmFzZS5hbGdvLnRzOjYKICAgIC8vIGxhc3RBY2NvdW50SWQgPSBHbG9iYWxTdGF0ZTx1aW50NjQ+KHsgaW5pdGlhbFZhbHVlOiAwIH0pCiAgICBieXRlY18wIC8vICJsYXN0QWNjb3VudElkIgogICAgaW50Y18wIC8vIDAKICAgIGFwcF9nbG9iYWxfcHV0CgptYWluX2FmdGVyX2lmX2Vsc2VAMjoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9kZWxlZ2F0b3IvZGVsZWdhdG9yLmFsZ28udHM6NgogICAgLy8gZXhwb3J0IGNsYXNzIERlbGVnYXRvciBleHRlbmRzIEFjY291bnRJZENvbnRyYWN0IHsKICAgIHR4biBOdW1BcHBBcmdzCiAgICBieiBtYWluX19fYWxnb3RzX18uZGVmYXVsdENyZWF0ZUAxMQogICAgdHhuIE9uQ29tcGxldGlvbgogICAgIQogICAgYXNzZXJ0IC8vIE9uQ29tcGxldGlvbiBtdXN0IGJlIE5vT3AKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBhc3NlcnQKICAgIHB1c2hieXRlc3MgMHhjNzEzNWNkMCAweGI5OWMwMzMyIC8vIG1ldGhvZCAiYWRkKCl1aW50MzIiLCBtZXRob2QgImdldCgpdWludDMyIgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMAogICAgbWF0Y2ggYWRkIGdldAogICAgZXJyCgptYWluX19fYWxnb3RzX18uZGVmYXVsdENyZWF0ZUAxMToKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9kZWxlZ2F0b3IvZGVsZWdhdG9yLmFsZ28udHM6NgogICAgLy8gZXhwb3J0IGNsYXNzIERlbGVnYXRvciBleHRlbmRzIEFjY291bnRJZENvbnRyYWN0IHsKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICAhCiAgICAmJgogICAgYXNzZXJ0IC8vIE9uQ29tcGxldGlvbiBtdXN0IGJlIE5vT3AgJiYgY2FuIG9ubHkgY2FsbCB3aGVuIGNyZWF0aW5nCiAgICBpbnRjXzEgLy8gMQogICAgcmV0dXJuCgoKLy8gc21hcnRfY29udHJhY3RzL2Jhc2UvdXRpbHMuYWxnby50czo6dTMyKHY6IHVpbnQ2NCkgLT4gYnl0ZXM6CnUzMjoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9iYXNlL3V0aWxzLmFsZ28udHM6NAogICAgLy8gZXhwb3J0IGZ1bmN0aW9uIHUzMih2OiB1aW50NjQpIHsKICAgIHByb3RvIDEgMQogICAgLy8gc21hcnRfY29udHJhY3RzL2Jhc2UvdXRpbHMuYWxnby50czo1CiAgICAvLyByZXR1cm4gbmV3IFVpbnQzMih2KQogICAgZnJhbWVfZGlnIC0xCiAgICBpdG9iCiAgICBkdXAKICAgIGJpdGxlbgogICAgcHVzaGludCAzMiAvLyAzMgogICAgPD0KICAgIGFzc2VydCAvLyBvdmVyZmxvdwogICAgZXh0cmFjdCA0IDQKICAgIHJldHN1YgoKCi8vIHNtYXJ0X2NvbnRyYWN0cy9iYXNlL3V0aWxzLmFsZ28udHM6OmVuc3VyZShjb25kOiB1aW50NjQsIGNvZGU6IGJ5dGVzKSAtPiB2b2lkOgplbnN1cmU6CiAgICAvLyBzbWFydF9jb250cmFjdHMvYmFzZS91dGlscy5hbGdvLnRzOjEwCiAgICAvLyBleHBvcnQgZnVuY3Rpb24gZW5zdXJlKGNvbmQ6IGJvb2xlYW4sIGNvZGU6IHN0cmluZykgewogICAgcHJvdG8gMiAwCiAgICAvLyBzbWFydF9jb250cmFjdHMvYmFzZS91dGlscy5hbGdvLnRzOjExCiAgICAvLyBpZiAoIWNvbmQpIHsKICAgIGZyYW1lX2RpZyAtMgogICAgYm56IGVuc3VyZV9hZnRlcl9pZl9lbHNlQDIKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9iYXNlL3V0aWxzLmFsZ28udHM6MTIKICAgIC8vIGxvZyhBUkM2NV9QUkVGSVggKyBjb2RlKQogICAgcHVzaGJ5dGVzICJFUlI6IgogICAgZnJhbWVfZGlnIC0xCiAgICBjb25jYXQKICAgIGxvZwogICAgLy8gc21hcnRfY29udHJhY3RzL2Jhc2UvdXRpbHMuYWxnby50czoxMwogICAgLy8gZXJyKCkKICAgIGVycgoKZW5zdXJlX2FmdGVyX2lmX2Vsc2VAMjoKICAgIHJldHN1YgoKCi8vIHNtYXJ0X2NvbnRyYWN0cy9kZWxlZ2F0b3IvZGVsZWdhdG9yLmFsZ28udHM6OkRlbGVnYXRvci5hZGRbcm91dGluZ10oKSAtPiB2b2lkOgphZGQ6CiAgICAvLyBzbWFydF9jb250cmFjdHMvYmFzZS9iYXNlLmFsZ28udHM6NwogICAgLy8gYWNjb3VudElkcyA9IEJveE1hcDxBY2NvdW50LCBVaW50MzI+KHsga2V5UHJlZml4OiAnYScgfSkKICAgIGJ5dGVjXzEgLy8gImEiCiAgICAvLyBzbWFydF9jb250cmFjdHMvZGVsZWdhdG9yL2RlbGVnYXRvci5hbGdvLnRzOjgKICAgIC8vIHJldHVybiB0aGlzLmNyZWF0ZUFjY291bnRJZChUeG4uc2VuZGVyKQogICAgdHhuIFNlbmRlcgogICAgLy8gc21hcnRfY29udHJhY3RzL2Jhc2UvYmFzZS5hbGdvLnRzOjcKICAgIC8vIGFjY291bnRJZHMgPSBCb3hNYXA8QWNjb3VudCwgVWludDMyPih7IGtleVByZWZpeDogJ2EnIH0pCiAgICBjb25jYXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9iYXNlL2Jhc2UuYWxnby50czoxNwogICAgLy8gZW5zdXJlKCFib3guZXhpc3RzLCAnQV9FWCcpCiAgICBkdXAKICAgIGJveF9sZW4KICAgIGJ1cnkgMQogICAgIQogICAgcHVzaGJ5dGVzICJBX0VYIgogICAgY2FsbHN1YiBlbnN1cmUKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9iYXNlL2Jhc2UuYWxnby50czoxOAogICAgLy8gdGhpcy5sYXN0QWNjb3VudElkLnZhbHVlKysKICAgIGludGNfMCAvLyAwCiAgICAvLyBzbWFydF9jb250cmFjdHMvYmFzZS9iYXNlLmFsZ28udHM6NgogICAgLy8gbGFzdEFjY291bnRJZCA9IEdsb2JhbFN0YXRlPHVpbnQ2ND4oeyBpbml0aWFsVmFsdWU6IDAgfSkKICAgIGJ5dGVjXzAgLy8gImxhc3RBY2NvdW50SWQiCiAgICAvLyBzbWFydF9jb250cmFjdHMvYmFzZS9iYXNlLmFsZ28udHM6MTgKICAgIC8vIHRoaXMubGFzdEFjY291bnRJZC52YWx1ZSsrCiAgICBhcHBfZ2xvYmFsX2dldF9leAogICAgYXNzZXJ0IC8vIGNoZWNrIEdsb2JhbFN0YXRlIGV4aXN0cwogICAgaW50Y18xIC8vIDEKICAgICsKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9iYXNlL2Jhc2UuYWxnby50czo2CiAgICAvLyBsYXN0QWNjb3VudElkID0gR2xvYmFsU3RhdGU8dWludDY0Pih7IGluaXRpYWxWYWx1ZTogMCB9KQogICAgYnl0ZWNfMCAvLyAibGFzdEFjY291bnRJZCIKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9iYXNlL2Jhc2UuYWxnby50czoxOAogICAgLy8gdGhpcy5sYXN0QWNjb3VudElkLnZhbHVlKysKICAgIGRpZyAxCiAgICBhcHBfZ2xvYmFsX3B1dAogICAgLy8gc21hcnRfY29udHJhY3RzL2Jhc2UvYmFzZS5hbGdvLnRzOjE5CiAgICAvLyBjb25zdCBhY2NvdW50SWQgPSB1MzIodGhpcy5sYXN0QWNjb3VudElkLnZhbHVlKQogICAgY2FsbHN1YiB1MzIKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9iYXNlL2Jhc2UuYWxnby50czoyMAogICAgLy8gYm94LnZhbHVlID0gYWNjb3VudElkCiAgICBzd2FwCiAgICBkaWcgMQogICAgYm94X3B1dAogICAgLy8gc21hcnRfY29udHJhY3RzL2RlbGVnYXRvci9kZWxlZ2F0b3IuYWxnby50czo3CiAgICAvLyBwdWJsaWMgYWRkKCk6IFVpbnQzMiB7CiAgICBieXRlY18yIC8vIDB4MTUxZjdjNzUKICAgIHN3YXAKICAgIGNvbmNhdAogICAgbG9nCiAgICBpbnRjXzEgLy8gMQogICAgcmV0dXJuCgoKLy8gc21hcnRfY29udHJhY3RzL2RlbGVnYXRvci9kZWxlZ2F0b3IuYWxnby50czo6RGVsZWdhdG9yLmdldFtyb3V0aW5nXSgpIC0+IHZvaWQ6CmdldDoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9iYXNlL2Jhc2UuYWxnby50czo3CiAgICAvLyBhY2NvdW50SWRzID0gQm94TWFwPEFjY291bnQsIFVpbnQzMj4oeyBrZXlQcmVmaXg6ICdhJyB9KQogICAgYnl0ZWNfMSAvLyAiYSIKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9kZWxlZ2F0b3IvZGVsZWdhdG9yLmFsZ28udHM6MTIKICAgIC8vIGNvbnN0IGlkID0gdGhpcy5nZXRBY2NvdW50SWRJZkV4aXN0cyhUeG4uc2VuZGVyKQogICAgdHhuIFNlbmRlcgogICAgLy8gc21hcnRfY29udHJhY3RzL2Jhc2UvYmFzZS5hbGdvLnRzOjcKICAgIC8vIGFjY291bnRJZHMgPSBCb3hNYXA8QWNjb3VudCwgVWludDMyPih7IGtleVByZWZpeDogJ2EnIH0pCiAgICBjb25jYXQKICAgIGR1cAogICAgLy8gc21hcnRfY29udHJhY3RzL2Jhc2UvYmFzZS5hbGdvLnRzOjExCiAgICAvLyBpZiAoYm94LmV4aXN0cykgcmV0dXJuIGJveC52YWx1ZQogICAgYm94X2xlbgogICAgYnVyeSAxCiAgICBieiBnZXRfZWxzZV9ib2R5QDMKICAgIGR1cAogICAgYm94X2dldAogICAgYXNzZXJ0IC8vIEJveCBtdXN0IGhhdmUgdmFsdWUKCmdldF9hZnRlcl9pbmxpbmVkX3NtYXJ0X2NvbnRyYWN0cy9iYXNlL2Jhc2UuYWxnby50czo6QWNjb3VudElkQ29udHJhY3QuZ2V0QWNjb3VudElkSWZFeGlzdHNANDoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9kZWxlZ2F0b3IvZGVsZWdhdG9yLmFsZ28udHM6MTQKICAgIC8vIGVuc3VyZShpZCAhPT0gdTMyKDApLCAnWicpCiAgICBpbnRjXzAgLy8gMAogICAgY2FsbHN1YiB1MzIKICAgIGRpZyAxCiAgICAhPQogICAgcHVzaGJ5dGVzICJaIgogICAgY2FsbHN1YiBlbnN1cmUKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9kZWxlZ2F0b3IvZGVsZWdhdG9yLmFsZ28udHM6MTEKICAgIC8vIHB1YmxpYyBnZXQoKTogVWludDMyIHsKICAgIGJ5dGVjXzIgLy8gMHgxNTFmN2M3NQogICAgc3dhcAogICAgY29uY2F0CiAgICBsb2cKICAgIGludGNfMSAvLyAxCiAgICByZXR1cm4KCmdldF9lbHNlX2JvZHlAMzoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9iYXNlL2Jhc2UuYWxnby50czoxMgogICAgLy8gZWxzZSByZXR1cm4gdTMyKDApCiAgICBpbnRjXzAgLy8gMAogICAgY2FsbHN1YiB1MzIKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9kZWxlZ2F0b3IvZGVsZWdhdG9yLmFsZ28udHM6MTIKICAgIC8vIGNvbnN0IGlkID0gdGhpcy5nZXRBY2NvdW50SWRJZkV4aXN0cyhUeG4uc2VuZGVyKQogICAgYiBnZXRfYWZ0ZXJfaW5saW5lZF9zbWFydF9jb250cmFjdHMvYmFzZS9iYXNlLmFsZ28udHM6OkFjY291bnRJZENvbnRyYWN0LmdldEFjY291bnRJZElmRXhpc3RzQDQK","clear":"I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBAYWxnb3JhbmRmb3VuZGF0aW9uL2FsZ29yYW5kLXR5cGVzY3JpcHQvYmFzZS1jb250cmFjdC5kLnRzOjpCYXNlQ29udHJhY3QuY2xlYXJTdGF0ZVByb2dyYW0oKSAtPiB1aW50NjQ6Cm1haW46CiAgICBwdXNoaW50IDEgLy8gMQogICAgcmV0dXJuCg=="},"byteCode":{"approval":"CyACAAEmAw1sYXN0QWNjb3VudElkAWEEFR98dTEYQAADKCJnMRtBAB0xGRREMRhEggIExxNc0AS5nAMyNhoAjgIALwBYADEZFDEYFBBEI0OKAQGL/xZJk4EgDkRXBASJigIAi/5AAAuABEVSUjqL/1CwAIkpMQBQSb1FARSABEFfRViI/9oiKGVEIwgoSwFniP+9TEsBvypMULAjQykxAFBJvUUBQQAWSb5EIoj/oUsBE4ABWoj/qCpMULAjQyKI/45C/+Y=","clear":"C4EBQw=="},"events":[],"templateVariables":{}} as unknown as Arc56Contract
 
 /**
  * A state record containing binary data
@@ -70,15 +70,15 @@ export type DelegatorArgs = {
    * The object representation of the arguments for each method
    */
   obj: {
-    'hello(string)string': {
-      name: string
-    }
+    'add()uint32': Record<string, never>
+    'get()uint32': Record<string, never>
   }
   /**
    * The tuple representation of the arguments for each method
    */
   tuple: {
-    'hello(string)string': [name: string]
+    'add()uint32': []
+    'get()uint32': []
   }
 }
 
@@ -86,7 +86,8 @@ export type DelegatorArgs = {
  * The return type for each method
  */
 export type DelegatorReturns = {
-  'hello(string)string': string
+  'add()uint32': number
+  'get()uint32': number
 }
 
 /**
@@ -97,10 +98,15 @@ export type DelegatorTypes = {
    * Maps method signatures / names to their argument and return types.
    */
   methods:
-    & Record<'hello(string)string' | 'hello', {
-      argsObj: DelegatorArgs['obj']['hello(string)string']
-      argsTuple: DelegatorArgs['tuple']['hello(string)string']
-      returns: DelegatorReturns['hello(string)string']
+    & Record<'add()uint32' | 'add', {
+      argsObj: DelegatorArgs['obj']['add()uint32']
+      argsTuple: DelegatorArgs['tuple']['add()uint32']
+      returns: DelegatorReturns['add()uint32']
+    }>
+    & Record<'get()uint32' | 'get', {
+      argsObj: DelegatorArgs['obj']['get()uint32']
+      argsTuple: DelegatorArgs['tuple']['get()uint32']
+      returns: DelegatorReturns['get()uint32']
     }>
   /**
    * Defines the shape of the state of the application.
@@ -180,16 +186,29 @@ export type DelegatorDeployParams = Expand<Omit<AppFactoryDeployParams, 'createP
  */
 export abstract class DelegatorParamsFactory {
   /**
-   * Constructs a no op call for the hello(string)string ABI method
+   * Constructs a no op call for the add()uint32 ABI method
    *
    * @param params Parameters for the call
    * @returns An `AppClientMethodCallParams` object for the call
    */
-  static hello(params: CallParams<DelegatorArgs['obj']['hello(string)string'] | DelegatorArgs['tuple']['hello(string)string']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+  static add(params: CallParams<DelegatorArgs['obj']['add()uint32'] | DelegatorArgs['tuple']['add()uint32']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
     return {
       ...params,
-      method: 'hello(string)string' as const,
-      args: Array.isArray(params.args) ? params.args : [params.args.name],
+      method: 'add()uint32' as const,
+      args: Array.isArray(params.args) ? params.args : [],
+    }
+  }
+  /**
+   * Constructs a no op call for the get()uint32 ABI method
+   *
+   * @param params Parameters for the call
+   * @returns An `AppClientMethodCallParams` object for the call
+   */
+  static get(params: CallParams<DelegatorArgs['obj']['get()uint32'] | DelegatorArgs['tuple']['get()uint32']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete {
+    return {
+      ...params,
+      method: 'get()uint32' as const,
+      args: Array.isArray(params.args) ? params.args : [],
     }
   }
 }
@@ -433,13 +452,23 @@ export class DelegatorClient {
     },
 
     /**
-     * Makes a call to the Delegator smart contract using the `hello(string)string` ABI method.
+     * Makes a call to the Delegator smart contract using the `add()uint32` ABI method.
      *
      * @param params The params for the smart contract call
      * @returns The call params
      */
-    hello: (params: CallParams<DelegatorArgs['obj']['hello(string)string'] | DelegatorArgs['tuple']['hello(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.params.call(DelegatorParamsFactory.hello(params))
+    add: (params: CallParams<DelegatorArgs['obj']['add()uint32'] | DelegatorArgs['tuple']['add()uint32']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
+      return this.appClient.params.call(DelegatorParamsFactory.add(params))
+    },
+
+    /**
+     * Makes a call to the Delegator smart contract using the `get()uint32` ABI method.
+     *
+     * @param params The params for the smart contract call
+     * @returns The call params
+     */
+    get: (params: CallParams<DelegatorArgs['obj']['get()uint32'] | DelegatorArgs['tuple']['get()uint32']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
+      return this.appClient.params.call(DelegatorParamsFactory.get(params))
     },
 
   }
@@ -459,13 +488,23 @@ export class DelegatorClient {
     },
 
     /**
-     * Makes a call to the Delegator smart contract using the `hello(string)string` ABI method.
+     * Makes a call to the Delegator smart contract using the `add()uint32` ABI method.
      *
      * @param params The params for the smart contract call
      * @returns The call transaction
      */
-    hello: (params: CallParams<DelegatorArgs['obj']['hello(string)string'] | DelegatorArgs['tuple']['hello(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      return this.appClient.createTransaction.call(DelegatorParamsFactory.hello(params))
+    add: (params: CallParams<DelegatorArgs['obj']['add()uint32'] | DelegatorArgs['tuple']['add()uint32']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
+      return this.appClient.createTransaction.call(DelegatorParamsFactory.add(params))
+    },
+
+    /**
+     * Makes a call to the Delegator smart contract using the `get()uint32` ABI method.
+     *
+     * @param params The params for the smart contract call
+     * @returns The call transaction
+     */
+    get: (params: CallParams<DelegatorArgs['obj']['get()uint32'] | DelegatorArgs['tuple']['get()uint32']> & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
+      return this.appClient.createTransaction.call(DelegatorParamsFactory.get(params))
     },
 
   }
@@ -485,14 +524,25 @@ export class DelegatorClient {
     },
 
     /**
-     * Makes a call to the Delegator smart contract using the `hello(string)string` ABI method.
+     * Makes a call to the Delegator smart contract using the `add()uint32` ABI method.
      *
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    hello: async (params: CallParams<DelegatorArgs['obj']['hello(string)string'] | DelegatorArgs['tuple']['hello(string)string']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC}) => {
-      const result = await this.appClient.send.call(DelegatorParamsFactory.hello(params))
-      return {...result, return: result.return as unknown as (undefined | DelegatorReturns['hello(string)string'])}
+    add: async (params: CallParams<DelegatorArgs['obj']['add()uint32'] | DelegatorArgs['tuple']['add()uint32']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
+      const result = await this.appClient.send.call(DelegatorParamsFactory.add(params))
+      return {...result, return: result.return as unknown as (undefined | DelegatorReturns['add()uint32'])}
+    },
+
+    /**
+     * Makes a call to the Delegator smart contract using the `get()uint32` ABI method.
+     *
+     * @param params The params for the smart contract call
+     * @returns The call result
+     */
+    get: async (params: CallParams<DelegatorArgs['obj']['get()uint32'] | DelegatorArgs['tuple']['get()uint32']> & SendParams & {onComplete?: OnApplicationComplete.NoOpOC} = {args: []}) => {
+      const result = await this.appClient.send.call(DelegatorParamsFactory.get(params))
+      return {...result, return: result.return as unknown as (undefined | DelegatorReturns['get()uint32'])}
     },
 
   }
@@ -564,11 +614,19 @@ export class DelegatorClient {
     const resultMappers: Array<undefined | ((x: ABIReturn | undefined) => any)> = []
     return {
       /**
-       * Add a hello(string)string method call against the Delegator contract
+       * Add a add()uint32 method call against the Delegator contract
        */
-      hello(params: CallParams<DelegatorArgs['obj']['hello(string)string'] | DelegatorArgs['tuple']['hello(string)string']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
-        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.hello(params)))
-        resultMappers.push((v) => client.decodeReturnValue('hello(string)string', v))
+      add(params: CallParams<DelegatorArgs['obj']['add()uint32'] | DelegatorArgs['tuple']['add()uint32']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.add(params)))
+        resultMappers.push((v) => client.decodeReturnValue('add()uint32', v))
+        return this
+      },
+      /**
+       * Add a get()uint32 method call against the Delegator contract
+       */
+      get(params: CallParams<DelegatorArgs['obj']['get()uint32'] | DelegatorArgs['tuple']['get()uint32']> & {onComplete?: OnApplicationComplete.NoOpOC}) {
+        promiseChain = promiseChain.then(async () => composer.addAppCallMethodCall(await client.params.get(params)))
+        resultMappers.push((v) => client.decodeReturnValue('get()uint32', v))
         return this
       },
       /**
@@ -607,13 +665,22 @@ export class DelegatorClient {
 }
 export type DelegatorComposer<TReturns extends [...any[]] = []> = {
   /**
-   * Calls the hello(string)string ABI method.
+   * Calls the add()uint32 ABI method.
    *
    * @param args The arguments for the contract call
    * @param params Any additional parameters for the call
    * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
    */
-  hello(params?: CallParams<DelegatorArgs['obj']['hello(string)string'] | DelegatorArgs['tuple']['hello(string)string']>): DelegatorComposer<[...TReturns, DelegatorReturns['hello(string)string'] | undefined]>
+  add(params?: CallParams<DelegatorArgs['obj']['add()uint32'] | DelegatorArgs['tuple']['add()uint32']>): DelegatorComposer<[...TReturns, DelegatorReturns['add()uint32'] | undefined]>
+
+  /**
+   * Calls the get()uint32 ABI method.
+   *
+   * @param args The arguments for the contract call
+   * @param params Any additional parameters for the call
+   * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+   */
+  get(params?: CallParams<DelegatorArgs['obj']['get()uint32'] | DelegatorArgs['tuple']['get()uint32']>): DelegatorComposer<[...TReturns, DelegatorReturns['get()uint32'] | undefined]>
 
   /**
    * Makes a clear_state call to an existing instance of the Delegator smart contract.

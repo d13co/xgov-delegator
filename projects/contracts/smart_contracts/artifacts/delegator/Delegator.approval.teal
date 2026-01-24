@@ -4,36 +4,32 @@
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
     intcblock 0 1
+    bytecblock "lastAccountId" "a" 0x151f7c75
     txn ApplicationID
     bnz main_after_if_else@2
     // smart_contracts/base/base.algo.ts:6
     // lastAccountId = GlobalState<uint64>({ initialValue: 0 })
-    pushbytes "lastAccountId"
+    bytec_0 // "lastAccountId"
     intc_0 // 0
     app_global_put
 
 main_after_if_else@2:
-    // smart_contracts/delegator/contract.algo.ts:3
+    // smart_contracts/delegator/delegator.algo.ts:6
     // export class Delegator extends AccountIdContract {
     txn NumAppArgs
-    bz main___algots__.defaultCreate@7
-    pushbytes 0x02bece11 // method "hello(string)string"
-    txna ApplicationArgs 0
-    match main_hello_route@5
-    err
-
-main_hello_route@5:
-    // smart_contracts/delegator/contract.algo.ts:4
-    // public hello(name: string): string {
+    bz main___algots__.defaultCreate@11
     txn OnCompletion
     !
+    assert // OnCompletion must be NoOp
     txn ApplicationID
-    &&
-    assert // OnCompletion must be NoOp && can only call when not creating
-    b hello
+    assert
+    pushbytess 0xc7135cd0 0xb99c0332 // method "add()uint32", method "get()uint32"
+    txna ApplicationArgs 0
+    match add get
+    err
 
-main___algots__.defaultCreate@7:
-    // smart_contracts/delegator/contract.algo.ts:3
+main___algots__.defaultCreate@11:
+    // smart_contracts/delegator/delegator.algo.ts:6
     // export class Delegator extends AccountIdContract {
     txn OnCompletion
     !
@@ -45,37 +41,147 @@ main___algots__.defaultCreate@7:
     return
 
 
-// smart_contracts/delegator/contract.algo.ts::Delegator.hello[routing]() -> void:
-hello:
-    // smart_contracts/delegator/contract.algo.ts:4
-    // public hello(name: string): string {
-    txna ApplicationArgs 1
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    pushint 2 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    extract 2 0
-    // smart_contracts/delegator/contract.algo.ts:5
-    // return `Hello, ${name}`
-    pushbytes "Hello, "
-    swap
-    concat
-    // smart_contracts/delegator/contract.algo.ts:4
-    // public hello(name: string): string {
-    dup
-    len
+// smart_contracts/base/utils.algo.ts::u32(v: uint64) -> bytes:
+u32:
+    // smart_contracts/base/utils.algo.ts:4
+    // export function u32(v: uint64) {
+    proto 1 1
+    // smart_contracts/base/utils.algo.ts:5
+    // return new Uint32(v)
+    frame_dig -1
     itob
-    extract 6 2
-    swap
+    dup
+    bitlen
+    pushint 32 // 32
+    <=
+    assert // overflow
+    extract 4 4
+    retsub
+
+
+// smart_contracts/base/utils.algo.ts::ensure(cond: uint64, code: bytes) -> void:
+ensure:
+    // smart_contracts/base/utils.algo.ts:10
+    // export function ensure(cond: boolean, code: string) {
+    proto 2 0
+    // smart_contracts/base/utils.algo.ts:11
+    // if (!cond) {
+    frame_dig -2
+    bnz ensure_after_if_else@2
+    // smart_contracts/base/utils.algo.ts:12
+    // log(ARC65_PREFIX + code)
+    pushbytes "ERR:"
+    frame_dig -1
     concat
-    pushbytes 0x151f7c75
+    log
+    // smart_contracts/base/utils.algo.ts:13
+    // err()
+    err
+
+ensure_after_if_else@2:
+    retsub
+
+
+// smart_contracts/delegator/delegator.algo.ts::Delegator.add[routing]() -> void:
+add:
+    // smart_contracts/base/base.algo.ts:7
+    // accountIds = BoxMap<Account, Uint32>({ keyPrefix: 'a' })
+    bytec_1 // "a"
+    // smart_contracts/delegator/delegator.algo.ts:8
+    // return this.createAccountId(Txn.sender)
+    txn Sender
+    // smart_contracts/base/base.algo.ts:7
+    // accountIds = BoxMap<Account, Uint32>({ keyPrefix: 'a' })
+    concat
+    // smart_contracts/base/base.algo.ts:17
+    // ensure(!box.exists, 'A_EX')
+    dup
+    box_len
+    bury 1
+    !
+    pushbytes "A_EX"
+    callsub ensure
+    // smart_contracts/base/base.algo.ts:18
+    // this.lastAccountId.value++
+    intc_0 // 0
+    // smart_contracts/base/base.algo.ts:6
+    // lastAccountId = GlobalState<uint64>({ initialValue: 0 })
+    bytec_0 // "lastAccountId"
+    // smart_contracts/base/base.algo.ts:18
+    // this.lastAccountId.value++
+    app_global_get_ex
+    assert // check GlobalState exists
+    intc_1 // 1
+    +
+    // smart_contracts/base/base.algo.ts:6
+    // lastAccountId = GlobalState<uint64>({ initialValue: 0 })
+    bytec_0 // "lastAccountId"
+    // smart_contracts/base/base.algo.ts:18
+    // this.lastAccountId.value++
+    dig 1
+    app_global_put
+    // smart_contracts/base/base.algo.ts:19
+    // const accountId = u32(this.lastAccountId.value)
+    callsub u32
+    // smart_contracts/base/base.algo.ts:20
+    // box.value = accountId
+    swap
+    dig 1
+    box_put
+    // smart_contracts/delegator/delegator.algo.ts:7
+    // public add(): Uint32 {
+    bytec_2 // 0x151f7c75
     swap
     concat
     log
     intc_1 // 1
     return
+
+
+// smart_contracts/delegator/delegator.algo.ts::Delegator.get[routing]() -> void:
+get:
+    // smart_contracts/base/base.algo.ts:7
+    // accountIds = BoxMap<Account, Uint32>({ keyPrefix: 'a' })
+    bytec_1 // "a"
+    // smart_contracts/delegator/delegator.algo.ts:12
+    // const id = this.getAccountIdIfExists(Txn.sender)
+    txn Sender
+    // smart_contracts/base/base.algo.ts:7
+    // accountIds = BoxMap<Account, Uint32>({ keyPrefix: 'a' })
+    concat
+    dup
+    // smart_contracts/base/base.algo.ts:11
+    // if (box.exists) return box.value
+    box_len
+    bury 1
+    bz get_else_body@3
+    dup
+    box_get
+    assert // Box must have value
+
+get_after_inlined_smart_contracts/base/base.algo.ts::AccountIdContract.getAccountIdIfExists@4:
+    // smart_contracts/delegator/delegator.algo.ts:14
+    // ensure(id !== u32(0), 'Z')
+    intc_0 // 0
+    callsub u32
+    dig 1
+    !=
+    pushbytes "Z"
+    callsub ensure
+    // smart_contracts/delegator/delegator.algo.ts:11
+    // public get(): Uint32 {
+    bytec_2 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+get_else_body@3:
+    // smart_contracts/base/base.algo.ts:12
+    // else return u32(0)
+    intc_0 // 0
+    callsub u32
+    // smart_contracts/delegator/delegator.algo.ts:12
+    // const id = this.getAccountIdIfExists(Txn.sender)
+    b get_after_inlined_smart_contracts/base/base.algo.ts::AccountIdContract.getAccountIdIfExists@4

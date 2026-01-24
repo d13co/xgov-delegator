@@ -4,7 +4,7 @@
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
     // smart_contracts/oracle/oracle.algo.ts:3
-    // export class Delegator extends Contract {
+    // export class Oracle extends Contract {
     txn NumAppArgs
     bz main___algots__.defaultCreate@5
     pushbytes 0x02bece11 // method "hello(string)string"
@@ -24,7 +24,7 @@ main_hello_route@3:
 
 main___algots__.defaultCreate@5:
     // smart_contracts/oracle/oracle.algo.ts:3
-    // export class Delegator extends Contract {
+    // export class Oracle extends Contract {
     txn OnCompletion
     !
     txn ApplicationID
@@ -35,7 +35,7 @@ main___algots__.defaultCreate@5:
     return
 
 
-// smart_contracts/oracle/oracle.algo.ts::Delegator.hello[routing]() -> void:
+// smart_contracts/oracle/oracle.algo.ts::Oracle.hello[routing]() -> void:
 hello:
     // smart_contracts/oracle/oracle.algo.ts:4
     // public hello(name: string): string {
