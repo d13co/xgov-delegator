@@ -46,5 +46,6 @@ export type Member = {
 type ID = number
 type Votes = number
 export type StoredMember = [ID, Votes]
+export const STORED_MEMBER_BYTE_LENGTH = 8; // 4 bytes for ID + 4 bytes for Votes
 
 export type CommitteeId = Uint8Array | Buffer | string

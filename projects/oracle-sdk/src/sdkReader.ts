@@ -4,7 +4,7 @@ import { ALGORAND_ZERO_ADDRESS_STRING, encodeAddress, makeEmptyTransactionSigner
 import pMap from "p-map";
 import { CommitteeMetadata, CommitteeOracleClient, CommitteeOracleComposer, SuperboxMeta } from "./generated/CommitteeOracleClient";
 import { getConstructorConfig } from "./networkConfig";
-import { CommitteeId, Member, ReaderConstructorArgs, StoredMember, XGovCommitteeFile } from "./types";
+import { CommitteeId, Member, ReaderConstructorArgs, STORED_MEMBER_BYTE_LENGTH, StoredMember, XGovCommitteeFile } from "./types";
 import { chunk } from "./util/chunk";
 import { chunked } from "./util/chunked";
 import { committeeIdToRaw } from "./util/comitteeId";
@@ -78,7 +78,7 @@ export class XGovCommitteesOracleReaderSDK {
       this.getCommitteeSuperboxMeta(committeeId),
       this.getCommitteeMetadata(committeeId),
     ]);
-    const numPages = Math.ceil(meta.boxByteLengths.length / 1000);
+    const numPages = Math.ceil(Number(meta.totalByteLength) / Number(meta.maxBoxSize));
     const pages = Array.from({ length: numPages }, (_, i) => i);
     const pageData = await pMap(pages, (page) => this.superboxToStoredMembers(`${commmitteeMetadata?.superboxPrefix}${page}`), {
       concurrency: this.concurrency,
@@ -86,9 +86,24 @@ export class XGovCommitteesOracleReaderSDK {
     return pageData.flat();
   }
 
+  async getCommitteeSuperboxDataLast(committeeId: CommitteeId): Promise<{ last?: StoredMember; total: number }> {
+    const [meta, commmitteeMetadata] = await Promise.all([
+      this.getCommitteeSuperboxMeta(committeeId),
+      this.getCommitteeMetadata(committeeId),
+    ]);
+    const numMembers = Math.ceil(Number(meta.totalByteLength) / Number(meta.valueSize));
+    if (numMembers === 0) {
+      return { total: 0 };
+    }
+    const numPages = Math.ceil(Number(meta.totalByteLength) / Number(meta.maxBoxSize));
+    const superboxKey = `${commmitteeMetadata?.superboxPrefix}${numPages - 1}`;
+    const lastPage = await this.superboxToStoredMembers(superboxKey);
+    return { last: lastPage[lastPage.length - 1], total: numMembers };
+  }
+
   protected async superboxToStoredMembers(superboxKey: string): Promise<StoredMember[]> {
     const bv = await this.algorand.app.getBoxValue(this.appId, superboxKey);
-    const chunks = chunk(Array.from(bv!), 4 + 4); // each StoredMember is (uint32, uint32)
+    const chunks = chunk(Array.from(bv!), STORED_MEMBER_BYTE_LENGTH); // each StoredMember is (uint32, uint32)
     return chunks.map((c) => getABIDecodedValue(new Uint8Array(c), "(uint32,uint32)", {}) as StoredMember);
   }
 

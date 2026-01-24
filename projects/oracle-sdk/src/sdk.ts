@@ -3,7 +3,7 @@ import { ConstructorArgs, Member, SenderWithSigner, XGovCommitteeFile } from "./
 import { requireWriter } from "./util/requiresSender";
 import { calculateCommitteeId } from "./util/comitteeId";
 import { memberToTuple } from "./util/types";
-import { XGovCommitteesOracleReaderSDK } from "./sdk-reader";
+import { XGovCommitteesOracleReaderSDK } from "./sdkReader";
 import { wrapErrors } from "./util/wrapErrors";
 
 export class XGovCommitteesOracleSDK extends XGovCommitteesOracleReaderSDK {
@@ -33,10 +33,17 @@ export class XGovCommitteesOracleSDK extends XGovCommitteesOracleReaderSDK {
       console.log("Committee registered ", ...txIds);
     }
     const accounts = committeeFile.xGovs.map(({ address }) => address);
-    const accountIds = await this.getAccountIdMap(accounts);
+    const [accountIds, lastIngestedMember] = await Promise.all([
+      this.getAccountIdMap(accounts),
+      this.getCommitteeSuperboxDataLast(committeeId),
+    ]);
+    if (lastIngestedMember.total) {
+      // TODO confirm that last ingested member matches expectation
+    }
     let accountsInOrder = [...accountIds.entries()]
       .map(([address, id]) => ({ address, id }))
       .sort(({ id: a }, { id: b }) => (a === 0 && b !== 0 ? 1 : a !== 0 && b === 0 ? -1 : a - b));
+    accountsInOrder = accountsInOrder.slice(lastIngestedMember.total ? lastIngestedMember.total : 0);
     for (const { address, id } of accountsInOrder) {
       const votes = committeeFile.xGovs.find((x) => x.address === address)?.votes;
       console.log(`Account: ${address}, ID: ${id}, Votes: ${votes}`);
@@ -68,8 +75,9 @@ export class XGovCommitteesOracleSDK extends XGovCommitteesOracleReaderSDK {
   }
 
   @requireWriter()
+  @wrapErrors()
   async registerCommittee(...args: Parameters<typeof XGovCommitteesOracleSDK.prototype.makeRegisterCommitteeTxns>) {
-    return wrapErrors(() => this.makeRegisterCommitteeTxns(...args).send());
+    return this.makeRegisterCommitteeTxns(...args).send();
   }
 
   @requireWriter()
@@ -84,9 +92,8 @@ export class XGovCommitteesOracleSDK extends XGovCommitteesOracleReaderSDK {
   }
 
   @requireWriter()
-  // move wrapping return wrrors in a @wrapErrors() decorator
+  @wrapErrors()
   async ingestMembers(...args: Parameters<typeof XGovCommitteesOracleSDK.prototype.makeIngestMembersTxns>) {
-    const builder = this.makeIngestMembersTxns(...args);
-    return wrapErrors(() => builder.send());
+    return this.makeIngestMembersTxns(...args).send();
   }
 }
