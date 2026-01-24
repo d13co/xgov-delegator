@@ -11,7 +11,6 @@ export class Delegator extends AccountIdContract {
   public get(): Uint32 {
     const id = this.getAccountIdIfExists(Txn.sender)
     // just testing if puya still merges the error code with the prefix
-    ensure(id !== u32(0), 'Z')
     return id
   }
 }

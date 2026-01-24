@@ -6,6 +6,20 @@ import { sbMetaBox } from '@d13co/superbox/smart_contracts/superbox/lib/utils.al
 import { AccountIdContract } from '../base/base.algo'
 import { ensure, ensureExtra, u32 } from '../base/utils.algo'
 import {
+  errAccountHintMismatch,
+  errAccountIdMismatch,
+  errAccountNotExists,
+  errCommitteeExists,
+  errCommitteeNotExists,
+  errIngestedVotesNotZero,
+  errNumMembersExceeded,
+  errOutOfOrder,
+  errPeriodEndLessThanStart,
+  errTotalMembersExceeded,
+  errTotalVotesExceeded,
+  errTotalVotesMismatch,
+} from './errors.algo'
+import {
   CommitteeMetadata,
   getEmptyCommitteeMetadata,
   MEMBER_STORED_SIZE,
@@ -40,8 +54,8 @@ export class CommitteeOracle extends AccountIdContract {
     totalVotes: Uint32,
   ): void {
     const committeeBox = this.committees(committeeId)
-    ensure(!committeeBox.exists, 'ERR:C_EX')
-    ensure(periodEnd.asUint64() > periodStart.asUint64(), 'ERR:PE_LT')
+    ensure(!committeeBox.exists, errCommitteeExists)
+    ensure(periodEnd.asUint64() > periodStart.asUint64(), errPeriodEndLessThanStart)
     committeeBox.value = {
       periodStart,
       periodEnd,
@@ -60,8 +74,8 @@ export class CommitteeOracle extends AccountIdContract {
    */
   public unregisterCommittee(committeeId: StaticBytes<32>): void {
     const committeeBox = this.committees(committeeId)
-    ensure(committeeBox.exists, 'ERR:C_NEX')
-    ensure(committeeBox.value.ingestedVotes === u32(0), 'ERR:IV_NZ')
+    ensure(committeeBox.exists, errCommitteeNotExists)
+    ensure(committeeBox.value.ingestedVotes === u32(0), errIngestedVotesNotZero)
     committeeBox.delete()
     sbDeleteSuperbox(this.getCommitteeSBName(committeeId))
   }
@@ -79,7 +93,7 @@ export class CommitteeOracle extends AccountIdContract {
     // figure out ingested accounts from superbox size
     const ingestedAccounts: uint64 = getCommitteeSBMembers(sbMeta)
     // not exceeding total members
-    ensure(ingestedAccounts + members.length <= committee.totalMembers.asUint64(), 'ERR:TM_EX')
+    ensure(ingestedAccounts + members.length <= committee.totalMembers.asUint64(), errTotalMembersExceeded)
 
     let lastAccountId = u32(0)
     if (ingestedAccounts > 0) {
@@ -93,7 +107,7 @@ export class CommitteeOracle extends AccountIdContract {
       // get or create account id
       member.accountId = this.getOrCreateAccountId(member)
       // ensure members are added in ascending order
-      ensure(member.accountId.asUint64() > lastAccountId.asUint64(), 'ERR:OOO')
+      ensure(member.accountId.asUint64() > lastAccountId.asUint64(), errOutOfOrder)
       // store variant removes account
       const memberStored: MemberStored = {
         accountId: member.accountId,
@@ -106,14 +120,14 @@ export class CommitteeOracle extends AccountIdContract {
     }
 
     // ensure we did not exceed total votes
-    ensure(ingestedVotes <= committee.totalVotes.asUint64(), 'ERR:TV_XC')
+    ensure(ingestedVotes <= committee.totalVotes.asUint64(), errTotalVotesExceeded)
 
     log(sbAppend(superboxName, writeBuffer))
 
     committee.ingestedVotes = u32(ingestedVotes)
     // if we are finished, ensure total votes match
     if (ingestedAccounts + members.length === committee.totalMembers.asUint64()) {
-      ensure(committee.ingestedVotes === committee.totalVotes, 'ERR:TV_MM')
+      ensure(committee.ingestedVotes === committee.totalVotes, errTotalVotesMismatch)
     }
     this.committees(committeeId).value = clone(committee)
   }
@@ -128,7 +142,7 @@ export class CommitteeOracle extends AccountIdContract {
     const superboxName = this.getCommitteeSBName(committeeId)
     const sbMeta = sbMetaBox(superboxName)
     const totalMembers = getCommitteeSBMembers(sbMeta)
-    ensure(numMembers <= totalMembers, 'ERR:NM_XC')
+    ensure(numMembers <= totalMembers, errNumMembersExceeded)
     let ingestedVotes = committee.ingestedVotes.asUint64()
     for (let i: uint64 = totalMembers - 1; i >= totalMembers - numMembers; i--) {
       const memberStored = this.getStoredMemberAt(superboxName, i)
@@ -195,10 +209,10 @@ export class CommitteeOracle extends AccountIdContract {
     this.mustGetCommittee(committeeId)
 
     const accountId = this.getAccountIdIfExists(account)
-    ensure(accountId.asUint64() !== 0, 'ERR:A_NEX')
+    ensure(accountId.asUint64() !== 0, errAccountNotExists)
 
     const member = this.getStoredMemberAt(this.getCommitteeSBName(committeeId), accountOffsetHint.asUint64())
-    ensureExtra(member.accountId === accountId, 'ERR:AH', accountId.bytes)
+    ensureExtra(member.accountId === accountId, errAccountHintMismatch, accountId.bytes)
 
     return member.votes
   }
@@ -213,7 +227,7 @@ export class CommitteeOracle extends AccountIdContract {
     if (accountId.asUint64() === 0) {
       return this.createAccountId(member.account)
     } else {
-      ensureExtra(accountId === member.accountId, 'ERR:ID', member.accountId.bytes)
+      ensureExtra(accountId === member.accountId, errAccountIdMismatch, member.accountId.bytes)
       return accountId
     }
   }
@@ -225,7 +239,7 @@ export class CommitteeOracle extends AccountIdContract {
    */
   private mustGetCommittee(committeeId: StaticBytes<32>): CommitteeMetadata {
     const committeeBox = this.committees(committeeId)
-    ensure(committeeBox.exists, 'ERR:C_NEX')
+    ensure(committeeBox.exists, errCommitteeNotExists)
     return committeeBox.value
   }
 

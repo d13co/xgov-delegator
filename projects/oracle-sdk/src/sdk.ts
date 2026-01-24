@@ -43,7 +43,7 @@ export class XGovCommitteesOracleSDK extends XGovCommitteesOracleReaderSDK {
     let accountsInOrder = [...accountIds.entries()]
       .map(([address, id]) => ({ address, id }))
       .sort(({ id: a }, { id: b }) => (a === 0 && b !== 0 ? 1 : a !== 0 && b === 0 ? -1 : a - b));
-    accountsInOrder = accountsInOrder.slice(lastIngestedMember.total ? lastIngestedMember.total : 0);
+    accountsInOrder = accountsInOrder.slice(lastIngestedMember.total ? lastIngestedMember.total - 1 : 0);
     for (const { address, id } of accountsInOrder) {
       const votes = committeeFile.xGovs.find((x) => x.address === address)?.votes;
       console.log(`Account: ${address}, ID: ${id}, Votes: ${votes}`);

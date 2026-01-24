@@ -1,5 +1,6 @@
 import { Account, BoxMap, Contract, GlobalState, uint64 } from '@algorandfoundation/algorand-typescript'
 import { Uint32 } from '@algorandfoundation/algorand-typescript/arc4'
+import { errAccountExists } from '../oracle/errors.algo'
 import { ensure, u32 } from './utils.algo'
 
 export abstract class AccountIdContract extends Contract {
@@ -14,7 +15,7 @@ export abstract class AccountIdContract extends Contract {
 
   protected createAccountId(account: Account): Uint32 {
     const box = this.accountIds(account)
-    ensure(!box.exists, 'ERR:A_EX')
+    ensure(!box.exists, errAccountExists)
     this.lastAccountId.value++
     const accountId = u32(this.lastAccountId.value)
     box.value = accountId

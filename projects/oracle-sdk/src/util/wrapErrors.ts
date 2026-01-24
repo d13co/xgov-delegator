@@ -1,10 +1,18 @@
 import { ErrorTransformer } from "@algorandfoundation/algokit-utils/types/composer";
+import { ErrorMessages } from "../generated/errors";
+
+/**
+ * Map of error codes to human-readable error messages
+ */
+export const errorMap: Record<string, string> = ErrorMessages;
 
 export const errorTransformer: ErrorTransformer = async (ogError) => {
   const [errCode] = /ERR:[^" ]+/.exec(ogError.message) ?? [];
   if (errCode) {
-    ogError.stack = `${errCode.replace("ERR:", "Error: ")}\n    ${ogError.stack}`;
+    const humanMessage = errorMap[errCode] ?? "Unknown error";
+    ogError.stack = `${errCode.replace("ERR:", "Error: ")}: ${humanMessage}\n    ${ogError.stack}`;
     (ogError as any).code = errCode;
+    (ogError as any).humanMessage = humanMessage;
     return ogError;
   }
   return ogError;

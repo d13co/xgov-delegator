@@ -5,7 +5,7 @@
     "../../base/utils.algo.ts",
     "../../delegator/delegator.algo.ts"
   ],
-  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAKE;AAAoD;AAApD;AEAF;;AAAA;;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;;;;;;;;;;;AAAA;;;AAAA;;;;;;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;ADFA;;;AACS;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;;AAAP;ADEa;AECiB;;AFDjB;AAAA;AAUH;AAAA;;ACRN;;;ADQkB;;;;;;;;;;ACPpB;AACA;ADOA;AAZF;AAYE;AAAA;AAAA;AAAA;AAZF;AAYE;;AAAA;AACkB;;;AAClB;AAAA;AEbF;AAAA;AAAA;AAAA;AAAA;AAAA;;AFAa;AEK0B;;AFL1B;AAAA;AAIP;AAAA;;AAAJ;;;AAAuB;AAAA;AAAA;;;AEGL;AAAJ;;;AAAP;;AAAA;ADLL;;;ACKoB;;;ADJtB;AACA;ACAF;AAAA;;AAAA;AAAA;AAAA;AAAA;AFCkB;AAAJ;;;;;AEAD",
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAME;AAAoD;AAApD;AEDF;;AAAA;;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;;;;;;;;;;;AAAA;;;AAAA;;;;;;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;ADFA;;;AACS;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;;AAAP;ADGa;AEAiB;;AFAjB;AAAA;AAUH;AAAA;;ACTN;;;ADSkB;;;;;;;;;;ACRpB;AACA;ADQA;AAZF;AAYE;AAAA;AAAA;AAAA;AAZF;AAYE;;AAAA;AACkB;;;AAClB;AAAA;AEdF;AAAA;AAAA;AAAA;AAAA;AAAA;AFCa;AEI0B;;AFJ1B;AAAA;AAIP;AAAA;;AAAJ;;;AAAuB;AAAA;AAAA;AEDzB;AAAA;AAAA;AAAA;AAAA;AAAA;AFEkB;AAAJ;;;AEDD",
   "op_pc_offset": 0,
   "pc_events": {
     "1": {
@@ -13,7 +13,7 @@
       "params": {},
       "block": "main",
       "stack_in": [],
-      "op": "intcblock 0 1"
+      "op": "intcblock 1 0"
     },
     "5": {
       "op": "bytecblock \"lastAccountId\" \"a\" 0x151f7c75"
@@ -41,7 +41,7 @@
       ]
     },
     "34": {
-      "op": "intc_0 // 0",
+      "op": "intc_1 // 0",
       "defined_out": [
         "\"lastAccountId\"",
         "0"
@@ -194,7 +194,7 @@
       "stack_out": []
     },
     "78": {
-      "op": "intc_1 // 1",
+      "op": "intc_0 // 1",
       "defined_out": [
         "1"
       ],
@@ -393,7 +393,7 @@
       "stack_in": [
         "box#0"
       ],
-      "op": "intc_0 // 0",
+      "op": "intc_1 // 0",
       "defined_out": [
         "0"
       ],
@@ -435,7 +435,7 @@
       ]
     },
     "123": {
-      "op": "intc_1 // 1",
+      "op": "intc_0 // 1",
       "defined_out": [
         "1",
         "maybe_value%0#0"
@@ -556,7 +556,7 @@
       ]
     },
     "138": {
-      "op": "intc_1 // 1",
+      "op": "intc_0 // 1",
       "stack_out": [
         "box#0",
         "1"
@@ -573,55 +573,45 @@
       "params": {},
       "block": "get",
       "stack_in": [],
-      "op": "intc_0 // 0",
-      "stack_out": [
-        "id#0"
-      ]
-    },
-    "141": {
       "op": "bytec_1 // \"a\"",
       "defined_out": [
         "\"a\""
       ],
       "stack_out": [
-        "id#0",
         "\"a\""
       ]
     },
-    "142": {
+    "141": {
       "op": "txn Sender",
       "defined_out": [
         "\"a\"",
         "account#0"
       ],
       "stack_out": [
-        "id#0",
         "\"a\"",
         "account#0"
       ]
     },
-    "144": {
+    "143": {
       "op": "concat",
       "defined_out": [
         "box#0"
       ],
       "stack_out": [
-        "id#0",
         "box#0"
       ]
     },
-    "145": {
+    "144": {
       "op": "dup",
       "defined_out": [
         "box#0"
       ],
       "stack_out": [
-        "id#0",
         "box#0",
         "box#0"
       ]
     },
-    "146": {
+    "145": {
       "op": "box_len",
       "defined_out": [
         "_%0#0",
@@ -629,36 +619,32 @@
         "maybe_exists%0#0"
       ],
       "stack_out": [
-        "id#0",
         "box#0",
         "_%0#0",
         "maybe_exists%0#0"
       ]
     },
-    "147": {
+    "146": {
       "op": "bury 1",
       "stack_out": [
-        "id#0",
         "box#0",
         "maybe_exists%0#0"
       ]
     },
-    "149": {
+    "148": {
       "op": "bz get_else_body@3",
       "stack_out": [
-        "id#0",
         "box#0"
       ]
     },
-    "152": {
+    "151": {
       "op": "dup",
       "stack_out": [
-        "id#0",
         "box#0",
         "box#0"
       ]
     },
-    "153": {
+    "152": {
       "op": "box_get",
       "defined_out": [
         "aggregate%box_get%0#0",
@@ -666,13 +652,12 @@
         "box#0"
       ],
       "stack_out": [
-        "id#0",
         "box#0",
         "aggregate%box_get%0#0",
         "aggregate%box_get%1#0"
       ]
     },
-    "154": {
+    "153": {
       "error": "Box must have value",
       "op": "assert // Box must have value",
       "defined_out": [
@@ -680,210 +665,96 @@
         "id#0"
       ],
       "stack_out": [
-        "id#0",
         "box#0",
         "id#0"
       ]
     },
-    "155": {
-      "op": "bury 2",
-      "defined_out": [
-        "box#0",
-        "id#0"
-      ],
-      "stack_out": [
-        "id#0",
-        "box#0"
-      ]
-    },
-    "157": {
+    "154": {
       "block": "get_after_inlined_smart_contracts/base/base.algo.ts::AccountIdContract.getAccountIdIfExists@4",
       "stack_in": [
-        "id#0",
-        "box#0"
-      ],
-      "op": "intc_0 // 0",
-      "defined_out": [
-        "0"
-      ],
-      "stack_out": [
-        "id#0",
         "box#0",
-        "0"
-      ]
-    },
-    "158": {
-      "callsub": "smart_contracts/base/utils.algo.ts::u32",
-      "op": "callsub u32",
-      "defined_out": [
-        "tmp%2#0"
-      ],
-      "stack_out": [
-        "id#0",
-        "box#0",
-        "tmp%2#0"
-      ]
-    },
-    "161": {
-      "op": "dig 2",
-      "defined_out": [
-        "id#0",
-        "tmp%2#0"
-      ],
-      "stack_out": [
-        "id#0",
-        "box#0",
-        "tmp%2#0",
         "id#0"
-      ]
-    },
-    "163": {
-      "op": "!=",
-      "defined_out": [
-        "cond#0",
-        "id#0"
-      ],
-      "stack_out": [
-        "id#0",
-        "box#0",
-        "cond#0"
-      ]
-    },
-    "164": {
-      "op": "bnz get_after_if_else@7",
-      "stack_out": [
-        "id#0",
-        "box#0"
-      ]
-    },
-    "167": {
-      "op": "pushbytes \"Z\"",
-      "defined_out": [
-        "\"Z\"",
-        "id#0"
-      ],
-      "stack_out": [
-        "id#0",
-        "box#0",
-        "\"Z\""
-      ]
-    },
-    "170": {
-      "op": "log",
-      "stack_out": [
-        "id#0",
-        "box#0"
-      ]
-    },
-    "171": {
-      "op": "err"
-    },
-    "172": {
-      "block": "get_after_if_else@7",
-      "stack_in": [
-        "id#0",
-        "box#0"
       ],
       "op": "bytec_2 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75"
       ],
       "stack_out": [
-        "id#0",
         "box#0",
+        "id#0",
         "0x151f7c75"
       ]
     },
-    "173": {
-      "op": "dig 2",
+    "155": {
+      "op": "swap",
       "defined_out": [
         "0x151f7c75",
         "id#0"
       ],
       "stack_out": [
-        "id#0",
         "box#0",
         "0x151f7c75",
         "id#0"
       ]
     },
-    "175": {
+    "156": {
       "op": "concat",
       "defined_out": [
-        "id#0",
         "tmp%1#0"
       ],
       "stack_out": [
-        "id#0",
         "box#0",
         "tmp%1#0"
       ]
     },
-    "176": {
+    "157": {
       "op": "log",
       "stack_out": [
-        "id#0",
         "box#0"
       ]
     },
-    "177": {
-      "op": "intc_1 // 1",
+    "158": {
+      "op": "intc_0 // 1",
       "defined_out": [
-        "1",
-        "id#0"
+        "1"
       ],
       "stack_out": [
-        "id#0",
         "box#0",
         "1"
       ]
     },
-    "178": {
+    "159": {
       "op": "return",
       "stack_out": [
-        "id#0",
         "box#0"
       ]
     },
-    "179": {
+    "160": {
       "block": "get_else_body@3",
       "stack_in": [
-        "id#0",
         "box#0"
       ],
-      "op": "intc_0 // 0",
+      "op": "intc_1 // 0",
       "defined_out": [
         "0"
       ],
       "stack_out": [
-        "id#0",
         "box#0",
         "0"
       ]
     },
-    "180": {
+    "161": {
       "callsub": "smart_contracts/base/utils.algo.ts::u32",
       "op": "callsub u32",
       "defined_out": [
         "id#0"
       ],
       "stack_out": [
-        "id#0",
         "box#0",
         "id#0"
       ]
     },
-    "183": {
-      "op": "bury 2",
-      "defined_out": [
-        "id#0"
-      ],
-      "stack_out": [
-        "id#0",
-        "box#0"
-      ]
-    },
-    "185": {
+    "164": {
       "op": "b get_after_inlined_smart_contracts/base/base.algo.ts::AccountIdContract.getAccountIdIfExists@4"
     }
   }
