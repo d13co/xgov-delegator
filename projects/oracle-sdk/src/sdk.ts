@@ -26,6 +26,51 @@ export class XGovCommitteesOracleSDK extends XGovCommitteesOracleReaderSDK {
     }
   }
 
+  @requireWriter()
+  @wrapErrors()
+  async uploadCommitteeFile(committeeFile: XGovCommitteeFile): Promise<Uint8Array> {
+    const committeeId = calculateCommitteeId(JSON.stringify(committeeFile));
+    const committeeMetadata = await this.getCommitteeMetadata(committeeId);
+    if (!committeeMetadata) {
+      this.debug && console.log("Registering committee...");
+      const { txIds } = await this.registerCommittee({ committeeId, ...committeeFile });
+      this.debug && console.log("Committee registered ", ...txIds);
+    }
+    const accounts = committeeFile.xGovs.map(({ address }) => address);
+    const [accountIds, lastIngestedXGov] = await Promise.all([
+      this.getAccountIdMap(accounts),
+      this.getCommitteeSuperboxDataLast(committeeId),
+    ]);
+
+    // order accounts, increasing IDs and zero IDs last
+    const accountsInOrder = [...accountIds.entries()]
+      .map(([address, id]) => ({ address, id }))
+      .sort(({ id: a }, { id: b }) => (a === 0 && b !== 0 ? 1 : a !== 0 && b === 0 ? -1 : a - b));
+
+    console.log({ acctLen: accountsInOrder.length, lastIngestedXGov });
+    if (lastIngestedXGov.total) {
+      const expectedLastId = accountsInOrder[lastIngestedXGov.total - 1].id;
+      if (lastIngestedXGov.last && lastIngestedXGov.last[0] !== expectedLastId) {
+        throw new Error(`Last ingested xGov ID ${lastIngestedXGov.last[0]} does not match expected ID ${expectedLastId}`);
+        // TODO get xGovs, compare with accountsInOrder, uningest as necessary, resume ingestion
+      }
+    }
+    const accountsToIngest = accountsInOrder.slice(lastIngestedXGov.total ? lastIngestedXGov.total : 0);
+    const chunks = chunk(accountsToIngest, 120);
+    this.debug && console.log(`Ingesting ${accountsToIngest.length} xGovs in ${chunks.length} chunks...`);
+    for (const accountsChunk of chunks) {
+      const xGovs = accountsChunk.map(({ id, address }) => ({
+        accountId: id,
+        account: address,
+        votes: committeeFile.xGovs.find((x) => x.address === address)!.votes,
+      }));
+      const { txIds } = await this.ingestXGovs({ committeeId, xGovs });
+      const accountsLog = accountsChunk.map(({ address }) => address.slice(0, 8) + "..").join(" ");
+      this.debug && console.log("xGov ingested ", accountsLog, txIds[txIds.length - 1]);
+    }
+    return committeeId;
+  }
+
   // Create an executor from a makeXYZTxn function
   private makeTxnExecutor = <T extends (...args: any) => any, R = SendResult>({
     maker,
@@ -84,50 +129,14 @@ export class XGovCommitteesOracleSDK extends XGovCommitteesOracleReaderSDK {
 
   @requireWriter()
   @wrapErrors()
-  async uploadCommitteeFile(committeeFile: XGovCommitteeFile): Promise<Uint8Array> {
-    const committeeId = calculateCommitteeId(JSON.stringify(committeeFile));
-    const committeeMetadata = await this.getCommitteeMetadata(committeeId);
-    if (!committeeMetadata) {
-      this.debug && console.log("Registering committee...");
-      const { txIds } = await this.registerCommittee({ committeeId, ...committeeFile });
-      this.debug && console.log("Committee registered ", ...txIds);
-    }
-    const accounts = committeeFile.xGovs.map(({ address }) => address);
-    const [accountIds, lastIngestedXGov] = await Promise.all([
-      this.getAccountIdMap(accounts),
-      this.getCommitteeSuperboxDataLast(committeeId),
-    ]);
-
-    // order accounts, increasing IDs and zero IDs last
-    const accountsInOrder = [...accountIds.entries()]
-      .map(([address, id]) => ({ address, id }))
-      .sort(({ id: a }, { id: b }) => (a === 0 && b !== 0 ? 1 : a !== 0 && b === 0 ? -1 : a - b));
-
-      console.log({ acctLen: accountsInOrder.length, lastIngestedXGov });
-    if (lastIngestedXGov.total) {
-      const expectedLastId = accountsInOrder[lastIngestedXGov.total - 1].id;
-      if (lastIngestedXGov.last && lastIngestedXGov.last[0] !== expectedLastId) {
-        throw new Error(`Last ingested xGov ID ${lastIngestedXGov.last[0]} does not match expected ID ${expectedLastId}`);
-        // TODO get xGovs, compare with accountsInOrder, uningest as necessary, resume ingestion
-      }
-    }
-    const accountsToIngest = accountsInOrder.slice(lastIngestedXGov.total ? lastIngestedXGov.total : 0);
-    const chunks = chunk(accountsToIngest, 12);
-    this.debug && console.log(`Ingesting ${accountsToIngest.length} xGovs in ${chunks.length} chunks...`);
-    for (const accountsChunk of chunks) {
-      const xGovs = accountsChunk.map(({ id, address }) => ({ accountId: id, account: address, votes: committeeFile.xGovs.find((x) => x.address === address)!.votes }));
-      const { txIds } = await this.ingestXGovs({ committeeId, xGovs });
-      const accountsLog = accountsChunk.map(({ address }) => address.slice(0, 8)+"..").join(" ");
-      this.debug && console.log("xGov ingested ", accountsLog, txIds[txIds.length - 1]);
-    }
-    return committeeId;
-  }
-
-  @requireWriter()
-  @wrapErrors()
-  makeRegisterCommitteeTxns(
-    { committeeId, periodStart, periodEnd, totalMembers, totalVotes, builder }: { committeeId: string | Uint8Array } & XGovCommitteeFile & CommonMethodBuilderArgs,
-  ) {
+  makeRegisterCommitteeTxns({
+    committeeId,
+    periodStart,
+    periodEnd,
+    totalMembers,
+    totalVotes,
+    builder,
+  }: { committeeId: string | Uint8Array } & XGovCommitteeFile & CommonMethodBuilderArgs) {
     committeeId = typeof committeeId === "string" ? Buffer.from(committeeId, "base64") : committeeId;
     const { sender, signer } = this.writerAccount!;
     builder = builder ?? this.writeClient!.newGroup();
@@ -165,11 +174,17 @@ export class XGovCommitteesOracleSDK extends XGovCommitteesOracleReaderSDK {
     const { sender, signer } = this.writerAccount!;
     committeeId = typeof committeeId === "string" ? Buffer.from(committeeId, "base64") : committeeId;
     builder = builder ?? this.writeClient!.newGroup();
-    return builder.ingestXGovs({
-      args: { committeeId, xGovs: xGovs.map(xGovToTuple) },
-      sender,
-      signer,
-    });
+    const xGovChunks = chunk(xGovs, 8);
+    if (xGovChunks.length > 15) {
+      throw new Error(`Too many xGovs to ingest in one transaction group: ${xGovs.length} (max 120)`);
+    }
+    for (const xGovs of xGovChunks)
+      builder = builder.ingestXGovs({
+        args: { committeeId, xGovs: xGovs.map(xGovToTuple) },
+        sender,
+        signer,
+      });
+    return builder;
   }
 
   ingestXGovs = this.makeTxnExecutor({

@@ -58,7 +58,7 @@ export class XGovCommitteesOracleReaderSDK {
           votes,
         };
       })
-      .sort((a, b) => (a < b ? -1 : 1));
+      .sort((a, b) => (a.account < b.account ? -1 : 1));
   }
 
   async getCommitteeMetadata(committeeId: CommitteeId, mustBeComplete: boolean = false): Promise<CommitteeMetadata | null> {
