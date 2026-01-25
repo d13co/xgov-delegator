@@ -15,13 +15,15 @@ export class XGovCommitteesOracleReaderSDK {
   public appId: bigint;
   public readClient: CommitteeOracleClient;
   public concurrency: number;
+  public debug?: boolean;
 
-  constructor({ algorand, concurrency = 4, ...rest }: ReaderConstructorArgs) {
+  constructor({ algorand, concurrency = 4, debug, ...rest }: ReaderConstructorArgs) {
     const { appId, readerAccount } = getConstructorConfig(rest);
     this.algorand = algorand;
     algorand.registerErrorTransformer(errorTransformer);
     this.appId = appId;
     this.concurrency = concurrency;
+    this.debug = debug;
     this.readClient = new CommitteeOracleClient({
       algorand: this.algorand,
       appId: this.appId,

@@ -28,9 +28,9 @@ export class XGovCommitteesOracleSDK extends XGovCommitteesOracleReaderSDK {
     const committeeId = calculateCommitteeId(JSON.stringify(committeeFile));
     const committeeMetadata = await this.getCommitteeMetadata(committeeId);
     if (!committeeMetadata) {
-      console.log("Registering committee...");
+      this.debug && console.log("Registering committee...");
       const { txIds } = await this.registerCommittee({ committeeId, ...committeeFile });
-      console.log("Committee registered ", ...txIds);
+      this.debug && console.log("Committee registered ", ...txIds);
     }
     const accounts = committeeFile.xGovs.map(({ address }) => address);
     const [accountIds, lastIngestedXGov] = await Promise.all([
@@ -46,13 +46,13 @@ export class XGovCommitteesOracleSDK extends XGovCommitteesOracleReaderSDK {
     accountsInOrder = accountsInOrder.slice(lastIngestedXGov.total ? lastIngestedXGov.total - 1 : 0);
     for (const { address, id } of accountsInOrder) {
       const votes = committeeFile.xGovs.find((x) => x.address === address)?.votes;
-      console.log(`Account: ${address}, ID: ${id}, Votes: ${votes}`);
+      this.debug && console.log(`Account: ${address}, ID: ${id}, Votes: ${votes}`);
       if (!votes) {
         throw new Error(`No votes found for account ${address}`);
       }
-      console.log(`Ingesting xGov with ID ${id} and votes ${votes}...`);
+      this.debug && console.log(`Ingesting xGov with ID ${id} and votes ${votes}...`);
       const { txIds } = await this.ingestXGovs(committeeId, [{ accountId: id, account: address, votes }]);
-      console.log("xGov ingested ", ...txIds);
+      this.debug && console.log("xGov ingested ", ...txIds);
     }
     return committeeId;
   }

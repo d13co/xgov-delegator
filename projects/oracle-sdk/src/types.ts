@@ -24,6 +24,7 @@ export type ConstructorArgs = {
 export type ReaderConstructorArgs = {
   algorand: AlgorandClient;
   concurrency?: number;
+  debug?: boolean;
 } & ConstructorArgsOptions;
 
 export interface XGovCommitteeFile {

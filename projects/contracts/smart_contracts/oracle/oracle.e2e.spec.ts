@@ -3,7 +3,9 @@ import { registerDebugEventHandlers } from '@algorandfoundation/algokit-utils-de
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 import { Address } from 'algosdk'
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest'
-import { DelegatorFactory } from '../artifacts/delegator/DelegatorClient'
+import { CommitteeOracleFactory } from '../artifacts/oracle/CommitteeOracleClient'
+import { XGovCommitteesOracleSDK, calculateCommitteeId } from '../../../oracle-sdk'
+import committee53M from '../../../common/committee-files/50000000-53000000.json'
 
 describe('Oracle contract', () => {
   const localnet = algorandFixture()
@@ -17,7 +19,7 @@ describe('Oracle contract', () => {
   beforeEach(localnet.newScope)
 
   const deploy = async (account: Address) => {
-    const factory = localnet.algorand.client.getTypedAppFactory(DelegatorFactory, {
+    const factory = localnet.algorand.client.getTypedAppFactory(CommitteeOracleFactory, {
       defaultSender: account,
     })
 
@@ -25,29 +27,37 @@ describe('Oracle contract', () => {
       onUpdate: 'append',
       onSchemaBreak: 'append',
     })
-    return { client: appClient }
+
+    await localnet.algorand.account.ensureFundedFromEnvironment(appClient.appAddress, (10).algos())
+
+    const sender = account
+    const signer = localnet.algorand.account.getSigner(sender)
+
+    return {
+      client: appClient,
+      sdk: new XGovCommitteesOracleSDK({
+        algorand: localnet.algorand,
+        oracleAppId: appClient.appId,
+        writerAccount: { sender, signer },
+        debug: false,
+      }),
+    }
   }
 
-  test('says hello', async () => {
+  test('Uploads committee', async () => {
     const { testAccount } = localnet.context
-    const { client } = await deploy(testAccount)
+    const { sdk } = await deploy(testAccount)
 
-    const result = await client.send.hello({ args: { name: 'World' } })
+    const committeeId = calculateCommitteeId(JSON.stringify(committee53M))
+    const result = await sdk.uploadCommitteeFile(committee53M)
+    expect(result).toEqual(committeeId)    
 
-    expect(result.return).toBe('Hello, World')
-  })
-
-  test('simulate says hello with correct budget consumed', async () => {
-    const { testAccount } = localnet.context
-    const { client } = await deploy(testAccount)
-    const result = await client
-      .newGroup()
-      .hello({ args: { name: 'World' } })
-      .hello({ args: { name: 'Jane' } })
-      .simulate()
-
-    expect(result.returns[0]).toBe('Hello, World')
-    expect(result.returns[1]).toBe('Hello, Jane')
-    expect(result.simulateResponse.txnGroups[0].appBudgetConsumed).toBeLessThan(100)
+    const storedCommittee = await sdk.getCommittee(committeeId)
+    expect(storedCommittee).toBeDefined()
+    expect(storedCommittee!.periodStart).toEqual(committee53M.periodStart)
+    expect(storedCommittee!.periodEnd).toEqual(committee53M.periodEnd)
+    expect(storedCommittee!.totalMembers).toEqual(committee53M.totalMembers)
+    expect(storedCommittee!.totalVotes).toEqual(committee53M.totalVotes)
+    expect(storedCommittee!.xGovs).toEqual(committee53M.xGovs)
   })
 })
