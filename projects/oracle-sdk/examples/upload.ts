@@ -14,18 +14,16 @@ import { readFileSync } from "fs";
 
   const { appId } = await factory.getAppClientByCreatorAndName({ creatorAddress: deployer.addr, appName: "CommitteeOracle" });
 
-  console.log({ appId })
+  console.log({ appId });
+  const { balance } = await algorand.account.getInformation(deployer.addr);
+  console.log("Deployer", deployer.addr.toString(), "balance:", balance.algos);
 
   const sdk = new XGovCommitteesOracleSDK({
     algorand,
     writerAccount: { sender: deployer.addr, signer: deployer.signer },
     oracleAppId: appId,
+    debug: true,
   });
 
   await sdk.uploadCommitteeFile(file);
-
-  // const xgc = await sdk.getCommittee(id);
-  // console.log(xgc)
-  // const og = xgc.map(({ account, votes }) => ({ address: account, votes }))
-  // console.log(JSON.stringify(og, null, 2));
 })();

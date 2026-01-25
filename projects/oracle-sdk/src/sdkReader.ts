@@ -8,7 +8,7 @@ import { CommitteeId, XGov, ReaderConstructorArgs, STORED_XGOV_BYTE_LENGTH, Stor
 import { chunk } from "./util/chunk";
 import { chunked } from "./util/chunked";
 import { committeeIdToRaw } from "./util/comitteeId";
-import { errorTransformer } from "./util/wrapErrors";
+import { errorTransformer, wrapErrors } from "./util/wrapErrors";
 
 export class XGovCommitteesOracleReaderSDK {
   public algorand: AlgorandClient;
@@ -32,8 +32,9 @@ export class XGovCommitteesOracleReaderSDK {
     });
   }
 
+  @wrapErrors()
   async getCommittee(committeeId: CommitteeId): Promise<XGovCommitteeFile | null> {
-    const committeeMetadata = await this.getCommitteeMetadata(committeeId);
+    const committeeMetadata = await this.getCommitteeMetadata(committeeId, true);
     if (!committeeMetadata) return null;
     const xGovs = await this.getCommitteeXGovs(committeeId);
     return {
@@ -60,9 +61,9 @@ export class XGovCommitteesOracleReaderSDK {
       .sort((a, b) => (a < b ? -1 : 1));
   }
 
-  async getCommitteeMetadata(committeeId: CommitteeId): Promise<CommitteeMetadata | null> {
+  async getCommitteeMetadata(committeeId: CommitteeId, mustBeComplete: boolean = false): Promise<CommitteeMetadata | null> {
     const { return: committeeMetadata } = await this.readClient.send.getCommitteeMetadata({
-      args: { committeeId: committeeIdToRaw(committeeId) },
+      args: { committeeId: committeeIdToRaw(committeeId), mustBeComplete },
     });
     if (committeeMetadata!.periodEnd === 0) return null;
     return committeeMetadata!;

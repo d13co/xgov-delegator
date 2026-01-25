@@ -1,5 +1,7 @@
 import { AlgorandClient } from "@algorandfoundation/algokit-utils";
 import { Account, Address, TransactionSigner } from "algosdk";
+import { CommitteeOracleComposer } from "./generated/CommitteeOracleClient";
+import { SendSingleTransactionResult, SendAtomicTransactionComposerResults } from "@algorandfoundation/algokit-utils/types/transaction";
 
 export type Network = "mainnet" | "testnet";
 
@@ -50,3 +52,9 @@ export type StoredXGov = [ID, Votes]
 export const STORED_XGOV_BYTE_LENGTH = 8; // 4 bytes for ID + 4 bytes for Votes
 
 export type CommitteeId = Uint8Array | Buffer | string
+
+export interface CommonMethodBuilderArgs {
+  builder?: CommitteeOracleComposer<any>
+}
+
+export type SendResult = SendSingleTransactionResult | SendAtomicTransactionComposerResults

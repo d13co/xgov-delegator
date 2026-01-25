@@ -4,10 +4,10 @@
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
     intcblock 1 0
-    bytecblock "lastAccountId" "a" 0x151f7c75
+    bytecblock "lastAccountId" "a" 0x151f7c75 base64(C4EBQw==)
     txn ApplicationID
     bnz main_after_if_else@2
-    // smart_contracts/base/base.algo.ts:7
+    // smart_contracts/base/base.algo.ts:9
     // lastAccountId = GlobalState<uint64>({ initialValue: 0 })
     bytec_0 // "lastAccountId"
     intc_1 // 0
@@ -17,18 +17,18 @@ main_after_if_else@2:
     // smart_contracts/delegator/delegator.algo.ts:6
     // export class Delegator extends AccountIdContract {
     txn NumAppArgs
-    bz main___algots__.defaultCreate@11
+    bz main___algots__.defaultCreate@12
     txn OnCompletion
     !
     assert // OnCompletion must be NoOp
     txn ApplicationID
     assert
-    pushbytess 0xc7135cd0 0xb99c0332 // method "add()uint32", method "get()uint32"
+    pushbytess 0xc7135cd0 0xb99c0332 0x4118ecbf // method "add()uint32", method "get()uint32", method "increaseBudget(uint64)void"
     txna ApplicationArgs 0
-    match add get
+    match add get increaseBudget
     err
 
-main___algots__.defaultCreate@11:
+main___algots__.defaultCreate@12:
     // smart_contracts/delegator/delegator.algo.ts:6
     // export class Delegator extends AccountIdContract {
     txn OnCompletion
@@ -61,24 +61,24 @@ u32:
 
 // smart_contracts/delegator/delegator.algo.ts::Delegator.add[routing]() -> void:
 add:
-    // smart_contracts/base/base.algo.ts:8
+    // smart_contracts/base/base.algo.ts:10
     // accountIds = BoxMap<Account, Uint32>({ keyPrefix: 'a' })
     bytec_1 // "a"
     // smart_contracts/delegator/delegator.algo.ts:8
     // return this.createAccountId(Txn.sender)
     txn Sender
-    // smart_contracts/base/base.algo.ts:8
+    // smart_contracts/base/base.algo.ts:10
     // accountIds = BoxMap<Account, Uint32>({ keyPrefix: 'a' })
     concat
     dup
-    // smart_contracts/base/base.algo.ts:18
+    // smart_contracts/base/base.algo.ts:20
     // ensure(!box.exists, errAccountExists)
     box_len
     bury 1
     // smart_contracts/base/utils.algo.ts:9
     // if (!cond) {
     bz add_after_if_else@3
-    // smart_contracts/base/base.algo.ts:18
+    // smart_contracts/base/base.algo.ts:20
     // ensure(!box.exists, errAccountExists)
     pushbytes "ERR:A_EX"
     // smart_contracts/base/utils.algo.ts:10
@@ -89,29 +89,29 @@ add:
     err
 
 add_after_if_else@3:
-    // smart_contracts/base/base.algo.ts:19
+    // smart_contracts/base/base.algo.ts:21
     // this.lastAccountId.value++
     intc_1 // 0
-    // smart_contracts/base/base.algo.ts:7
+    // smart_contracts/base/base.algo.ts:9
     // lastAccountId = GlobalState<uint64>({ initialValue: 0 })
     bytec_0 // "lastAccountId"
-    // smart_contracts/base/base.algo.ts:19
+    // smart_contracts/base/base.algo.ts:21
     // this.lastAccountId.value++
     app_global_get_ex
     assert // check GlobalState exists
     intc_0 // 1
     +
-    // smart_contracts/base/base.algo.ts:7
+    // smart_contracts/base/base.algo.ts:9
     // lastAccountId = GlobalState<uint64>({ initialValue: 0 })
     bytec_0 // "lastAccountId"
-    // smart_contracts/base/base.algo.ts:19
+    // smart_contracts/base/base.algo.ts:21
     // this.lastAccountId.value++
     dig 1
     app_global_put
-    // smart_contracts/base/base.algo.ts:20
+    // smart_contracts/base/base.algo.ts:22
     // const accountId = u32(this.lastAccountId.value)
     callsub u32
-    // smart_contracts/base/base.algo.ts:21
+    // smart_contracts/base/base.algo.ts:23
     // box.value = accountId
     dup2
     box_put
@@ -127,17 +127,17 @@ add_after_if_else@3:
 
 // smart_contracts/delegator/delegator.algo.ts::Delegator.get[routing]() -> void:
 get:
-    // smart_contracts/base/base.algo.ts:8
+    // smart_contracts/base/base.algo.ts:10
     // accountIds = BoxMap<Account, Uint32>({ keyPrefix: 'a' })
     bytec_1 // "a"
     // smart_contracts/delegator/delegator.algo.ts:12
     // const id = this.getAccountIdIfExists(Txn.sender)
     txn Sender
-    // smart_contracts/base/base.algo.ts:8
+    // smart_contracts/base/base.algo.ts:10
     // accountIds = BoxMap<Account, Uint32>({ keyPrefix: 'a' })
     concat
     dup
-    // smart_contracts/base/base.algo.ts:12
+    // smart_contracts/base/base.algo.ts:14
     // if (box.exists) return box.value
     box_len
     bury 1
@@ -157,10 +157,81 @@ get_after_inlined_smart_contracts/base/base.algo.ts::AccountIdContract.getAccoun
     return
 
 get_else_body@3:
-    // smart_contracts/base/base.algo.ts:13
+    // smart_contracts/base/base.algo.ts:15
     // else return u32(0)
     intc_1 // 0
     callsub u32
     // smart_contracts/delegator/delegator.algo.ts:12
     // const id = this.getAccountIdIfExists(Txn.sender)
     b get_after_inlined_smart_contracts/base/base.algo.ts::AccountIdContract.getAccountIdIfExists@4
+
+
+// smart_contracts/base/base.algo.ts::AccountIdContract.increaseBudget[routing]() -> void:
+increaseBudget:
+    // smart_contracts/base/base.algo.ts:27
+    // @abimethod({ validateEncoding: 'unsafe-disabled' })
+    txna ApplicationArgs 1
+    btoi
+    // smart_contracts/base/base.algo.ts:30
+    // for (let i: uint64 = 0; i < itxns; i++) {
+    intc_1 // 0
+
+increaseBudget_while_top@2:
+    // smart_contracts/base/base.algo.ts:30
+    // for (let i: uint64 = 0; i < itxns; i++) {
+    dup
+    dig 2
+    <
+    bz increaseBudget_after_while@5
+    // smart_contracts/base/base.algo.ts:31-37
+    // itxn
+    //   .applicationCall({
+    //     approvalProgram: empty.clearStateProgram, // intentionally using clear state program for "return true"
+    //     clearStateProgram: empty.clearStateProgram,
+    //     onCompletion: OnCompleteAction.DeleteApplication,
+    //   })
+    //   .submit()
+    itxn_begin
+    // smart_contracts/base/base.algo.ts:35
+    // onCompletion: OnCompleteAction.DeleteApplication,
+    pushint 5 // 5
+    itxn_field OnCompletion
+    // smart_contracts/base/base.algo.ts:29
+    // const empty = compile(EmptyContract)
+    bytec_3 // base64(C4EBQw==)
+    itxn_field ClearStateProgramPages
+    bytec_3 // base64(C4EBQw==)
+    itxn_field ApprovalProgramPages
+    // smart_contracts/base/base.algo.ts:31-36
+    // itxn
+    //   .applicationCall({
+    //     approvalProgram: empty.clearStateProgram, // intentionally using clear state program for "return true"
+    //     clearStateProgram: empty.clearStateProgram,
+    //     onCompletion: OnCompleteAction.DeleteApplication,
+    //   })
+    pushint 6 // 6
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    // smart_contracts/base/base.algo.ts:31-37
+    // itxn
+    //   .applicationCall({
+    //     approvalProgram: empty.clearStateProgram, // intentionally using clear state program for "return true"
+    //     clearStateProgram: empty.clearStateProgram,
+    //     onCompletion: OnCompleteAction.DeleteApplication,
+    //   })
+    //   .submit()
+    itxn_submit
+    // smart_contracts/base/base.algo.ts:30
+    // for (let i: uint64 = 0; i < itxns; i++) {
+    dup
+    intc_0 // 1
+    +
+    bury 1
+    b increaseBudget_while_top@2
+
+increaseBudget_after_while@5:
+    // smart_contracts/base/base.algo.ts:27
+    // @abimethod({ validateEncoding: 'unsafe-disabled' })
+    intc_0 // 1
+    return

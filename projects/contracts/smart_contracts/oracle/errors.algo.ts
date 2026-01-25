@@ -1,4 +1,5 @@
 // Error codes for contracts - messages in comments are parsed by SDK build script
+export const errUnauthorized= "ERR:AUTH" // Unauthorized - caller must be admin
 
 // Committee errors
 export const errCommitteeExists = 'ERR:C_EX' // Committee already exists
@@ -10,6 +11,7 @@ export const errTotalVotesExceeded = 'ERR:TV_XC' // Total votes exceeded
 export const errTotalVotesMismatch = 'ERR:TV_MM' // Total votes mismatch - ingested votes must equal total votes when finished
 export const errNumXGovsExceeded = 'ERR:NX_XC' // Number of xGovs to uningest exceeds total xGovs
 export const errOutOfOrder = 'ERR:OOO' // xGovs must be added in ascending order by account ID
+export const errCommitteeIncomplete = 'ERR:C_NC' // Committee is incomplete - not all votes have been ingested
 
 // Account errors
 export const errAccountExists = 'ERR:A_EX' // Account already exists

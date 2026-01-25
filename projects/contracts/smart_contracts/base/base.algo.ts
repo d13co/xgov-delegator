@@ -1,7 +1,9 @@
-import { Account, BoxMap, Contract, GlobalState, uint64 } from '@algorandfoundation/algorand-typescript'
-import { Uint32 } from '@algorandfoundation/algorand-typescript/arc4'
-import { errAccountExists } from '../oracle/errors.algo'
+import { Account, BoxMap, compile, Contract, Global, GlobalState, itxn, OnCompleteAction, Txn, uint64 } from '@algorandfoundation/algorand-typescript'
+import { abimethod, Uint32 } from '@algorandfoundation/algorand-typescript/arc4'
+import { errAccountExists, errUnauthorized } from '../oracle/errors.algo'
 import { ensure, u32 } from './utils.algo'
+
+class EmptyContract extends Contract {}
 
 export abstract class AccountIdContract extends Contract {
   lastAccountId = GlobalState<uint64>({ initialValue: 0 })
@@ -20,5 +22,23 @@ export abstract class AccountIdContract extends Contract {
     const accountId = u32(this.lastAccountId.value)
     box.value = accountId
     return accountId
+  }
+
+  protected ensureCallerIsAdmin(): void {
+    ensure(Txn.sender === Global.creatorAddress, errUnauthorized)
+  }
+
+  @abimethod({ validateEncoding: 'unsafe-disabled' })
+  public increaseBudget(itxns: uint64) {
+    const empty = compile(EmptyContract)
+    for (let i: uint64 = 0; i < itxns; i++) {
+      itxn
+        .applicationCall({
+          approvalProgram: empty.clearStateProgram, // intentionally using clear state program for "return true"
+          clearStateProgram: empty.clearStateProgram,
+          onCompletion: OnCompleteAction.DeleteApplication,
+        })
+        .submit()
+    }
   }
 }

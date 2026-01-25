@@ -13,6 +13,7 @@ export const ErrorMessages: Record<string, string> = {
   "ERR:TV_MM": "Total votes mismatch - ingested votes must equal total votes when finished",
   "ERR:NX_XC": "Number of xGovs to uningest exceeds total xGovs",
   "ERR:OOO": "xGovs must be added in ascending order by account ID",
+  "ERR:C_NC": "Committee is incomplete - not all votes have been ingested",
   "ERR:A_EX": "Account already exists",
   "ERR:A_NX": "Account does not exist",
   "ERR:AH": "Account hint mismatch - provided offset does not match account",

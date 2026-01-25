@@ -18,6 +18,7 @@ import {
   errTotalXGovsExceeded,
   errTotalVotesExceeded,
   errTotalVotesMismatch,
+  errCommitteeIncomplete,
 } from './errors.algo'
 import {
   CommitteeMetadata,
@@ -53,6 +54,8 @@ export class CommitteeOracle extends AccountIdContract {
     totalMembers: Uint32,
     totalVotes: Uint32,
   ): void {
+    this.ensureCallerIsAdmin()
+    
     const committeeBox = this.committees(committeeId)
     ensure(!committeeBox.exists, errCommitteeExists)
     ensure(periodEnd.asUint64() > periodStart.asUint64(), errPeriodEndLessThanStart)
@@ -64,7 +67,7 @@ export class CommitteeOracle extends AccountIdContract {
       ingestedVotes: u32(0),
       superboxPrefix: 'S' + this.lastSuperboxPrefix.value.toString(),
     }
-    sbCreate(this.getCommitteeSBName(committeeId), 4096, XGOV_STORED_SIZE, '[uint32,uint32]')
+    sbCreate(this.getCommitteeSBName(committeeId), 2048, XGOV_STORED_SIZE, '[uint32,uint32]')
     this.lastSuperboxPrefix.value = this.lastSuperboxPrefix.value + 1
   }
 
@@ -73,6 +76,8 @@ export class CommitteeOracle extends AccountIdContract {
    * @param committeeId committee ID
    */
   public unregisterCommittee(committeeId: StaticBytes<32>): void {
+    this.ensureCallerIsAdmin()
+
     const committeeBox = this.committees(committeeId)
     ensure(committeeBox.exists, errCommitteeNotExists)
     ensure(committeeBox.value.ingestedVotes === u32(0), errIngestedVotesNotZero)
@@ -86,8 +91,9 @@ export class CommitteeOracle extends AccountIdContract {
    * @param xGovs xGovs to ingest
    */
   public ingestXGovs(committeeId: StaticBytes<32>, xGovs: XGovInput[]): void {
-    const committee = this.mustGetCommittee(committeeId)
+    this.ensureCallerIsAdmin()
 
+    const committee = this.mustGetCommittee(committeeId)
     const superboxName = this.getCommitteeSBName(committeeId)
     const sbMeta = sbMetaBox(superboxName)
     // figure out ingested accounts from superbox size
@@ -138,6 +144,8 @@ export class CommitteeOracle extends AccountIdContract {
    * @param numXGovs number of xGovs to uningest
    */
   public uningestXGovs(committeeId: StaticBytes<32>, numXGovs: uint64): void {
+    this.ensureCallerIsAdmin()
+
     const committee = this.mustGetCommittee(committeeId)
     const superboxName = this.getCommitteeSBName(committeeId)
     const sbMeta = sbMetaBox(superboxName)
@@ -171,9 +179,15 @@ export class CommitteeOracle extends AccountIdContract {
   }
 
   @abimethod({ readonly: true })
-  public getCommitteeMetadata(committeeId: StaticBytes<32>): CommitteeMetadata {
+  public getCommitteeMetadata(committeeId: StaticBytes<32>, mustBeComplete: boolean): CommitteeMetadata {
     const committeeBox = this.committees(committeeId)
     if (committeeBox.exists) {
+      if (mustBeComplete) {
+        ensure(
+          committeeBox.value.ingestedVotes === committeeBox.value.totalVotes,
+          errCommitteeIncomplete,
+        )
+      }
       return committeeBox.value
     }
     return getEmptyCommitteeMetadata()

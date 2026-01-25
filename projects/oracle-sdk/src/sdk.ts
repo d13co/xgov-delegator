@@ -1,10 +1,13 @@
-import { CommitteeOracleClient } from "./generated/CommitteeOracleClient";
-import { ConstructorArgs, XGov, SenderWithSigner, XGovCommitteeFile } from "./types";
+import { CommitteeOracleClient, CommitteeOracleComposer } from "./generated/CommitteeOracleClient";
+import { ConstructorArgs, XGov, SenderWithSigner, XGovCommitteeFile, CommonMethodBuilderArgs, SendResult } from "./types";
 import { requireWriter } from "./util/requiresSender";
 import { calculateCommitteeId } from "./util/comitteeId";
 import { xGovToTuple } from "./util/types";
 import { XGovCommitteesOracleReaderSDK } from "./sdkReader";
-import { wrapErrors } from "./util/wrapErrors";
+import { wrapErrors, wrapErrorsInternal } from "./util/wrapErrors";
+import { SendParams } from "@algorandfoundation/algokit-utils/types/transaction";
+import { getIncreaseBudgetBuilder } from "./util/increaseBudget";
+import { chunk } from "./util/chunk";
 
 export class XGovCommitteesOracleSDK extends XGovCommitteesOracleReaderSDK {
   public writerAccount?: SenderWithSigner;
@@ -23,7 +26,64 @@ export class XGovCommitteesOracleSDK extends XGovCommitteesOracleReaderSDK {
     }
   }
 
+  // Create an executor from a makeXYZTxn function
+  private makeTxnExecutor = <T extends (...args: any) => any, R = SendResult>({
+    maker,
+    returnTransformer,
+    sendParams,
+  }: {
+    maker: T;
+    returnTransformer?: (result: SendResult) => R;
+    sendParams?: SendParams;
+  }) => {
+    return async (args: Parameters<T>[0]): Promise<R> => {
+      if (!this.writerAccount) {
+        throw new Error(`writerAccount not set on the SDK instance`);
+      }
+      const result = await wrapErrorsInternal(
+        this.execute({
+          txnBuilder: (args) => maker.bind(this)(args),
+          txnBuilderArgs: args,
+          emptyGroupBuilder: () => this.writeClient!.newGroup(),
+          sendParams,
+        }),
+      );
+      if (returnTransformer) {
+        return returnTransformer(result);
+      }
+      return result as R;
+    };
+  };
+
+  // Utility to handle increaseBudget automatically and wrap algod errors
+  // gets a standalone group without opup
+  // test if need to prepend increaseBudget()
+  // if so, remake group with emptyGroupBuilder, passing in a group with increaseBudget() prepended
+  private async execute<T extends CommonMethodBuilderArgs, Y extends CommitteeOracleComposer<any>>({
+    txnBuilder,
+    txnBuilderArgs,
+    emptyGroupBuilder,
+    sendParams,
+  }: {
+    txnBuilder: (args: T) => Promise<Y>;
+    txnBuilderArgs: T;
+    emptyGroupBuilder: () => Y;
+    sendParams?: SendParams;
+  }) {
+    let builder = await txnBuilder(txnBuilderArgs);
+    const increasedBudgetBuilder = await getIncreaseBudgetBuilder(
+      builder,
+      emptyGroupBuilder,
+      this.writerAccount!.sender.toString(),
+      this.writerAccount!.signer,
+      this.algorand.client.algod,
+    );
+    if (increasedBudgetBuilder) builder = await txnBuilder({ ...txnBuilderArgs, builder: increasedBudgetBuilder });
+    return builder.send(sendParams);
+  }
+
   @requireWriter()
+  @wrapErrors()
   async uploadCommitteeFile(committeeFile: XGovCommitteeFile): Promise<Uint8Array> {
     const committeeId = calculateCommitteeId(JSON.stringify(committeeFile));
     const committeeMetadata = await this.getCommitteeMetadata(committeeId);
@@ -37,63 +97,82 @@ export class XGovCommitteesOracleSDK extends XGovCommitteesOracleReaderSDK {
       this.getAccountIdMap(accounts),
       this.getCommitteeSuperboxDataLast(committeeId),
     ]);
-    if (lastIngestedXGov.total) {
-      // TODO confirm that last ingested xGov matches expectation
-    }
-    let accountsInOrder = [...accountIds.entries()]
+
+    // order accounts, increasing IDs and zero IDs last
+    const accountsInOrder = [...accountIds.entries()]
       .map(([address, id]) => ({ address, id }))
       .sort(({ id: a }, { id: b }) => (a === 0 && b !== 0 ? 1 : a !== 0 && b === 0 ? -1 : a - b));
-    accountsInOrder = accountsInOrder.slice(lastIngestedXGov.total ? lastIngestedXGov.total - 1 : 0);
-    for (const { address, id } of accountsInOrder) {
-      const votes = committeeFile.xGovs.find((x) => x.address === address)?.votes;
-      this.debug && console.log(`Account: ${address}, ID: ${id}, Votes: ${votes}`);
-      if (!votes) {
-        throw new Error(`No votes found for account ${address}`);
+
+      console.log({ acctLen: accountsInOrder.length, lastIngestedXGov });
+    if (lastIngestedXGov.total) {
+      const expectedLastId = accountsInOrder[lastIngestedXGov.total - 1].id;
+      if (lastIngestedXGov.last && lastIngestedXGov.last[0] !== expectedLastId) {
+        throw new Error(`Last ingested xGov ID ${lastIngestedXGov.last[0]} does not match expected ID ${expectedLastId}`);
+        // TODO get xGovs, compare with accountsInOrder, uningest as necessary, resume ingestion
       }
-      this.debug && console.log(`Ingesting xGov with ID ${id} and votes ${votes}...`);
-      const { txIds } = await this.ingestXGovs(committeeId, [{ accountId: id, account: address, votes }]);
-      this.debug && console.log("xGov ingested ", ...txIds);
+    }
+    const accountsToIngest = accountsInOrder.slice(lastIngestedXGov.total ? lastIngestedXGov.total : 0);
+    const chunks = chunk(accountsToIngest, 12);
+    this.debug && console.log(`Ingesting ${accountsToIngest.length} xGovs in ${chunks.length} chunks...`);
+    for (const accountsChunk of chunks) {
+      const xGovs = accountsChunk.map(({ id, address }) => ({ accountId: id, account: address, votes: committeeFile.xGovs.find((x) => x.address === address)!.votes }));
+      const { txIds } = await this.ingestXGovs({ committeeId, xGovs });
+      const accountsLog = accountsChunk.map(({ address }) => address.slice(0, 8)+"..").join(" ");
+      this.debug && console.log("xGov ingested ", accountsLog, txIds[txIds.length - 1]);
     }
     return committeeId;
   }
 
   @requireWriter()
-  makeRegisterCommitteeTxns({
-    committeeId,
-    periodStart,
-    periodEnd,
-    totalMembers,
-    totalVotes,
-  }: { committeeId: string | Uint8Array } & XGovCommitteeFile) {
+  @wrapErrors()
+  makeRegisterCommitteeTxns(
+    { committeeId, periodStart, periodEnd, totalMembers, totalVotes, builder }: { committeeId: string | Uint8Array } & XGovCommitteeFile & CommonMethodBuilderArgs,
+  ) {
     committeeId = typeof committeeId === "string" ? Buffer.from(committeeId, "base64") : committeeId;
     const { sender, signer } = this.writerAccount!;
-    return this.writeClient!.newGroup().registerCommittee({
+    builder = builder ?? this.writeClient!.newGroup();
+    return builder.registerCommittee({
       args: { committeeId, periodStart, periodEnd, totalMembers, totalVotes },
       sender,
       signer,
     });
   }
 
-  @requireWriter()
-  @wrapErrors()
-  async registerCommittee(...args: Parameters<typeof XGovCommitteesOracleSDK.prototype.makeRegisterCommitteeTxns>) {
-    return this.makeRegisterCommitteeTxns(...args).send();
-  }
+  registerCommittee = this.makeTxnExecutor({
+    maker: this.makeRegisterCommitteeTxns,
+  });
 
   @requireWriter()
-  makeIngestXGovsTxns(committeeId: string | Uint8Array, xGovs: XGov[]) {
+  @wrapErrors()
+  makeUnregisterCommitteeTxns({ committeeId, builder }: { committeeId: string | Uint8Array } & CommonMethodBuilderArgs) {
+    committeeId = typeof committeeId === "string" ? Buffer.from(committeeId, "base64") : committeeId;
+    const { sender, signer } = this.writerAccount!;
+    builder = builder ?? this.writeClient!.newGroup();
+    return builder.unregisterCommittee({
+      args: { committeeId },
+      sender,
+      signer,
+    });
+  }
+
+  unregisterCommittee = this.makeTxnExecutor({
+    maker: this.makeUnregisterCommitteeTxns,
+  });
+
+  @requireWriter()
+  @wrapErrors()
+  makeIngestXGovsTxns({ committeeId, xGovs, builder }: { committeeId: string | Uint8Array; xGovs: XGov[] } & CommonMethodBuilderArgs) {
     const { sender, signer } = this.writerAccount!;
     committeeId = typeof committeeId === "string" ? Buffer.from(committeeId, "base64") : committeeId;
-    return this.writeClient!.newGroup().ingestXGovs({
+    builder = builder ?? this.writeClient!.newGroup();
+    return builder.ingestXGovs({
       args: { committeeId, xGovs: xGovs.map(xGovToTuple) },
       sender,
       signer,
     });
   }
 
-  @requireWriter()
-  @wrapErrors()
-  async ingestXGovs(...args: Parameters<typeof XGovCommitteesOracleSDK.prototype.makeIngestXGovsTxns>) {
-    return this.makeIngestXGovsTxns(...args).send();
-  }
+  ingestXGovs = this.makeTxnExecutor({
+    maker: this.makeIngestXGovsTxns,
+  });
 }
