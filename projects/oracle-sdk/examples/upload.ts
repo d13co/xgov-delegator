@@ -26,4 +26,6 @@ import { readFileSync } from "fs";
   });
 
   await sdk.uploadCommitteeFile(file);
+  const { minBalance } = await algorand.account.getInformation(sdk.writeClient!.appAddress);
+  console.log({ appMinBalance: minBalance.algos });
 })();

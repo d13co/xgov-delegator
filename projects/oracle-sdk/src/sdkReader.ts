@@ -20,6 +20,7 @@ export class XGovCommitteesOracleReaderSDK {
   constructor({ algorand, concurrency = 4, debug, ...rest }: ReaderConstructorArgs) {
     const { appId, readerAccount } = getConstructorConfig(rest);
     this.algorand = algorand;
+    algorand.setSuggestedParamsCacheTimeout(6000) // 6s or ~2 rounds of cache. reduces GET requests to /params
     algorand.registerErrorTransformer(errorTransformer);
     this.appId = appId;
     this.concurrency = concurrency;
@@ -37,9 +38,13 @@ export class XGovCommitteesOracleReaderSDK {
     const committeeMetadata = await this.getCommitteeMetadata(committeeId, true);
     if (!committeeMetadata) return null;
     const xGovs = await this.getCommitteeXGovs(committeeId);
+    const params = await this.algorand.getSuggestedParams()
+    const networkGenesisHash = Buffer.from(params.genesisHash!).toString("base64");
     return {
+      networkGenesisHash,
       periodEnd: committeeMetadata.periodEnd,
       periodStart: committeeMetadata.periodStart,
+      registryId: Number(committeeMetadata.xGovRegistryId),
       totalMembers: committeeMetadata.totalMembers,
       totalVotes: committeeMetadata.totalVotes,
       xGovs: xGovs.map(({ account, votes }) => ({ address: account.toString(), votes })),

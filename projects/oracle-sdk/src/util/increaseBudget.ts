@@ -73,7 +73,7 @@ export async function getIncreaseBudgetBuilder<
 
   const itxns = Math.max(0, Math.ceil(itxnBudgetNeeded / (700 - increaseBudgetIncrementCost))) // base cost - no iterations
 
-  console.log(JSON.stringify({ appBudgetConsumed, existingBudget, itxnBudgetNeeded, itxns }));
+  // console.log(JSON.stringify({ appBudgetConsumed, existingBudget, itxnBudgetNeeded, itxns }));
 
   const increaseBudgetArgs = {
     args: { itxns },

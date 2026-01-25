@@ -27,25 +27,37 @@ import { writer } from "repl";
   console.log({ id: Buffer.from(id).toString("base64") });
 
   const comm = (await sdk.getCommittee(id))!;
-  console.log(JSON.stringify(comm, null, 2));
+  console.log(JSON.stringify(comm));
   if (comm) {
     for (const [key, value] of Object.entries(file)) {
       if (key === "xGovs") continue;
-      if (!(key in comm)) continue;
       if (value !== comm[key as keyof typeof comm]) {
         console.error(`Mismatch on ${key}: expected ${value}, got ${comm[key as keyof typeof comm]}`);
       }
     }
-    for (const { address, votes } of file.xGovs) {
-      const member = comm.xGovs.find((x) => x.address === address);
-      if (!member) {
-        console.error(`Missing xGov: ${address}`);
+    const max = Math.max(file.xGovs.length, comm.xGovs.length);
+    for (let i = 0; i < max; i++) {
+      const expected = file.xGovs[i];
+      const got = comm.xGovs[i];
+      if (!expected) {
+        console.error(`Extra xGov in stored committee: ${JSON.stringify(got)}`);
         continue;
       }
-      if (member.votes !== votes) {
-        console.error(`Mismatch on votes for ${address}: expected ${votes}, got ${member.votes}`);
+      if (!got) {
+        console.error(`Missing xGov in stored committee: ${JSON.stringify(expected)}`);
+        continue;
+      }
+      if (expected.address !== got.address || expected.votes !== got.votes) {
+        console.error(`Mismatch on xGov index ${i}: expected ${JSON.stringify(expected)}, got ${JSON.stringify(got)}`);
       }
     }
     console.log("Files match");
+  }
+  comm.networkGenesisHash = file.networkGenesisHash;
+  const commId = calculateCommitteeId(JSON.stringify(comm));
+  if (Buffer.from(commId).toString("base64") !== Buffer.from(id).toString("base64")) {
+    console.error(`Recalculated committee ID mismatch: expected ${Buffer.from(id).toString("base64")}, got ${Buffer.from(commId).toString("base64")}`);
+  } else {
+    console.log("Committee ID matches on recalculation");
   }
 })();

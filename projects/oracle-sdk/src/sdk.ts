@@ -135,13 +135,14 @@ export class XGovCommitteesOracleSDK extends XGovCommitteesOracleReaderSDK {
     periodEnd,
     totalMembers,
     totalVotes,
+    registryId,
     builder,
   }: { committeeId: string | Uint8Array } & XGovCommitteeFile & CommonMethodBuilderArgs) {
     committeeId = typeof committeeId === "string" ? Buffer.from(committeeId, "base64") : committeeId;
     const { sender, signer } = this.writerAccount!;
     builder = builder ?? this.writeClient!.newGroup();
     return builder.registerCommittee({
-      args: { committeeId, periodStart, periodEnd, totalMembers, totalVotes },
+      args: { committeeId, periodStart, periodEnd, totalMembers, totalVotes, xGovRegistryId: registryId },
       sender,
       signer,
     });

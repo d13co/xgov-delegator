@@ -53,9 +53,10 @@ export class CommitteeOracle extends AccountIdContract {
     periodEnd: Uint32,
     totalMembers: Uint32,
     totalVotes: Uint32,
+    xGovRegistryId: uint64,
   ): void {
     this.ensureCallerIsAdmin()
-    
+
     const committeeBox = this.committees(committeeId)
     ensure(!committeeBox.exists, errCommitteeExists)
     ensure(periodEnd.asUint64() > periodStart.asUint64(), errPeriodEndLessThanStart)
@@ -64,6 +65,7 @@ export class CommitteeOracle extends AccountIdContract {
       periodEnd,
       totalMembers,
       totalVotes,
+      xGovRegistryId,
       ingestedVotes: u32(0),
       superboxPrefix: 'S' + this.lastSuperboxPrefix.value.toString(),
     }

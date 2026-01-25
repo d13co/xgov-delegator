@@ -30,14 +30,16 @@ export type ReaderConstructorArgs = {
 } & ConstructorArgsOptions;
 
 export interface XGovCommitteeFile {
+  networkGenesisHash: string;
+  periodEnd: number;
+  periodStart: number;
+  registryId: number;
+  totalMembers: number;
+  totalVotes: number;
   xGovs: Array<{
     address: string;
     votes: number;
   }>;
-  periodStart: number;
-  periodEnd: number;
-  totalMembers: number;
-  totalVotes: number;
 }
 
 export type XGov = {

@@ -10,6 +10,7 @@ export type CommitteeMetadata = {
   periodEnd: Uint32 // exclusive
   totalMembers: Uint32
   totalVotes: Uint32
+  xGovRegistryId: uint64
   ingestedVotes: Uint32
   superboxPrefix: string
 }
@@ -39,6 +40,7 @@ export function getEmptyCommitteeMetadata(): CommitteeMetadata {
     periodEnd: u32(0),
     totalMembers: u32(0),
     totalVotes: u32(0),
+    xGovRegistryId: 0,
     ingestedVotes: u32(0),
     superboxPrefix: '',
   }
