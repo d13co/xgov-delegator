@@ -1,8 +1,8 @@
 import { CommitteeOracleClient } from "./generated/CommitteeOracleClient";
-import { ConstructorArgs, Member, SenderWithSigner, XGovCommitteeFile } from "./types";
+import { ConstructorArgs, XGov, SenderWithSigner, XGovCommitteeFile } from "./types";
 import { requireWriter } from "./util/requiresSender";
 import { calculateCommitteeId } from "./util/comitteeId";
-import { memberToTuple } from "./util/types";
+import { xGovToTuple } from "./util/types";
 import { XGovCommitteesOracleReaderSDK } from "./sdkReader";
 import { wrapErrors } from "./util/wrapErrors";
 
@@ -33,26 +33,26 @@ export class XGovCommitteesOracleSDK extends XGovCommitteesOracleReaderSDK {
       console.log("Committee registered ", ...txIds);
     }
     const accounts = committeeFile.xGovs.map(({ address }) => address);
-    const [accountIds, lastIngestedMember] = await Promise.all([
+    const [accountIds, lastIngestedXGov] = await Promise.all([
       this.getAccountIdMap(accounts),
       this.getCommitteeSuperboxDataLast(committeeId),
     ]);
-    if (lastIngestedMember.total) {
-      // TODO confirm that last ingested member matches expectation
+    if (lastIngestedXGov.total) {
+      // TODO confirm that last ingested xGov matches expectation
     }
     let accountsInOrder = [...accountIds.entries()]
       .map(([address, id]) => ({ address, id }))
       .sort(({ id: a }, { id: b }) => (a === 0 && b !== 0 ? 1 : a !== 0 && b === 0 ? -1 : a - b));
-    accountsInOrder = accountsInOrder.slice(lastIngestedMember.total ? lastIngestedMember.total - 1 : 0);
+    accountsInOrder = accountsInOrder.slice(lastIngestedXGov.total ? lastIngestedXGov.total - 1 : 0);
     for (const { address, id } of accountsInOrder) {
       const votes = committeeFile.xGovs.find((x) => x.address === address)?.votes;
       console.log(`Account: ${address}, ID: ${id}, Votes: ${votes}`);
       if (!votes) {
         throw new Error(`No votes found for account ${address}`);
       }
-      console.log(`Ingesting member with ID ${id} and votes ${votes}...`);
-      const { txIds } = await this.ingestMembers(committeeId, [{ accountId: id, account: address, votes }]);
-      console.log("Member ingested ", ...txIds);
+      console.log(`Ingesting xGov with ID ${id} and votes ${votes}...`);
+      const { txIds } = await this.ingestXGovs(committeeId, [{ accountId: id, account: address, votes }]);
+      console.log("xGov ingested ", ...txIds);
     }
     return committeeId;
   }
@@ -81,11 +81,11 @@ export class XGovCommitteesOracleSDK extends XGovCommitteesOracleReaderSDK {
   }
 
   @requireWriter()
-  makeIngestMembersTxns(committeeId: string | Uint8Array, members: Member[]) {
+  makeIngestXGovsTxns(committeeId: string | Uint8Array, xGovs: XGov[]) {
     const { sender, signer } = this.writerAccount!;
     committeeId = typeof committeeId === "string" ? Buffer.from(committeeId, "base64") : committeeId;
-    return this.writeClient!.newGroup().ingestMembers({
-      args: { committeeId, members: members.map(memberToTuple) },
+    return this.writeClient!.newGroup().ingestXGovs({
+      args: { committeeId, xGovs: xGovs.map(xGovToTuple) },
       sender,
       signer,
     });
@@ -93,7 +93,7 @@ export class XGovCommitteesOracleSDK extends XGovCommitteesOracleReaderSDK {
 
   @requireWriter()
   @wrapErrors()
-  async ingestMembers(...args: Parameters<typeof XGovCommitteesOracleSDK.prototype.makeIngestMembersTxns>) {
-    return this.makeIngestMembersTxns(...args).send();
+  async ingestXGovs(...args: Parameters<typeof XGovCommitteesOracleSDK.prototype.makeIngestXGovsTxns>) {
+    return this.makeIngestXGovsTxns(...args).send();
   }
 }

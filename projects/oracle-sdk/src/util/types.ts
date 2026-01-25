@@ -1,9 +1,9 @@
-import { Member } from "../types";
+import { XGov } from "../types";
 
-export function memberToTuple(member: Member): [number, string, number] {
+export function xGovToTuple(xGov: XGov): [number, string, number] {
   return [
-    member.accountId,
-    member.account.toString(),
-    member.votes,
+    xGov.accountId,
+    xGov.account.toString(),
+    xGov.votes,
   ];
 }

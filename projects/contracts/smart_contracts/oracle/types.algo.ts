@@ -15,23 +15,23 @@ export type CommitteeMetadata = {
 }
 
 /**
- * Input representation of a committee member
+ * Input representation of a committee xGov
  */
-export type MemberInput = {
+export type XGovInput = {
   accountId: Uint32
   account: Account
   votes: Uint32
 }
 
 /**
- * Stored representation of a committee member
+ * Stored representation of a committee xGov
  */
-export type MemberStored = {
+export type XGovStored = {
   accountId: Uint32
   votes: Uint32
 }
 
-export const MEMBER_STORED_SIZE: uint64 = 4 + 4 // AccountID + Votes
+export const XGOV_STORED_SIZE: uint64 = 4 + 4 // AccountID + Votes
 
 export function getEmptyCommitteeMetadata(): CommitteeMetadata {
   return {

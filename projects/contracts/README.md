@@ -2,8 +2,6 @@
 
 # xgov-delegator
 
-
-
 Smart contract to delegate xGov voting power for pooled and liquid staking systems.
 
 - xgov committees
@@ -107,6 +105,7 @@ Store basic committee info and xgov voting power on chain
 ## global state
 
 last_account_id: 0
+last_superbox_prefix: 0
 
 ## boxes
 
@@ -122,36 +121,41 @@ Value: Committee Struct
 
 - period_start
 - period_end
-- total_votes
 - total_xgovs
-- state
+- total_votes
 - ingested_votes
   - keep track of ingested voting power for verification purposes
+- superbox_prefix
 
 ### Committee > xGov voting power
 
 Use [Superbox](https://github.com/tasosbit/puya-ts-superbox)
 
-key: committee_id
+key: superbox_prefix
 
-value: Array of tuples [account id uint32, votes uint64]
-
-### Period end to committee ID lookup
-
-key: period end round
-
-value: committee id
+value: Array of tuples [account id uint32, votes uint32]
 
 ## Methods
 
-### upload_committee_metadata(id, start, end, total_votes, total_xgovs)
+### registerCommittee(id, start, end, total_xgovs, total_votes)
 
 ```
-ensure box.p_end_round not set
+ensure committee not exists
+ensure period_end > period_start
 create box.committee_[id]
+create superbox
 ```
 
-### ingest_committee_voters(committee_id, tuples: [id, account, votes][])
+### unregisterCommittee(committee_id)
+
+```
+ensure committee exists
+ensure ingested_votes === 0
+delete committee box
+delete superbox
+```
+
+### ingestXGovs(committee_id, xGovs: [account_id, account, votes][])
 
 ```
 // get committee record for metadata
@@ -159,23 +163,23 @@ committee = self.committee_[committee_id]
 // account/xgov ingest progress uses superbox size
 ingested_accounts = sb_exists ? count() : 0
 // get last ingested ID to ensure ascending ID order, deduplication enforcement
-last_ingested_id = ingested_accounts > 0 ? [ingested_accounts 1].id : 0
+last_ingested_id = ingested_accounts > 0 ? [ingested_accounts - 1].id : 0
 // ensure we are not going over by # of accounts
-ensure(ingested_accounts + tuples.length <= committee.total_xgovs)
+ensure(ingested_accounts + xGovs.length <= committee.total_xgovs)
 // buffer to write to superbox once
 write_chunk: bytes of shape [id, votes][]
-// iterate tuples
-foreach tuple in tuples:
-  // new account, who dis. create ID
-  if id === 0
+// iterate xGovs
+foreach xGov in xGovs:
+  // get or create account id
+  if account_id === 0
     assert account_[account] not exists
     id = global.last_account_id + 1
     account_[account] = id
     global.last_account_id += 1
   else:
-    assert account_[account] === id
+    assert account_[account] === account_id
   // assert ascending ID ingestion for dedupe/uniqueness enforcement
-   assert id > last_ingested_id
+  assert id > last_ingested_id
   // keep track of ingested votes
   committee.ingested_votes += votes
   // assert not going over available votes
@@ -183,19 +187,35 @@ foreach tuple in tuples:
   // increase counter
   last_ingested_id = id
   write_chunk += [id, votes]
+// if finished, ensure total votes match
+if ingested_accounts + xGovs.length === committee.total_xgovs
+  ensure committee.ingested_votes === committee.total_votes
 ```
 
-### get_account_id(account) -> uint32
+### uningestXGovs(committee_id, num_xgovs)
 
-### log_account_ids(accounts[]) -> none
+Delete last N xGovs from committee superbox
+
+### getAccountId(account) -> uint32
+
+### logAccountIds(accounts[]) -> none
 
 For quick fetching with simulate
 
-### get_xgov_voting_power(committee_id, xgov_account, xgov_offset_hint): uint64
+### getCommitteeMetadata(committee_id) -> CommitteeMetadata
+
+### logCommitteeMetadata(committee_ids[]) -> none
+
+For quick fetching with simulate
+
+### getCommitteeSuperboxMeta(committee_id) -> SuperboxMeta
+
+### getXGovVotingPower(committee_id, account, account_offset_hint): uint32
 
 ```
-ensure box.accounts[xgov_account] == xgov_id_hint
-xgov_tuple = get superbox committee_voters[committee_id] offset xgov_offset_hint
-ensure xgov_tuple.id === xgov_id_hint
-return xgov_tuple.votes
+ensure committee exists
+ensure box.accounts[account] exists
+xGov = get superbox xGov at offset account_offset_hint
+ensure xGov.account_id === account_id
+return xGov.votes
 ```

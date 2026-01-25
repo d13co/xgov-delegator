@@ -4,7 +4,7 @@ import { ALGORAND_ZERO_ADDRESS_STRING, encodeAddress, makeEmptyTransactionSigner
 import pMap from "p-map";
 import { CommitteeMetadata, CommitteeOracleClient, CommitteeOracleComposer, SuperboxMeta } from "./generated/CommitteeOracleClient";
 import { getConstructorConfig } from "./networkConfig";
-import { CommitteeId, Member, ReaderConstructorArgs, STORED_MEMBER_BYTE_LENGTH, StoredMember, XGovCommitteeFile } from "./types";
+import { CommitteeId, XGov, ReaderConstructorArgs, STORED_XGOV_BYTE_LENGTH, StoredXGov, XGovCommitteeFile } from "./types";
 import { chunk } from "./util/chunk";
 import { chunked } from "./util/chunked";
 import { committeeIdToRaw } from "./util/comitteeId";
@@ -33,19 +33,19 @@ export class XGovCommitteesOracleReaderSDK {
   async getCommittee(committeeId: CommitteeId): Promise<XGovCommitteeFile | null> {
     const committeeMetadata = await this.getCommitteeMetadata(committeeId);
     if (!committeeMetadata) return null;
-    const members = await this.getCommitteeMembers(committeeId);
+    const xGovs = await this.getCommitteeXGovs(committeeId);
     return {
       periodEnd: committeeMetadata.periodEnd,
       periodStart: committeeMetadata.periodStart,
       totalMembers: committeeMetadata.totalMembers,
       totalVotes: committeeMetadata.totalVotes,
-      xGovs: members.map(({ account, votes }) => ({ address: account.toString(), votes })),
+      xGovs: xGovs.map(({ account, votes }) => ({ address: account.toString(), votes })),
     };
   }
 
-  async getCommitteeMembers(committeeId: CommitteeId): Promise<Member[]> {
-    const [members, accountMap] = await Promise.all([this.getCommitteeSuperboxData(committeeId), this.getAccountIdMap()]);
-    return members
+  async getCommitteeXGovs(committeeId: CommitteeId): Promise<XGov[]> {
+    const [xGovs, accountMap] = await Promise.all([this.getCommitteeSuperboxData(committeeId), this.getAccountIdMap()]);
+    return xGovs
       .map(([id, votes]) => {
         const accountRaw = Array.from(accountMap.entries()).find(([, accountId]) => accountId === id);
         const account = accountRaw ? accountRaw[0] : ALGORAND_ZERO_ADDRESS_STRING;
@@ -73,38 +73,38 @@ export class XGovCommitteesOracleReaderSDK {
     return superboxMeta!;
   }
 
-  async getCommitteeSuperboxData(committeeId: CommitteeId): Promise<StoredMember[]> {
+  async getCommitteeSuperboxData(committeeId: CommitteeId): Promise<StoredXGov[]> {
     const [meta, commmitteeMetadata] = await Promise.all([
       this.getCommitteeSuperboxMeta(committeeId),
       this.getCommitteeMetadata(committeeId),
     ]);
     const numPages = Math.ceil(Number(meta.totalByteLength) / Number(meta.maxBoxSize));
     const pages = Array.from({ length: numPages }, (_, i) => i);
-    const pageData = await pMap(pages, (page) => this.superboxToStoredMembers(`${commmitteeMetadata?.superboxPrefix}${page}`), {
+    const pageData = await pMap(pages, (page) => this.superboxToStoredXGovs(`${commmitteeMetadata?.superboxPrefix}${page}`), {
       concurrency: this.concurrency,
     });
     return pageData.flat();
   }
 
-  async getCommitteeSuperboxDataLast(committeeId: CommitteeId): Promise<{ last?: StoredMember; total: number }> {
+  async getCommitteeSuperboxDataLast(committeeId: CommitteeId): Promise<{ last?: StoredXGov; total: number }> {
     const [meta, commmitteeMetadata] = await Promise.all([
       this.getCommitteeSuperboxMeta(committeeId),
       this.getCommitteeMetadata(committeeId),
     ]);
-    const numMembers = Math.ceil(Number(meta.totalByteLength) / Number(meta.valueSize));
-    if (numMembers === 0) {
+    const numXGovs = Math.ceil(Number(meta.totalByteLength) / Number(meta.valueSize));
+    if (numXGovs === 0) {
       return { total: 0 };
     }
     const numPages = Math.ceil(Number(meta.totalByteLength) / Number(meta.maxBoxSize));
     const superboxKey = `${commmitteeMetadata?.superboxPrefix}${numPages - 1}`;
-    const lastPage = await this.superboxToStoredMembers(superboxKey);
-    return { last: lastPage[lastPage.length - 1], total: numMembers };
+    const lastPage = await this.superboxToStoredXGovs(superboxKey);
+    return { last: lastPage[lastPage.length - 1], total: numXGovs };
   }
 
-  protected async superboxToStoredMembers(superboxKey: string): Promise<StoredMember[]> {
+  protected async superboxToStoredXGovs(superboxKey: string): Promise<StoredXGov[]> {
     const bv = await this.algorand.app.getBoxValue(this.appId, superboxKey);
-    const chunks = chunk(Array.from(bv!), STORED_MEMBER_BYTE_LENGTH); // each StoredMember is (uint32, uint32)
-    return chunks.map((c) => getABIDecodedValue(new Uint8Array(c), "(uint32,uint32)", {}) as StoredMember);
+    const chunks = chunk(Array.from(bv!), STORED_XGOV_BYTE_LENGTH); // each StoredXGov is (uint32, uint32)
+    return chunks.map((c) => getABIDecodedValue(new Uint8Array(c), "(uint32,uint32)", {}) as StoredXGov);
   }
 
   async getAccounts(): Promise<string[]> {

@@ -5,7 +5,7 @@ import { Address } from 'algosdk'
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest'
 import { DelegatorFactory } from '../artifacts/delegator/DelegatorClient'
 
-describe('Delegator contract', () => {
+describe('Oracle contract', () => {
   const localnet = algorandFixture()
   beforeAll(() => {
     Config.configure({

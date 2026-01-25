@@ -5,11 +5,11 @@ export const errCommitteeExists = 'ERR:C_EX' // Committee already exists
 export const errCommitteeNotExists = 'ERR:C_NX' // Committee does not exist
 export const errPeriodEndLessThanStart = 'ERR:PE_LT' // Period end must be greater than period start
 export const errIngestedVotesNotZero = 'ERR:IV_NZ' // Cannot unregister committee with ingested votes (votes must be zero)
-export const errTotalMembersExceeded = 'ERR:TM_XC' // Total members exceeded
+export const errTotalXGovsExceeded = 'ERR:TX_XC' // Total xGovs exceeded
 export const errTotalVotesExceeded = 'ERR:TV_XC' // Total votes exceeded
 export const errTotalVotesMismatch = 'ERR:TV_MM' // Total votes mismatch - ingested votes must equal total votes when finished
-export const errNumMembersExceeded = 'ERR:NM_XC' // Number of members to uningest exceeds total members
-export const errOutOfOrder = 'ERR:OOO' // Members must be added in ascending order by account ID
+export const errNumXGovsExceeded = 'ERR:NX_XC' // Number of xGovs to uningest exceeds total xGovs
+export const errOutOfOrder = 'ERR:OOO' // xGovs must be added in ascending order by account ID
 
 // Account errors
 export const errAccountExists = 'ERR:A_EX' // Account already exists

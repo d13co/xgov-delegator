@@ -12,26 +12,26 @@ import {
   errCommitteeExists,
   errCommitteeNotExists,
   errIngestedVotesNotZero,
-  errNumMembersExceeded,
+  errNumXGovsExceeded,
   errOutOfOrder,
   errPeriodEndLessThanStart,
-  errTotalMembersExceeded,
+  errTotalXGovsExceeded,
   errTotalVotesExceeded,
   errTotalVotesMismatch,
 } from './errors.algo'
 import {
   CommitteeMetadata,
   getEmptyCommitteeMetadata,
-  MEMBER_STORED_SIZE,
-  MemberInput,
-  MemberStored,
+  XGOV_STORED_SIZE,
+  XGovInput,
+  XGovStored,
 } from './types.algo'
 
 /**
- * Count total members stored in committee superbox
+ * Count total xGovs stored in committee superbox
  */
-function getCommitteeSBMembers(sbMeta: Box<SuperboxMeta>): uint64 {
-  return sbMeta.value.totalByteLength.asUint64() / MEMBER_STORED_SIZE
+function getCommitteeSBXGovs(sbMeta: Box<SuperboxMeta>): uint64 {
+  return sbMeta.value.totalByteLength.asUint64() / XGOV_STORED_SIZE
 }
 
 export class CommitteeOracle extends AccountIdContract {
@@ -64,12 +64,12 @@ export class CommitteeOracle extends AccountIdContract {
       ingestedVotes: u32(0),
       superboxPrefix: 'S' + this.lastSuperboxPrefix.value.toString(),
     }
-    sbCreate(this.getCommitteeSBName(committeeId), 4096, MEMBER_STORED_SIZE, '[uint32,uint32]')
+    sbCreate(this.getCommitteeSBName(committeeId), 4096, XGOV_STORED_SIZE, '[uint32,uint32]')
     this.lastSuperboxPrefix.value = this.lastSuperboxPrefix.value + 1
   }
 
   /**
-   * Delete committee. Must not have any members
+   * Delete committee. Must not have any xGovs
    * @param committeeId committee ID
    */
   public unregisterCommittee(committeeId: StaticBytes<32>): void {
@@ -81,42 +81,42 @@ export class CommitteeOracle extends AccountIdContract {
   }
 
   /**
-   * Ingest members into a committee
+   * Ingest xGovs into a committee
    * @param committeeId committee ID
-   * @param members members to ingest
+   * @param xGovs xGovs to ingest
    */
-  public ingestMembers(committeeId: StaticBytes<32>, members: MemberInput[]): void {
+  public ingestXGovs(committeeId: StaticBytes<32>, xGovs: XGovInput[]): void {
     const committee = this.mustGetCommittee(committeeId)
 
     const superboxName = this.getCommitteeSBName(committeeId)
     const sbMeta = sbMetaBox(superboxName)
     // figure out ingested accounts from superbox size
-    const ingestedAccounts: uint64 = getCommitteeSBMembers(sbMeta)
-    // not exceeding total members
-    ensure(ingestedAccounts + members.length <= committee.totalMembers.asUint64(), errTotalMembersExceeded)
+    const ingestedAccounts: uint64 = getCommitteeSBXGovs(sbMeta)
+    // not exceeding total xGovs
+    ensure(ingestedAccounts + xGovs.length <= committee.totalMembers.asUint64(), errTotalXGovsExceeded)
 
     let lastAccountId = u32(0)
     if (ingestedAccounts > 0) {
-      const lastMember = this.getStoredMemberAt(superboxName, ingestedAccounts - 1)
-      lastAccountId = lastMember.accountId
+      const lastXGov = this.getStoredXGovAt(superboxName, ingestedAccounts - 1)
+      lastAccountId = lastXGov.accountId
     }
 
     let ingestedVotes = committee.ingestedVotes.asUint64()
     let writeBuffer = Bytes``
-    for (const member of clone(members)) {
+    for (const xGov of clone(xGovs)) {
       // get or create account id
-      member.accountId = this.getOrCreateAccountId(member)
-      // ensure members are added in ascending order
-      ensure(member.accountId.asUint64() > lastAccountId.asUint64(), errOutOfOrder)
+      xGov.accountId = this.getOrCreateAccountId(xGov)
+      // ensure xGovs are added in ascending order
+      ensure(xGov.accountId.asUint64() > lastAccountId.asUint64(), errOutOfOrder)
       // store variant removes account
-      const memberStored: MemberStored = {
-        accountId: member.accountId,
-        votes: member.votes,
+      const xGovStored: XGovStored = {
+        accountId: xGov.accountId,
+        votes: xGov.votes,
       }
       // append to write buffer, write to superbox once
-      writeBuffer = writeBuffer.concat(encodeArc4(memberStored))
-      lastAccountId = member.accountId
-      ingestedVotes += member.votes.asUint64()
+      writeBuffer = writeBuffer.concat(encodeArc4(xGovStored))
+      lastAccountId = xGov.accountId
+      ingestedVotes += xGov.votes.asUint64()
     }
 
     // ensure we did not exceed total votes
@@ -126,27 +126,27 @@ export class CommitteeOracle extends AccountIdContract {
 
     committee.ingestedVotes = u32(ingestedVotes)
     // if we are finished, ensure total votes match
-    if (ingestedAccounts + members.length === committee.totalMembers.asUint64()) {
+    if (ingestedAccounts + xGovs.length === committee.totalMembers.asUint64()) {
       ensure(committee.ingestedVotes === committee.totalVotes, errTotalVotesMismatch)
     }
     this.committees(committeeId).value = clone(committee)
   }
 
   /**
-   * Uningest last N members from committee
+   * Uningest last N xGovs from committee
    * @param committeeId committee ID
-   * @param numMembers number of members to uningest
+   * @param numXGovs number of xGovs to uningest
    */
-  public uningestMembers(committeeId: StaticBytes<32>, numMembers: uint64): void {
+  public uningestXGovs(committeeId: StaticBytes<32>, numXGovs: uint64): void {
     const committee = this.mustGetCommittee(committeeId)
     const superboxName = this.getCommitteeSBName(committeeId)
     const sbMeta = sbMetaBox(superboxName)
-    const totalMembers = getCommitteeSBMembers(sbMeta)
-    ensure(numMembers <= totalMembers, errNumMembersExceeded)
+    const totalXGovs = getCommitteeSBXGovs(sbMeta)
+    ensure(numXGovs <= totalXGovs, errNumXGovsExceeded)
     let ingestedVotes = committee.ingestedVotes.asUint64()
-    for (let i: uint64 = totalMembers - 1; i >= totalMembers - numMembers; i--) {
-      const memberStored = this.getStoredMemberAt(superboxName, i)
-      ingestedVotes -= memberStored.votes.asUint64()
+    for (let i: uint64 = totalXGovs - 1; i >= totalXGovs - numXGovs; i--) {
+      const xGovStored = this.getStoredXGovAt(superboxName, i)
+      ingestedVotes -= xGovStored.votes.asUint64()
       sbDeleteIndex(superboxName, i)
     }
     committee.ingestedVotes = u32(ingestedVotes)
@@ -198,36 +198,36 @@ export class CommitteeOracle extends AccountIdContract {
   }
 
   /**
-   * Get member voting power, with required account offset hint (for opcode savings)
+   * Get xGov voting power, with required account offset hint (for opcode savings)
    * @param committeeId Committee ID
-   * @param account Member account
+   * @param account xGov account
    * @param accountOffsetHint Offset of account in committee superbox
-   * @returns Member voting power
+   * @returns xGov voting power
    */
   @abimethod({ readonly: true })
-  public getMemberVotingPower(committeeId: StaticBytes<32>, account: Account, accountOffsetHint: Uint32): Uint32 {
+  public getXGovVotingPower(committeeId: StaticBytes<32>, account: Account, accountOffsetHint: Uint32): Uint32 {
     this.mustGetCommittee(committeeId)
 
     const accountId = this.getAccountIdIfExists(account)
     ensure(accountId.asUint64() !== 0, errAccountNotExists)
 
-    const member = this.getStoredMemberAt(this.getCommitteeSBName(committeeId), accountOffsetHint.asUint64())
-    ensureExtra(member.accountId === accountId, errAccountHintMismatch, accountId.bytes)
+    const xGov = this.getStoredXGovAt(this.getCommitteeSBName(committeeId), accountOffsetHint.asUint64())
+    ensureExtra(xGov.accountId === accountId, errAccountHintMismatch, accountId.bytes)
 
-    return member.votes
+    return xGov.votes
   }
 
   /**
    * Get validated account ID or create account ID
-   * @param member
+   * @param xGov
    * @returns account ID
    */
-  private getOrCreateAccountId(member: MemberInput): Uint32 {
-    let accountId = this.getAccountIdIfExists(member.account)
+  private getOrCreateAccountId(xGov: XGovInput): Uint32 {
+    let accountId = this.getAccountIdIfExists(xGov.account)
     if (accountId.asUint64() === 0) {
-      return this.createAccountId(member.account)
+      return this.createAccountId(xGov.account)
     } else {
-      ensureExtra(accountId === member.accountId, errAccountIdMismatch, member.accountId.bytes)
+      ensureExtra(accountId === xGov.accountId, errAccountIdMismatch, xGov.accountId.bytes)
       return accountId
     }
   }
@@ -247,8 +247,8 @@ export class CommitteeOracle extends AccountIdContract {
     return this.mustGetCommittee(committeeId).superboxPrefix
   }
 
-  private getStoredMemberAt(superboxName: string, index: uint64): MemberStored {
-    const memberData = sbGetData(superboxName, index)
-    return decodeArc4<MemberStored>(memberData)
+  private getStoredXGovAt(superboxName: string, index: uint64): XGovStored {
+    const xGovData = sbGetData(superboxName, index)
+    return decodeArc4<XGovStored>(xGovData)
   }
 }
