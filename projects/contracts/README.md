@@ -2,6 +2,8 @@
 
 # xgov-delegator
 
+
+
 Smart contract to delegate xGov voting power for pooled and liquid staking systems.
 
 - xgov committees
@@ -10,16 +12,18 @@ Smart contract to delegate xGov voting power for pooled and liquid staking syste
       - read this from proposals to know if delegated account has voting power
     - period start round (inclusive)
     - period end round (exclusive)
-    - would currently need trusted offchain component
-      - would be good to have this onchain, see xgov-committee-oracle
+    - sync from xgov-committee-oracle
+      - do we need to get xgov delegations from registry?
 
-- external voting power: xgov votes for delegated account (e.g. reti pool, dualstake token, etc)
+- external voting power
+  - xgov votes delegated to this system on xGov registry. Delegators would usually be smart contract account(s) (e.g. reti pool, dualstake token, etc)
+  - support multiple accounts. E.g. reti can have up to 4 pools, xALGO/tALGO have multiple participating contract escrows. Etc
 
 - internal voting power
   - voting power split between accounts participating
   - metric: algohours
     - corresponds to 1 hour of 1 algo staked in the system
-  - offchain/trusted component to generate algohours per committee period.
+  - offchain/trusted component to generate algohours per committee period
   - stored per 1M rounds to reduce stored state
 
 ## State
@@ -38,13 +42,13 @@ value: uint32 incrementing ID
 
 Assigns uint32 ids to accounts to save 28 bytes per reference
 
-### 1M Algohour totals - total voting power fragment
+### 1M Algohour totals - total internal voting power (period fragment)
 
 key: period_start
 
 value: total algohours between [period_start, period_start+1M), uint64
 
-### 1M Algohour per account - voting power fragment
+### 1M Algohour per account - account internal voting power (period fragment)
 
 key: [period_start][account_id]
 
@@ -58,8 +62,12 @@ value: struct
 
 - period_start
 - period_end
-- own_total_voting_power
-- own_total_algohours
+- ext_total_voting_power
+  - total voting power delegated by xGov. Can be split across multiple accounts.
+- ext_delegated_accounts_voting_power
+  - individual delegated xGov accounts & their voting power
+  - [account ID uint32, votes uint64][]
+- int_total_algohours
   - sum of [1M Algohour totals] for $period_start, $period_start+1M, $period_start+2M
 
 ### Proposal Metadata
@@ -69,21 +77,24 @@ key: proposal_id
 value: ProposalMetadata struct
 
 - committee_id
-- vote_end_time
-- total_voting_power
-- total_algohours
-- voted_algohours
-- votes_yes_algohours uint64
-- votes_no_algohours uint64
-- has_voted_on_xgov_registry bool
+- ext_vote_end_time
+- ext_total_voting_power (dupe? we have in committee)
+- ext_accounts_voted_on_xgov_registry
+  - AccountID[]
+  - Added when vote is cast
+- int_vote_end_time
+- int_total_algohours (dupe? we have in committee)
+- int_voted_algohours
+- int_votes_yes_algohours uint64
+- int_votes_no_algohours uint64
 
 ### Vote Receipts
 
 key: [account id][proposal_id]
 
-value: empty # if no changing vote allowed
+value: empty                  # if no changing vote allowed
 
-value: [votes_yes,votes_no] # if changing vote is allowed
+value: [votes_yes,votes_no]   # if changing vote is allowed
 
 receipt to ensure each subdelegator votes once
 
@@ -145,16 +156,12 @@ create box.committee_[id]
 ```
 // get committee record for metadata
 committee = self.committee_[committee_id]
-
 // account/xgov ingest progress uses superbox size
 ingested_accounts = sb_exists ? count() : 0
-
 // get last ingested ID to ensure ascending ID order, deduplication enforcement
 last_ingested_id = ingested_accounts > 0 ? [ingested_accounts 1].id : 0
-
 // ensure we are not going over by # of accounts
 ensure(ingested_accounts + tuples.length <= committee.total_xgovs)
-
 // buffer to write to superbox once
 write_chunk: bytes of shape [id, votes][]
 // iterate tuples
