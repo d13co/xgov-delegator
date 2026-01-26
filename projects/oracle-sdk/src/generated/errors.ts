@@ -4,6 +4,7 @@
  * Map of error codes to human-readable error messages
  */
 export const ErrorMessages: Record<string, string> = {
+  "ERR:AUTH": "Unauthorized - caller must be admin",
   "ERR:C_EX": "Committee already exists",
   "ERR:C_NX": "Committee does not exist",
   "ERR:PE_LT": "Period end must be greater than period start",
@@ -17,5 +18,10 @@ export const ErrorMessages: Record<string, string> = {
   "ERR:A_EX": "Account already exists",
   "ERR:A_NX": "Account does not exist",
   "ERR:AH": "Account hint mismatch - provided offset does not match account",
-  "ERR:ID": "Account ID mismatch"
+  "ERR:ID": "Account ID mismatch",
+  "ERR:AH_EX": "Algohour account entry already exists",
+  "ERR:AH_NX": "Algohour account entry does not exist",
+  "ERR:PS": "Period start is invalid - must align with period length (1M)",
+  "ERR:PE": "Period end is invalid - must align with period length (1M)",
+  "ERR:A_NV": "No voting power for account"
 };

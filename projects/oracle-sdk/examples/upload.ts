@@ -1,5 +1,5 @@
 import { AlgorandClient } from "@algorandfoundation/algokit-utils";
-import { XGovCommitteesOracleSDK, CommitteeOracleFactory, calculateCommitteeId } from "../src";
+import { XGovCommitteesOracleSDK, CommitteeOracleFactory } from "..";
 import { readFileSync } from "fs";
 
 (async () => {

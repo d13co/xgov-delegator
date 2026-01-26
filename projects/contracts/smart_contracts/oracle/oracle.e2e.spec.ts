@@ -3,13 +3,13 @@ import { registerDebugEventHandlers } from '@algorandfoundation/algokit-utils-de
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 import { Address } from 'algosdk'
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest'
-import { CommitteeOracleFactory } from '../artifacts/oracle/CommitteeOracleClient'
 import {
   XGovCommitteesOracleSDK,
   calculateCommitteeId,
   increaseBudgetBaseCost,
   increaseBudgetIncrementCost,
-} from '../../../oracle-sdk'
+} from 'xgov-committees-oracle-sdk'
+import { CommitteeOracleFactory } from '../artifacts/oracle/CommitteeOracleClient'
 import { committeesForTests } from './fixtures'
 
 describe('Oracle contract', () => {

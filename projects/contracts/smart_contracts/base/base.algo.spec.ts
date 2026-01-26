@@ -9,6 +9,7 @@ import { u32 } from './utils.algo'
 class AccountIdContractTest extends AccountIdContract {
   declare public getAccountIdIfExists: (account: Account) => Uint32
   declare public createAccountId: (account: Account) => Uint32
+  declare public ensureCallerIsAdmin: () => void
 }
 
 describe('Base AccountIdContract contract', () => {
@@ -57,5 +58,17 @@ describe('Base AccountIdContract contract', () => {
     contract.createAccountId(account)
     expect(() => contract.createAccountId(account)).toThrowError(/err opcode/)
     // is there a way to get logs from errored transaction?
+  })
+
+  it('ensureCallerIsAdmin passes for creator', () => {
+    const contract = ctx.contract.create(AccountIdContractTest)
+    contract.ensureCallerIsAdmin()
+  })
+
+  it('ensureCallerIsAdmin fails for non-creator', () => {
+    const contract = ctx.contract.create(AccountIdContractTest)
+    ctx.defaultSender = ctx.any.account() // change sender to non-creator
+
+    expect(() => contract.ensureCallerIsAdmin()).toThrowError(/err opcode/)
   })
 })

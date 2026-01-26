@@ -3,7 +3,7 @@ min_version = "v2.0.0"
 
 [project]
 type = "sdk"
-name = 'abel-ghost-sdk'
+name = 'oracle-sdk'
 artifacts = "src/"
 
 [project.run]

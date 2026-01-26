@@ -1,7 +1,6 @@
 import { AlgorandClient } from "@algorandfoundation/algokit-utils";
-import { XGovCommitteesOracleSDK, CommitteeOracleFactory, calculateCommitteeId } from "../src";
+import { XGovCommitteesOracleSDK, CommitteeOracleFactory, calculateCommitteeId } from "..";
 import { readFileSync } from "fs";
-import { writer } from "repl";
 
 (async () => {
   const file = JSON.parse(readFileSync(process.argv[2], "utf-8"));

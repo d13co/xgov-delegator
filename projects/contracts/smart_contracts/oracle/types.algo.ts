@@ -1,6 +1,8 @@
 import { Account, uint64 } from '@algorandfoundation/algorand-typescript'
-import { Uint32 } from '@algorandfoundation/algorand-typescript/arc4'
+import { StaticBytes, Uint32 } from '@algorandfoundation/algorand-typescript/arc4'
 import { u32 } from '../base/utils.algo'
+
+export type CommitteeId = StaticBytes<32>
 
 /**
  * Committee Metadata
@@ -15,6 +17,11 @@ export type CommitteeMetadata = {
   superboxPrefix: string
 }
 
+export type AccountWithId = {
+  accountId: Uint32
+  account: Account
+}
+
 /**
  * Input representation of a committee xGov
  */
@@ -22,12 +29,14 @@ export type XGovInput = {
   accountId: Uint32
   account: Account
   votes: Uint32
+  // } & AccountWithId
+  // results in "Non builtin type must have a name"
 }
 
 /**
  * Stored representation of a committee xGov
  */
-export type XGovStored = {
+export type AccountIdWithVotes = {
   accountId: Uint32
   votes: Uint32
 }
@@ -44,4 +53,24 @@ export function getEmptyCommitteeMetadata(): CommitteeMetadata {
     ingestedVotes: u32(0),
     superboxPrefix: '',
   }
+}
+
+export type AlgohourAccountKey = [uint64, Uint32]
+
+export type AccountAlgohourInput = {
+  accountId: Uint32
+  account: Account
+  hours: uint64
+}
+
+export type DelegatorCommittee = {
+  periodStart: Uint32
+  periodEnd: Uint32
+  extDelegatedVotes: Uint32
+  extDelegatedAccountVotes: AccountIdWithVotes[]
+}
+
+export type AccountWithOffsetHint = {
+  account: Account
+  offsetHint: Uint32
 }

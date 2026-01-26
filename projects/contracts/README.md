@@ -60,9 +60,9 @@ value: struct
 
 - period_start
 - period_end
-- ext_total_voting_power
+- extDelegatedVotes
   - total voting power delegated by xGov. Can be split across multiple accounts.
-- ext_delegated_accounts_voting_power
+- extDelegatedAccountVotes
   - individual delegated xGov accounts & their voting power
   - [account ID uint32, votes uint64][]
 - int_total_algohours
@@ -90,9 +90,9 @@ value: ProposalMetadata struct
 
 key: [account id][proposal_id]
 
-value: empty                  # if no changing vote allowed
+value: empty # if no changing vote allowed
 
-value: [votes_yes,votes_no]   # if changing vote is allowed
+value: [votes_yes,votes_no] # if changing vote is allowed
 
 receipt to ensure each subdelegator votes once
 
