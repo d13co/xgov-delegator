@@ -9,7 +9,6 @@ import {
 } from '@algorandfoundation/algorand-typescript'
 import { compileArc4 } from '@algorandfoundation/algorand-typescript/arc4'
 import { AccountIdContract } from '../base/base.algo'
-import { ensure, ensureExtra, u32 } from '../base/utils.algo'
 import {
   errAlgoHoursExist,
   errAlgoHoursNotExist,
@@ -18,8 +17,7 @@ import {
   errPeriodEndInvalid,
   errPeriodEndLessThanStart,
   errPeriodStartInvalid,
-} from '../oracle/errors.algo'
-import { CommitteeOracle } from '../oracle/oracle.algo'
+} from '../base/errors.algo'
 import {
   AccountAlgohourInput,
   AccountIdWithVotes,
@@ -27,7 +25,9 @@ import {
   AlgohourAccountKey,
   CommitteeId,
   DelegatorCommittee,
-} from '../oracle/types.algo'
+} from '../base/types.algo'
+import { ensure, ensureExtra, u32 } from '../base/utils.algo'
+import { CommitteeOracle } from '../oracle/oracle.algo'
 
 const periodLength: uint64 = 1_000_000
 

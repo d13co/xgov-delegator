@@ -4,7 +4,6 @@ import { sbAppend, sbCreate, sbDeleteIndex, sbDeleteSuperbox, sbGetData } from '
 import { SuperboxMeta } from '@d13co/superbox/smart_contracts/superbox/lib/types.algo'
 import { sbMetaBox } from '@d13co/superbox/smart_contracts/superbox/lib/utils.algo'
 import { AccountIdContract } from '../base/base.algo'
-import { ensure, ensureExtra, u32 } from '../base/utils.algo'
 import {
   errAccountHintMismatch,
   errAccountNotExists,
@@ -18,7 +17,7 @@ import {
   errTotalVotesExceeded,
   errTotalVotesMismatch,
   errTotalXGovsExceeded,
-} from './errors.algo'
+} from '../base/errors.algo'
 import {
   AccountIdWithVotes,
   AccountWithId,
@@ -27,7 +26,8 @@ import {
   getEmptyCommitteeMetadata,
   XGOV_STORED_SIZE,
   XGovInput,
-} from './types.algo'
+} from '../base/types.algo'
+import { ensure, ensureExtra, u32 } from '../base/utils.algo'
 
 /**
  * Count total xGovs stored in committee superbox

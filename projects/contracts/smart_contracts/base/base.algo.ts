@@ -11,8 +11,8 @@ import {
   uint64,
 } from '@algorandfoundation/algorand-typescript'
 import { abimethod, Uint32 } from '@algorandfoundation/algorand-typescript/arc4'
-import { errAccountExists, errAccountIdMismatch, errAccountNotExists, errUnauthorized } from '../oracle/errors.algo'
-import { AccountWithId } from '../oracle/types.algo'
+import { errAccountExists, errAccountIdMismatch, errAccountNotExists, errUnauthorized } from './errors.algo'
+import { AccountWithId } from './types.algo'
 import { ensure, ensureExtra, u32 } from './utils.algo'
 
 class EmptyContract extends Contract {}

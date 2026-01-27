@@ -1,6 +1,6 @@
 import { Account, uint64 } from '@algorandfoundation/algorand-typescript'
 import { StaticBytes, Uint32 } from '@algorandfoundation/algorand-typescript/arc4'
-import { u32 } from '../base/utils.algo'
+import { u32 } from './utils.algo'
 
 export type CommitteeId = StaticBytes<32>
 

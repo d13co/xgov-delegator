@@ -2,9 +2,10 @@ import { Account, Bytes, op } from '@algorandfoundation/algorand-typescript'
 import { TestExecutionContext } from '@algorandfoundation/algorand-typescript-testing'
 import { Uint32 } from '@algorandfoundation/algorand-typescript/arc4'
 import { describe, expect, it } from 'vitest'
-import { errAccountExists, errAccountIdMismatch, errAccountNotExists, errUnauthorized } from '../oracle/errors.algo'
-import { AccountWithId } from '../oracle/types.algo'
 import { AccountIdContract } from './base.algo'
+import { expectArc65Error } from './common-tests.algo'
+import { errAccountExists, errAccountIdMismatch, errAccountNotExists, errUnauthorized } from './errors.algo'
+import { AccountWithId } from './types.algo'
 import { u32 } from './utils.algo'
 
 // Expose subroutines for testing
@@ -152,17 +153,3 @@ describe('Base AccountIdContract contract', () => {
     })
   })
 })
-
-async function expectArc65Error(ctx: TestExecutionContext, fn: () => void, errCode: string) {
-  try {
-    fn()
-    throw new Error('Expected function to throw an error, but it did not.')
-  } catch (error) {
-    const { appLogs } = ctx.txn.activeGroup.transactions[0] as any
-    if (!appLogs || appLogs.length === 0) {
-      throw new Error('No application logs found in the transaction.')
-    }
-    const lastLogStr = Buffer.from(appLogs[appLogs.length - 1].bytes, 'hex').toString('utf8')
-    expect(lastLogStr).toBe(errCode)
-  }
-}
