@@ -22,16 +22,11 @@ export abstract class AccountIdContract extends Contract {
   accountIds = BoxMap<Account, Uint32>({ keyPrefix: 'a' })
 
   /**
-   * Get account ID if exists, else return 0
-   * @param account
-   * @returns
+   * Create new account ID
+   * @param account Account to create ID for
+   * @throws ERR:AUTH if account already has ID
+   * @returns new account ID
    */
-  protected getAccountIdIfExists(account: Account): Uint32 {
-    const box = this.accountIds(account)
-    if (box.exists) return box.value
-    else return u32(0)
-  }
-
   protected createAccountId(account: Account): Uint32 {
     const box = this.accountIds(account)
     ensure(!box.exists, errAccountExists)
@@ -39,6 +34,29 @@ export abstract class AccountIdContract extends Contract {
     const accountId = u32(this.lastAccountId.value)
     box.value = accountId
     return accountId
+  }
+
+  /**
+   * Get account ID if exists, else return 0
+   * @param account Account to get ID for
+   * @returns Account ID or 0 if not exists
+   */
+  protected getAccountIdIfExists(account: Account): Uint32 {
+    const box = this.accountIds(account)
+    if (box.exists) return box.value
+    else return u32(0)
+  }
+
+  /**
+   * Get account ID or fail
+   * @param account Account to get ID for
+   * @throws ERR:A_NX if account does not exist
+   * @returns Account ID
+   */
+  protected mustGetAccountId(account: Account): Uint32 {
+    const accountIdBox = this.accountIds(account)
+    ensure(accountIdBox.exists, errAccountNotExists)
+    return accountIdBox.value
   }
 
   /**
@@ -56,16 +74,18 @@ export abstract class AccountIdContract extends Contract {
     }
   }
 
-  protected mustGetAccountId(account: Account): Uint32 {
-    const accountIdBox = this.accountIds(account)
-    ensure(accountIdBox.exists, errAccountNotExists)
-    return accountIdBox.value
-  }
-
+  /**
+   * Ensures the caller is the contract creator (admin)
+   * @throws ERR:AUTH if caller is not admin
+   */
   protected ensureCallerIsAdmin(): void {
     ensure(Txn.sender === Global.creatorAddress, errUnauthorized)
   }
 
+  /**
+   * Utility to increase opcode budget by performing $itxns no-op itxns
+   * @param itxns Number of no-op itxns to perform
+   */
   @abimethod({ validateEncoding: 'unsafe-disabled' })
   public increaseBudget(itxns: uint64) {
     const empty = compile(EmptyContract)
