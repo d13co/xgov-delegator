@@ -9,6 +9,11 @@ import { chunk } from "./util/chunk";
 import { chunked } from "./util/chunked";
 import { committeeIdToRaw } from "./util/comitteeId";
 import { errorTransformer, wrapErrors } from "./util/wrapErrors";
+import { SIMULATE_PARAMS } from "./util/increaseBudget";
+
+const PARTIAL_COMMITTEE_SIMULATE_CALLS = 16; // 16 simulate calls per fast-get
+const PARTIAL_COMMITTEE_FIRST_DATA_PAGE_LENGTH = 6; // first fast-get call retrieves 6 data pages, because 2x refs needed for sb meta + committee meta
+const PARTIAL_COMMITTEE_SECOND_DATA_PAGE_LENGTH = 7; // subsequent calls retrieve 7 data pages, because 1x ref needed for sb meta
 
 export class XGovCommitteesOracleReaderSDK {
   public algorand: AlgorandClient;
@@ -20,7 +25,7 @@ export class XGovCommitteesOracleReaderSDK {
   constructor({ algorand, concurrency = 4, debug, ...rest }: ReaderConstructorArgs) {
     const { appId, readerAccount } = getConstructorConfig(rest);
     this.algorand = algorand;
-    algorand.setSuggestedParamsCacheTimeout(6000) // 6s or ~2 rounds of cache. reduces GET requests to /params
+    algorand.setSuggestedParamsCacheTimeout(6000); // 6s or ~2 rounds of cache. reduces GET requests to /params
     algorand.registerErrorTransformer(errorTransformer);
     this.appId = appId;
     this.concurrency = concurrency;
@@ -33,12 +38,17 @@ export class XGovCommitteesOracleReaderSDK {
     });
   }
 
+  /**
+   * Get committee the reasonable way, fetching metadata, then superbox metadata, then xgovs sequentially
+   * @param committeeId
+   * @returns
+   */
   @wrapErrors()
   async getCommittee(committeeId: CommitteeId): Promise<XGovCommitteeFile | null> {
     const committeeMetadata = await this.getCommitteeMetadata(committeeId, true);
     if (!committeeMetadata) return null;
     const xGovs = await this.getCommitteeXGovs(committeeId);
-    const params = await this.algorand.getSuggestedParams()
+    const params = await this.algorand.getSuggestedParams();
     const networkGenesisHash = Buffer.from(params.genesisHash!).toString("base64");
     return {
       networkGenesisHash,
@@ -51,9 +61,111 @@ export class XGovCommitteesOracleReaderSDK {
     };
   }
 
+  /**
+   * Get committee with parallel calls and simulate heroics
+   * @param committeeId
+   * @returns
+   */
+  @wrapErrors()
+  async fastGetCommittee(committeeId: CommitteeId): Promise<XGovCommitteeFile | null> {
+    const firstPartialCommitteeDataPromise = this.fastGetPartialCommitteeData(committeeId, 0);
+    const accountIdMapPromise = this.getAccountIdMap();
+
+    const { committeeMetadata, storedXGovs, lastDataPage, totalDataPages } = await firstPartialCommitteeDataPromise;
+    // fetch rest if needed
+    // 6 + 15 * 7 = 111 data boxes on first fastGet call, 2048 sized boxes, 227328 bytes total, 8 bytes per xgov: 28416 xgovs needed to require a second fastGet page
+    const nextDataPage = lastDataPage + 1;
+    if (nextDataPage < totalDataPages) {
+      const partialFetchDataSize = PARTIAL_COMMITTEE_SIMULATE_CALLS * PARTIAL_COMMITTEE_SECOND_DATA_PAGE_LENGTH;
+      const extraCalls = Math.ceil((totalDataPages! - nextDataPage) / partialFetchDataSize);
+      const arr = Array.from({ length: extraCalls }, (_, i) => nextDataPage + i * partialFetchDataSize);
+      await pMap(
+        arr,
+        (pageStart) => this.fastGetPartialCommitteeData(committeeId, pageStart).then((data) => storedXGovs.push(...data.storedXGovs)),
+        { concurrency: this.concurrency },
+      );
+    }
+
+    const accountIdMap = await accountIdMapPromise;
+    const xGovs = this.convertStoredXGovsToXGovs(storedXGovs, accountIdMap);
+
+    const params = await this.algorand.getSuggestedParams();
+    const networkGenesisHash = Buffer.from(params.genesisHash!).toString("base64");
+
+    return {
+      networkGenesisHash,
+      periodEnd: committeeMetadata.periodEnd,
+      periodStart: committeeMetadata.periodStart,
+      registryId: Number(committeeMetadata.xGovRegistryId),
+      totalMembers: committeeMetadata.totalMembers,
+      totalVotes: committeeMetadata.totalVotes,
+      xGovs: xGovs.map(({ account, votes }) => ({ address: account.toString(), votes })).sort((a, b) => (a.address < b.address ? -1 : 1)),
+    };
+  }
+
+  async fastGetPartialCommitteeData(
+    committeeId: CommitteeId,
+    startDataPage: 0,
+  ): Promise<{ committeeMetadata: CommitteeMetadata; storedXGovs: StoredXGov[]; lastDataPage: number; totalDataPages: number }>;
+  async fastGetPartialCommitteeData(
+    committeeId: CommitteeId,
+    startDataPage: number,
+  ): Promise<{ storedXGovs: StoredXGov[]; lastDataPage: number }>;
+  async fastGetPartialCommitteeData(
+    committeeId: CommitteeId,
+    startDataPage: number,
+  ): Promise<{ committeeMetadata?: CommitteeMetadata; storedXGovs: StoredXGov[]; lastDataPage: number; totalDataPages?: number }> {
+    const returnMetadata = startDataPage === 0;
+    let builder: CommitteeOracleComposer<any> = this.readClient.newGroup();
+
+    for (let i = 0; i < PARTIAL_COMMITTEE_SIMULATE_CALLS; i++) {
+      const logMetadata = returnMetadata && i === 0;
+      const dataPageLength = logMetadata ? PARTIAL_COMMITTEE_FIRST_DATA_PAGE_LENGTH : PARTIAL_COMMITTEE_SECOND_DATA_PAGE_LENGTH;
+      builder = builder.logCommitteePages({
+        args: { committeeId: committeeIdToRaw(committeeId), logMetadata: returnMetadata && i === 0, startDataPage, dataPageLength },
+      });
+      startDataPage += dataPageLength;
+    }
+
+    const { confirmations } = await builder.simulate(SIMULATE_PARAMS);
+    const logs = confirmations.flatMap(({ logs }) => logs);
+    let committeeMetadata: CommitteeMetadata | undefined;
+    let superboxMeta: SuperboxMeta | undefined;
+    let storedXGovs: StoredXGov[] = [];
+
+    let ptr = 0;
+    if (returnMetadata) {
+      committeeMetadata = getABIDecodedValue(
+        new Uint8Array(logs[ptr++]!),
+        "CommitteeMetadata",
+        this.readClient.appSpec.structs,
+      ) as CommitteeMetadata;
+      superboxMeta = getABIDecodedValue(new Uint8Array(logs[ptr++]!), "SuperboxMeta", this.readClient.appSpec.structs) as SuperboxMeta;
+    }
+    for (let i = ptr; i < logs.length; i++) {
+      const logValue = new Uint8Array(logs[i]!);
+      if (logValue.length > 0) {
+        const pageXGovs = this.convertSuperboxToStoredXGovs(logValue);
+        storedXGovs = storedXGovs.concat(pageXGovs);
+      } else {
+        break; // reached end of data pages
+      }
+    }
+    return {
+      committeeMetadata,
+      storedXGovs,
+      lastDataPage: startDataPage - 1,
+      totalDataPages: superboxMeta ? superboxMeta.boxByteLengths.length : undefined,
+    };
+  }
+
   async getCommitteeXGovs(committeeId: CommitteeId): Promise<XGov[]> {
-    const [xGovs, accountMap] = await Promise.all([this.getCommitteeSuperboxData(committeeId), this.getAccountIdMap()]);
-    return xGovs
+    const [storedXGovs, accountMap] = await Promise.all([this.getCommitteeSuperboxData(committeeId), this.getAccountIdMap()]);
+    return this.convertStoredXGovsToXGovs(storedXGovs, accountMap);
+  }
+
+  protected convertStoredXGovsToXGovs(storedXGovs: StoredXGov[], accountMap: Map<string, number>): XGov[] {
+    return storedXGovs
       .map(([id, votes]) => {
         const accountRaw = Array.from(accountMap.entries()).find(([, accountId]) => accountId === id);
         const account = accountRaw ? accountRaw[0] : ALGORAND_ZERO_ADDRESS_STRING;
@@ -88,7 +200,7 @@ export class XGovCommitteesOracleReaderSDK {
     ]);
     const numPages = Math.ceil(Number(meta.totalByteLength) / Number(meta.maxBoxSize));
     const pages = Array.from({ length: numPages }, (_, i) => i);
-    const pageData = await pMap(pages, (page) => this.superboxToStoredXGovs(`${commmitteeMetadata?.superboxPrefix}${page}`), {
+    const pageData = await pMap(pages, (page) => this.getSuperboxAsStoredXGovs(`${commmitteeMetadata?.superboxPrefix}${page}`), {
       concurrency: this.concurrency,
     });
     return pageData.flat();
@@ -105,13 +217,16 @@ export class XGovCommitteesOracleReaderSDK {
     }
     const numPages = Math.ceil(Number(meta.totalByteLength) / Number(meta.maxBoxSize));
     const superboxKey = `${commmitteeMetadata?.superboxPrefix}${numPages - 1}`;
-    const lastPage = await this.superboxToStoredXGovs(superboxKey);
+    const lastPage = await this.getSuperboxAsStoredXGovs(superboxKey);
     return { last: lastPage[lastPage.length - 1], total: numXGovs };
   }
 
-  protected async superboxToStoredXGovs(superboxKey: string): Promise<StoredXGov[]> {
-    const bv = await this.algorand.app.getBoxValue(this.appId, superboxKey);
-    const chunks = chunk(Array.from(bv!), STORED_XGOV_BYTE_LENGTH); // each StoredXGov is (uint32, uint32)
+  protected async getSuperboxAsStoredXGovs(superboxKey: string): Promise<StoredXGov[]> {
+    return this.convertSuperboxToStoredXGovs(await this.algorand.app.getBoxValue(this.appId, superboxKey));
+  }
+
+  protected convertSuperboxToStoredXGovs(arr: Uint8Array): StoredXGov[] {
+    const chunks = chunk(Array.from(arr), STORED_XGOV_BYTE_LENGTH); // each StoredXGov is (uint32, uint32)
     return chunks.map((c) => getABIDecodedValue(new Uint8Array(c), "(uint32,uint32)", {}) as StoredXGov);
   }
 
@@ -132,6 +247,7 @@ export class XGovCommitteesOracleReaderSDK {
 
   @chunked(128)
   private async _getAccountIdChunked(accounts: string[]): Promise<number[]> {
+    if (accounts.length === 0) return [];
     const retData: number[] = [];
     const retTypeStr = "uint32";
     const accountArgs = chunk(accounts, 63);
@@ -139,12 +255,7 @@ export class XGovCommitteesOracleReaderSDK {
     for (const accountChunk of accountArgs) {
       builder = builder.logAccountIds({ args: { accounts: accountChunk } });
     }
-    const { confirmations } = await builder.simulate({
-      extraOpcodeBudget: 170_000,
-      allowMoreLogging: true,
-      allowEmptySignatures: true,
-      allowUnnamedResources: true,
-    });
+    const { confirmations } = await builder.simulate(SIMULATE_PARAMS);
     const logs = confirmations.flatMap(({ logs }) => logs);
     for (let i = 0; i < logs.length; i++) {
       retData.push(getABIDecodedValue(new Uint8Array(logs[i]!), retTypeStr, {}) as number);

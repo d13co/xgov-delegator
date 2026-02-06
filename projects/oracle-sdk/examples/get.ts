@@ -25,8 +25,10 @@ import { readFileSync } from "fs";
   const id = calculateCommitteeId(JSON.stringify(file));
   console.log({ id: Buffer.from(id).toString("base64") });
 
-  const comm = (await sdk.getCommittee(id))!;
-  console.log(JSON.stringify(comm));
+  console.time("fetch");
+  const comm = (await sdk.fastGetCommittee(id))!;
+  console.timeEnd("fetch");
+  // console.log(JSON.stringify(comm));
   if (comm) {
     for (const [key, value] of Object.entries(file)) {
       if (key === "xGovs") continue;

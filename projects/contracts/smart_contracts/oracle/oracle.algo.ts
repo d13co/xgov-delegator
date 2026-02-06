@@ -1,8 +1,18 @@
-import { Account, Box, BoxMap, Bytes, clone, GlobalState, log, uint64 } from '@algorandfoundation/algorand-typescript'
+import {
+  Account,
+  Box,
+  BoxMap,
+  bytes,
+  Bytes,
+  clone,
+  GlobalState,
+  log,
+  uint64,
+} from '@algorandfoundation/algorand-typescript'
 import { abimethod, decodeArc4, encodeArc4, Uint32 } from '@algorandfoundation/algorand-typescript/arc4'
 import { sbAppend, sbCreate, sbDeleteIndex, sbDeleteSuperbox, sbGetData } from '@d13co/superbox'
 import { SuperboxMeta } from '@d13co/superbox/smart_contracts/superbox/lib/types.algo'
-import { sbMetaBox } from '@d13co/superbox/smart_contracts/superbox/lib/utils.algo'
+import { itoa, sbMetaBox } from '@d13co/superbox/smart_contracts/superbox/lib/utils.algo'
 import { AccountIdContract } from '../base/base.algo'
 import {
   errAccountHintMismatch,
@@ -98,7 +108,7 @@ export class CommitteeOracle extends AccountIdContract {
   public ingestXGovs(committeeId: CommitteeId, xGovs: XGovInput[]): void {
     this.ensureCallerIsAdmin()
 
-    const committee = this.mustGetCommittee(committeeId)
+    const committee = this.mustGetCommitteeMetadata(committeeId)
     const superboxName = this.getCommitteeSBPrefix(committeeId)
     const sbMeta = sbMetaBox(superboxName)
     // figure out ingested accounts from superbox size
@@ -152,7 +162,7 @@ export class CommitteeOracle extends AccountIdContract {
   public uningestXGovs(committeeId: CommitteeId, numXGovs: uint64): void {
     this.ensureCallerIsAdmin()
 
-    const committee = this.mustGetCommittee(committeeId)
+    const committee = this.mustGetCommitteeMetadata(committeeId)
     const superboxName = this.getCommitteeSBPrefix(committeeId)
     const sbMeta = sbMetaBox(superboxName)
     const totalXGovs = getCommitteeSBXGovs(sbMeta)
@@ -224,6 +234,45 @@ export class CommitteeOracle extends AccountIdContract {
   }
 
   /**
+   * Facilitates fetching committee in "one shot" / parallel queries
+   * if logMetadata is true, log committee metadata and superbox metadata (which includes total xGovs)
+   * then log $dataPageLength number of xGov data boxes, starting from $startDataPage
+   * @param committeeId
+   * @param logMetadata
+   * @param startDataPage
+   * @param dataPageLength
+   */
+  public logCommitteePages(
+    committeeId: CommitteeId,
+    logMetadata: boolean,
+    startDataPage: uint64,
+    dataPageLength: uint64,
+  ): void {
+    // log metadata and superbox meta on first page
+    const superboxPrefix = this.getCommitteeSBPrefix(committeeId)
+    const sbMetaBoxRef = sbMetaBox(superboxPrefix)
+    ensure(sbMetaBoxRef.exists, errCommitteeNotExists)
+    const sbMeta = clone(sbMetaBoxRef.value)
+    if (logMetadata) {
+      const committeeMetadata = this.mustGetCommitteeMetadata(committeeId) // ensure committee exists
+      log(encodeArc4(committeeMetadata))
+      log(encodeArc4(sbMeta))
+    }
+
+    // log data pages. allow calling more pages than exist, log empty if page exceeds data
+    const maxDataPages = sbMeta.boxByteLengths.length
+    for (let i: uint64 = 0; i < dataPageLength; i++) {
+      const page: uint64 = startDataPage + i
+      if (page >= maxDataPages) {
+        log(Bytes``) // no page at index; logging empty
+      } else {
+        const dataBoxName = superboxPrefix + itoa(page) // TODO export dataBoxRef from superbox lib and use that instead of reconstructing name
+        log(Box<bytes>({ key: dataBoxName }).value)
+      }
+    }
+  }
+
+  /**
    * Get committee superbox metadata
    * @param committeeId
    * @returns SuperboxMeta
@@ -243,7 +292,7 @@ export class CommitteeOracle extends AccountIdContract {
    */
   @abimethod({ readonly: true })
   public getXGovVotingPower(committeeId: CommitteeId, account: Account, accountOffsetHint: Uint32): Uint32 {
-    this.mustGetCommittee(committeeId)
+    this.mustGetCommitteeMetadata(committeeId)
 
     const accountId = this.getAccountIdIfExists(account)
     ensure(accountId.asUint64() !== 0, errAccountNotExists)
@@ -259,7 +308,7 @@ export class CommitteeOracle extends AccountIdContract {
    * @param committeeId
    * @returns Committee
    */
-  private mustGetCommittee(committeeId: CommitteeId): CommitteeMetadata {
+  private mustGetCommitteeMetadata(committeeId: CommitteeId): CommitteeMetadata {
     const committeeBox = this.committees(committeeId)
     ensure(committeeBox.exists, errCommitteeNotExists)
     return committeeBox.value
@@ -271,7 +320,7 @@ export class CommitteeOracle extends AccountIdContract {
    * @returns committee superbox prefix
    */
   private getCommitteeSBPrefix(committeeId: CommitteeId): string {
-    return this.mustGetCommittee(committeeId).superboxPrefix
+    return this.mustGetCommitteeMetadata(committeeId).superboxPrefix
   }
 
   /**

@@ -47,7 +47,7 @@ export class XGovCommitteesOracleSDK extends XGovCommitteesOracleReaderSDK {
       .map(([address, id]) => ({ address, id }))
       .sort(({ id: a }, { id: b }) => (a === 0 && b !== 0 ? 1 : a !== 0 && b === 0 ? -1 : a - b));
 
-    console.log({ acctLen: accountsInOrder.length, lastIngestedXGov });
+    this.debug && console.log({ acctLen: accountsInOrder.length, lastIngestedXGov });
     if (lastIngestedXGov.total) {
       const expectedLastId = accountsInOrder[lastIngestedXGov.total - 1].id;
       if (lastIngestedXGov.last && lastIngestedXGov.last[0] !== expectedLastId) {
