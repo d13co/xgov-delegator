@@ -115,7 +115,7 @@ syncCommitteeMetadata:
     swap
     len
     ==
-    assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/oracle/types.algo.ts::AccountWithOffsetHint>
+    assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/base/types.algo.ts::AccountWithOffsetHint>
     // smart_contracts/delegator/delegator.algo.ts:57
     // this.ensureCallerIsAdmin()
     callsub ensureCallerIsAdmin
@@ -447,7 +447,7 @@ addAccountAlgoHours:
     swap
     len
     ==
-    assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/oracle/types.algo.ts::AccountAlgohourInput>
+    assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/base/types.algo.ts::AccountAlgohourInput>
     // smart_contracts/delegator/delegator.algo.ts:98
     // this.ensureCallerIsAdmin()
     callsub ensureCallerIsAdmin
@@ -623,7 +623,7 @@ removeAccountAlgoHours:
     swap
     len
     ==
-    assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/oracle/types.algo.ts::AccountAlgohourInput>
+    assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/base/types.algo.ts::AccountAlgohourInput>
     // smart_contracts/delegator/delegator.algo.ts:123
     // this.ensureCallerIsAdmin()
     callsub ensureCallerIsAdmin

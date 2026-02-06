@@ -883,8 +883,8 @@
       ]
     },
     "236": {
-      "error": "invalid number of bytes for arc4.dynamic_array<smart_contracts/oracle/types.algo.ts::AccountWithOffsetHint>",
-      "op": "assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/oracle/types.algo.ts::AccountWithOffsetHint>",
+      "error": "invalid number of bytes for arc4.dynamic_array<smart_contracts/base/types.algo.ts::AccountWithOffsetHint>",
+      "op": "assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/base/types.algo.ts::AccountWithOffsetHint>",
       "stack_out": [
         "account#0",
         "committee#0",
@@ -5656,8 +5656,8 @@
       ]
     },
     "614": {
-      "error": "invalid number of bytes for arc4.dynamic_array<smart_contracts/oracle/types.algo.ts::AccountAlgohourInput>",
-      "op": "assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/oracle/types.algo.ts::AccountAlgohourInput>",
+      "error": "invalid number of bytes for arc4.dynamic_array<smart_contracts/base/types.algo.ts::AccountAlgohourInput>",
+      "op": "assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/base/types.algo.ts::AccountAlgohourInput>",
       "stack_out": [
         "account#0",
         "aggregate%val_as_bytes%0#0",
@@ -7837,8 +7837,8 @@
       ]
     },
     "797": {
-      "error": "invalid number of bytes for arc4.dynamic_array<smart_contracts/oracle/types.algo.ts::AccountAlgohourInput>",
-      "op": "assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/oracle/types.algo.ts::AccountAlgohourInput>",
+      "error": "invalid number of bytes for arc4.dynamic_array<smart_contracts/base/types.algo.ts::AccountAlgohourInput>",
+      "op": "assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/base/types.algo.ts::AccountAlgohourInput>",
       "stack_out": [
         "account#0",
         "aggregate%val_as_bytes%0#0",

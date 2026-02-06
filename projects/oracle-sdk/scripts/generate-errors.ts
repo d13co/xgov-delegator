@@ -5,7 +5,7 @@
 import { readFileSync, writeFileSync } from 'fs'
 import { resolve } from 'path'
 
-const errorsFilePath = resolve(__dirname, '../../contracts/smart_contracts/oracle/errors.algo.ts')
+const errorsFilePath = resolve(__dirname, '../../contracts/smart_contracts/base/errors.algo.ts')
 const outputFilePath = resolve(__dirname, '../src/generated/errors.ts')
 
 const content = readFileSync(errorsFilePath, 'utf-8')

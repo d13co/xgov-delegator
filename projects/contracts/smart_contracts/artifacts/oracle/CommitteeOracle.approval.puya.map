@@ -5,11 +5,11 @@
     "../../../node_modules/@d13co/superbox/smart_contracts/superbox/lib/types.algo.ts",
     "../../../node_modules/@d13co/superbox/smart_contracts/superbox/lib/utils.algo.ts",
     "../../base/base.algo.ts",
+    "../../base/types.algo.ts",
     "../../base/utils.algo.ts",
-    "../../oracle/oracle.algo.ts",
-    "../../oracle/types.algo.ts"
+    "../../oracle/oracle.algo.ts"
   ],
-  "mappings": "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",
+  "mappings": "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",
   "op_pc_offset": 0,
   "pc_events": {
     "1": {
@@ -478,21 +478,21 @@
       "op": "retsub"
     },
     "235": {
-      "subroutine": "smart_contracts/base/utils.algo.ts::u32",
+      "subroutine": "@d13co/superbox/smart_contracts/superbox/lib/types.algo.ts::au16",
       "params": {
-        "v#0": "uint64"
+        "num#0": "uint64"
       },
-      "block": "u32",
+      "block": "au16",
       "stack_in": [],
       "op": "proto 1 1"
     },
     "238": {
       "op": "frame_dig -1",
       "defined_out": [
-        "v#0 (copy)"
+        "num#0 (copy)"
       ],
       "stack_out": [
-        "v#0 (copy)"
+        "num#0 (copy)"
       ]
     },
     "240": {
@@ -527,364 +527,6 @@
       ]
     },
     "243": {
-      "op": "intc_3 // 32",
-      "defined_out": [
-        "32",
-        "aggregate%bitlen%0#0",
-        "aggregate%val_as_bytes%0#0"
-      ],
-      "stack_out": [
-        "aggregate%val_as_bytes%0#0",
-        "aggregate%bitlen%0#0",
-        "32"
-      ]
-    },
-    "244": {
-      "op": "<=",
-      "defined_out": [
-        "aggregate%no_overflow%0#0",
-        "aggregate%val_as_bytes%0#0"
-      ],
-      "stack_out": [
-        "aggregate%val_as_bytes%0#0",
-        "aggregate%no_overflow%0#0"
-      ]
-    },
-    "245": {
-      "error": "overflow",
-      "op": "assert // overflow",
-      "stack_out": [
-        "aggregate%val_as_bytes%0#0"
-      ]
-    },
-    "246": {
-      "op": "extract 4 4",
-      "defined_out": [
-        "aggregate%uint32%0#0"
-      ],
-      "stack_out": [
-        "aggregate%uint32%0#0"
-      ]
-    },
-    "249": {
-      "retsub": true,
-      "op": "retsub"
-    },
-    "250": {
-      "subroutine": "smart_contracts/oracle/types.algo.ts::getEmptyCommitteeMetadata",
-      "params": {},
-      "block": "getEmptyCommitteeMetadata",
-      "stack_in": [],
-      "op": "intc_0 // 0",
-      "defined_out": [
-        "0"
-      ],
-      "stack_out": [
-        "0"
-      ]
-    },
-    "251": {
-      "callsub": "smart_contracts/base/utils.algo.ts::u32",
-      "op": "callsub u32",
-      "defined_out": [
-        "tmp%0#0"
-      ],
-      "stack_out": [
-        "tmp%0#0"
-      ]
-    },
-    "254": {
-      "op": "intc_0 // 0",
-      "stack_out": [
-        "tmp%0#0",
-        "0"
-      ]
-    },
-    "255": {
-      "callsub": "smart_contracts/base/utils.algo.ts::u32",
-      "op": "callsub u32",
-      "defined_out": [
-        "tmp%0#0",
-        "tmp%1#0"
-      ],
-      "stack_out": [
-        "tmp%0#0",
-        "tmp%1#0"
-      ]
-    },
-    "258": {
-      "op": "intc_0 // 0",
-      "stack_out": [
-        "tmp%0#0",
-        "tmp%1#0",
-        "0"
-      ]
-    },
-    "259": {
-      "callsub": "smart_contracts/base/utils.algo.ts::u32",
-      "op": "callsub u32",
-      "defined_out": [
-        "tmp%0#0",
-        "tmp%1#0",
-        "tmp%2#0"
-      ],
-      "stack_out": [
-        "tmp%0#0",
-        "tmp%1#0",
-        "tmp%2#0"
-      ]
-    },
-    "262": {
-      "op": "intc_0 // 0",
-      "stack_out": [
-        "tmp%0#0",
-        "tmp%1#0",
-        "tmp%2#0",
-        "0"
-      ]
-    },
-    "263": {
-      "callsub": "smart_contracts/base/utils.algo.ts::u32",
-      "op": "callsub u32",
-      "defined_out": [
-        "tmp%0#0",
-        "tmp%1#0",
-        "tmp%2#0",
-        "tmp%3#0"
-      ],
-      "stack_out": [
-        "tmp%0#0",
-        "tmp%1#0",
-        "tmp%2#0",
-        "tmp%3#0"
-      ]
-    },
-    "266": {
-      "op": "intc_0 // 0",
-      "stack_out": [
-        "tmp%0#0",
-        "tmp%1#0",
-        "tmp%2#0",
-        "tmp%3#0",
-        "0"
-      ]
-    },
-    "267": {
-      "callsub": "smart_contracts/base/utils.algo.ts::u32",
-      "op": "callsub u32",
-      "defined_out": [
-        "tmp%0#0",
-        "tmp%1#0",
-        "tmp%2#0",
-        "tmp%3#0",
-        "tmp%4#0"
-      ],
-      "stack_out": [
-        "tmp%0#0",
-        "tmp%1#0",
-        "tmp%2#0",
-        "tmp%3#0",
-        "tmp%4#0"
-      ]
-    },
-    "270": {
-      "op": "uncover 4",
-      "stack_out": [
-        "tmp%1#0",
-        "tmp%2#0",
-        "tmp%3#0",
-        "tmp%4#0",
-        "tmp%0#0"
-      ]
-    },
-    "272": {
-      "op": "uncover 4",
-      "stack_out": [
-        "tmp%2#0",
-        "tmp%3#0",
-        "tmp%4#0",
-        "tmp%0#0",
-        "tmp%1#0"
-      ]
-    },
-    "274": {
-      "op": "concat",
-      "defined_out": [
-        "aggregate%head%1#0",
-        "tmp%2#0",
-        "tmp%3#0",
-        "tmp%4#0"
-      ],
-      "stack_out": [
-        "tmp%2#0",
-        "tmp%3#0",
-        "tmp%4#0",
-        "aggregate%head%1#0"
-      ]
-    },
-    "275": {
-      "op": "uncover 3",
-      "stack_out": [
-        "tmp%3#0",
-        "tmp%4#0",
-        "aggregate%head%1#0",
-        "tmp%2#0"
-      ]
-    },
-    "277": {
-      "op": "concat",
-      "defined_out": [
-        "aggregate%head%2#0",
-        "tmp%3#0",
-        "tmp%4#0"
-      ],
-      "stack_out": [
-        "tmp%3#0",
-        "tmp%4#0",
-        "aggregate%head%2#0"
-      ]
-    },
-    "278": {
-      "op": "uncover 2",
-      "stack_out": [
-        "tmp%4#0",
-        "aggregate%head%2#0",
-        "tmp%3#0"
-      ]
-    },
-    "280": {
-      "op": "concat",
-      "defined_out": [
-        "aggregate%head%3#0",
-        "tmp%4#0"
-      ],
-      "stack_out": [
-        "tmp%4#0",
-        "aggregate%head%3#0"
-      ]
-    },
-    "281": {
-      "op": "intc_0 // 0",
-      "stack_out": [
-        "tmp%4#0",
-        "aggregate%head%3#0",
-        "0"
-      ]
-    },
-    "282": {
-      "op": "itob",
-      "defined_out": [
-        "aggregate%head%3#0",
-        "aggregate%val_as_bytes%0#0",
-        "tmp%4#0"
-      ],
-      "stack_out": [
-        "tmp%4#0",
-        "aggregate%head%3#0",
-        "aggregate%val_as_bytes%0#0"
-      ]
-    },
-    "283": {
-      "op": "concat",
-      "defined_out": [
-        "aggregate%head%4#0",
-        "tmp%4#0"
-      ],
-      "stack_out": [
-        "tmp%4#0",
-        "aggregate%head%4#0"
-      ]
-    },
-    "284": {
-      "op": "swap",
-      "stack_out": [
-        "aggregate%head%4#0",
-        "tmp%4#0"
-      ]
-    },
-    "285": {
-      "op": "concat",
-      "defined_out": [
-        "aggregate%head%5#0"
-      ],
-      "stack_out": [
-        "aggregate%head%5#0"
-      ]
-    },
-    "286": {
-      "op": "pushbytes 0x001e0000",
-      "defined_out": [
-        "0x001e0000",
-        "aggregate%head%5#0"
-      ],
-      "stack_out": [
-        "aggregate%head%5#0",
-        "0x001e0000"
-      ]
-    },
-    "292": {
-      "op": "concat",
-      "defined_out": [
-        "aggregate%concat%0#0"
-      ],
-      "stack_out": [
-        "aggregate%concat%0#0"
-      ]
-    },
-    "293": {
-      "retsub": true,
-      "op": "retsub"
-    },
-    "294": {
-      "subroutine": "@d13co/superbox/smart_contracts/superbox/lib/types.algo.ts::au16",
-      "params": {
-        "num#0": "uint64"
-      },
-      "block": "au16",
-      "stack_in": [],
-      "op": "proto 1 1"
-    },
-    "297": {
-      "op": "frame_dig -1",
-      "defined_out": [
-        "num#0 (copy)"
-      ],
-      "stack_out": [
-        "num#0 (copy)"
-      ]
-    },
-    "299": {
-      "op": "itob",
-      "defined_out": [
-        "aggregate%val_as_bytes%0#0"
-      ],
-      "stack_out": [
-        "aggregate%val_as_bytes%0#0"
-      ]
-    },
-    "300": {
-      "op": "dup",
-      "defined_out": [
-        "aggregate%val_as_bytes%0#0",
-        "aggregate%val_as_bytes%0#0 (copy)"
-      ],
-      "stack_out": [
-        "aggregate%val_as_bytes%0#0",
-        "aggregate%val_as_bytes%0#0 (copy)"
-      ]
-    },
-    "301": {
-      "op": "bitlen",
-      "defined_out": [
-        "aggregate%bitlen%0#0",
-        "aggregate%val_as_bytes%0#0"
-      ],
-      "stack_out": [
-        "aggregate%val_as_bytes%0#0",
-        "aggregate%bitlen%0#0"
-      ]
-    },
-    "302": {
       "op": "pushint 16 // 16",
       "defined_out": [
         "16",
@@ -897,7 +539,7 @@
         "16"
       ]
     },
-    "304": {
+    "245": {
       "op": "<=",
       "defined_out": [
         "aggregate%no_overflow%0#0",
@@ -908,14 +550,14 @@
         "aggregate%no_overflow%0#0"
       ]
     },
-    "305": {
+    "246": {
       "error": "overflow",
       "op": "assert // overflow",
       "stack_out": [
         "aggregate%val_as_bytes%0#0"
       ]
     },
-    "306": {
+    "247": {
       "op": "extract 6 2",
       "defined_out": [
         "aggregate%uint16%0#0"
@@ -924,11 +566,11 @@
         "aggregate%uint16%0#0"
       ]
     },
-    "309": {
+    "250": {
       "retsub": true,
       "op": "retsub"
     },
-    "310": {
+    "251": {
       "subroutine": "@d13co/superbox/smart_contracts/superbox/lib/utils.algo.ts::itoa",
       "params": {
         "i#0": "uint64"
@@ -937,7 +579,7 @@
       "stack_in": [],
       "op": "proto 1 1"
     },
-    "313": {
+    "254": {
       "op": "frame_dig -1",
       "defined_out": [
         "i#0 (copy)"
@@ -946,7 +588,7 @@
         "i#0 (copy)"
       ]
     },
-    "315": {
+    "256": {
       "op": "pushint 10 // 10",
       "defined_out": [
         "10",
@@ -957,7 +599,7 @@
         "10"
       ]
     },
-    "317": {
+    "258": {
       "op": "<",
       "defined_out": [
         "tmp%1#0"
@@ -966,11 +608,11 @@
         "tmp%1#0"
       ]
     },
-    "318": {
+    "259": {
       "op": "bz @d13co/superbox/smart_contracts/superbox/lib/utils.algo.ts::itoa_after_if_else@2",
       "stack_out": []
     },
-    "321": {
+    "262": {
       "op": "bytec 4 // \"0123456789\"",
       "defined_out": [
         "\"0123456789\""
@@ -979,14 +621,14 @@
         "\"0123456789\""
       ]
     },
-    "323": {
+    "264": {
       "op": "frame_dig -1",
       "stack_out": [
         "\"0123456789\"",
         "i#0 (copy)"
       ]
     },
-    "325": {
+    "266": {
       "op": "intc_1 // 1",
       "defined_out": [
         "\"0123456789\"",
@@ -999,7 +641,7 @@
         "1"
       ]
     },
-    "326": {
+    "267": {
       "op": "extract3",
       "defined_out": [
         "extract%0#0"
@@ -1008,11 +650,11 @@
         "extract%0#0"
       ]
     },
-    "327": {
+    "268": {
       "retsub": true,
       "op": "retsub"
     },
-    "328": {
+    "269": {
       "block": "@d13co/superbox/smart_contracts/superbox/lib/utils.algo.ts::itoa_after_if_else@2",
       "stack_in": [],
       "op": "frame_dig -1",
@@ -1023,7 +665,7 @@
         "i#0 (copy)"
       ]
     },
-    "330": {
+    "271": {
       "op": "pushint 10 // 10",
       "defined_out": [
         "10",
@@ -1034,7 +676,7 @@
         "10"
       ]
     },
-    "332": {
+    "273": {
       "op": "/",
       "defined_out": [
         "tmp%2#0"
@@ -1043,7 +685,7 @@
         "tmp%2#0"
       ]
     },
-    "333": {
+    "274": {
       "callsub": "@d13co/superbox/smart_contracts/superbox/lib/utils.algo.ts::itoa",
       "op": "callsub @d13co/superbox/smart_contracts/superbox/lib/utils.algo.ts::itoa",
       "defined_out": [
@@ -1053,14 +695,14 @@
         "tmp%3#0"
       ]
     },
-    "336": {
+    "277": {
       "op": "frame_dig -1",
       "stack_out": [
         "tmp%3#0",
         "i#0 (copy)"
       ]
     },
-    "338": {
+    "279": {
       "op": "pushint 10 // 10",
       "stack_out": [
         "tmp%3#0",
@@ -1068,7 +710,7 @@
         "10"
       ]
     },
-    "340": {
+    "281": {
       "op": "%",
       "defined_out": [
         "tmp%3#0",
@@ -1079,7 +721,7 @@
         "tmp%4#0"
       ]
     },
-    "341": {
+    "282": {
       "op": "bytec 4 // \"0123456789\"",
       "defined_out": [
         "\"0123456789\"",
@@ -1092,7 +734,7 @@
         "\"0123456789\""
       ]
     },
-    "343": {
+    "284": {
       "op": "swap",
       "stack_out": [
         "tmp%3#0",
@@ -1100,7 +742,7 @@
         "tmp%4#0"
       ]
     },
-    "344": {
+    "285": {
       "op": "intc_1 // 1",
       "defined_out": [
         "\"0123456789\"",
@@ -1115,7 +757,7 @@
         "1"
       ]
     },
-    "345": {
+    "286": {
       "op": "extract3",
       "defined_out": [
         "extract%1#0",
@@ -1126,7 +768,7 @@
         "extract%1#0"
       ]
     },
-    "346": {
+    "287": {
       "op": "concat",
       "defined_out": [
         "tmp%5#0"
@@ -1135,11 +777,11 @@
         "tmp%5#0"
       ]
     },
-    "347": {
+    "288": {
       "retsub": true,
       "op": "retsub"
     },
-    "348": {
+    "289": {
       "subroutine": "@d13co/superbox/smart_contracts/superbox/lib/utils.algo.ts::sbMetaBoxValue",
       "params": {
         "name#0": "bytes"
@@ -1148,7 +790,7 @@
       "stack_in": [],
       "op": "proto 1 1"
     },
-    "351": {
+    "292": {
       "op": "frame_dig -1",
       "defined_out": [
         "name#0 (copy)"
@@ -1157,7 +799,7 @@
         "name#0 (copy)"
       ]
     },
-    "353": {
+    "294": {
       "op": "bytec_1 // \"_m\"",
       "defined_out": [
         "\"_m\"",
@@ -1168,7 +810,7 @@
         "\"_m\""
       ]
     },
-    "354": {
+    "295": {
       "op": "concat",
       "defined_out": [
         "metaBox#0"
@@ -1177,7 +819,7 @@
         "metaBox#0"
       ]
     },
-    "355": {
+    "296": {
       "op": "dup",
       "defined_out": [
         "metaBox#0",
@@ -1188,7 +830,7 @@
         "metaBox#0 (copy)"
       ]
     },
-    "356": {
+    "297": {
       "op": "box_len",
       "defined_out": [
         "_%0#0",
@@ -1201,21 +843,21 @@
         "maybe_exists%0#0"
       ]
     },
-    "357": {
+    "298": {
       "op": "bury 1",
       "stack_out": [
         "metaBox#0",
         "maybe_exists%0#0"
       ]
     },
-    "359": {
+    "300": {
       "error": "ERR:SBNEXIST",
       "op": "assert // ERR:SBNEXIST",
       "stack_out": [
         "metaBox#0"
       ]
     },
-    "360": {
+    "301": {
       "op": "box_get",
       "defined_out": [
         "aggregate%box_get%0#0",
@@ -1226,17 +868,17 @@
         "aggregate%box_get%1#0"
       ]
     },
-    "361": {
+    "302": {
       "op": "pop",
       "stack_out": [
         "aggregate%box_get%0#0"
       ]
     },
-    "362": {
+    "303": {
       "retsub": true,
       "op": "retsub"
     },
-    "363": {
+    "304": {
       "subroutine": "@d13co/superbox/smart_contracts/superbox/lib/superbox.algo.ts::sbGetLocation",
       "params": {
         "name#0": "bytes",
@@ -1246,13 +888,13 @@
       "stack_in": [],
       "op": "proto 2 1"
     },
-    "366": {
+    "307": {
       "op": "bytec_2 // \"\"",
       "stack_out": [
         "boxSize#0"
       ]
     },
-    "367": {
+    "308": {
       "op": "frame_dig -2",
       "defined_out": [
         "name#0 (copy)"
@@ -1262,7 +904,7 @@
         "name#0 (copy)"
       ]
     },
-    "369": {
+    "310": {
       "callsub": "@d13co/superbox/smart_contracts/superbox/lib/utils.algo.ts::sbMetaBoxValue",
       "op": "callsub sbMetaBoxValue",
       "defined_out": [
@@ -1273,7 +915,7 @@
         "meta#0"
       ]
     },
-    "372": {
+    "313": {
       "op": "dup",
       "defined_out": [
         "meta#0",
@@ -1285,7 +927,7 @@
         "meta#0 (copy)"
       ]
     },
-    "373": {
+    "314": {
       "op": "pushint 18 // 18",
       "defined_out": [
         "18",
@@ -1299,7 +941,7 @@
         "18"
       ]
     },
-    "375": {
+    "316": {
       "op": "extract_uint64",
       "defined_out": [
         "meta#0",
@@ -1311,7 +953,7 @@
         "valueSize#0"
       ]
     },
-    "376": {
+    "317": {
       "op": "dig 1",
       "stack_out": [
         "boxSize#0",
@@ -1320,7 +962,7 @@
         "meta#0 (copy)"
       ]
     },
-    "378": {
+    "319": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
@@ -1336,7 +978,7 @@
         "0"
       ]
     },
-    "379": {
+    "320": {
       "op": "extract_uint16",
       "defined_out": [
         "aggregate%extract_uint16%0#0",
@@ -1350,7 +992,7 @@
         "aggregate%extract_uint16%0#0"
       ]
     },
-    "380": {
+    "321": {
       "op": "dig 2",
       "stack_out": [
         "boxSize#0",
@@ -1360,7 +1002,7 @@
         "meta#0 (copy)"
       ]
     },
-    "382": {
+    "323": {
       "op": "pushint 26 // 26",
       "defined_out": [
         "26",
@@ -1378,7 +1020,7 @@
         "26"
       ]
     },
-    "384": {
+    "325": {
       "op": "extract_uint16",
       "defined_out": [
         "aggregate%extract_uint16%0#0",
@@ -1394,7 +1036,7 @@
         "aggregate%extract_uint16%1#0"
       ]
     },
-    "385": {
+    "326": {
       "op": "dig 3",
       "stack_out": [
         "boxSize#0",
@@ -1405,7 +1047,7 @@
         "meta#0 (copy)"
       ]
     },
-    "387": {
+    "328": {
       "op": "cover 2",
       "stack_out": [
         "boxSize#0",
@@ -1416,7 +1058,7 @@
         "aggregate%extract_uint16%1#0"
       ]
     },
-    "389": {
+    "330": {
       "op": "substring3",
       "defined_out": [
         "aggregate%substring3%0#0",
@@ -1430,7 +1072,7 @@
         "aggregate%substring3%0#0"
       ]
     },
-    "390": {
+    "331": {
       "op": "dup",
       "stack_out": [
         "boxSize#0",
@@ -1440,7 +1082,7 @@
         "aggregate%substring3%0#0"
       ]
     },
-    "391": {
+    "332": {
       "op": "cover 3",
       "defined_out": [
         "aggregate%substring3%0#0",
@@ -1455,7 +1097,7 @@
         "aggregate%substring3%0#0"
       ]
     },
-    "393": {
+    "334": {
       "op": "intc_0 // 0",
       "stack_out": [
         "boxSize#0",
@@ -1466,7 +1108,7 @@
         "0"
       ]
     },
-    "394": {
+    "335": {
       "error": "invalid array length header",
       "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
@@ -1483,7 +1125,7 @@
         "totalBoxes#0"
       ]
     },
-    "395": {
+    "336": {
       "op": "cover 2",
       "defined_out": [
         "aggregate%substring3%0#0",
@@ -1499,7 +1141,7 @@
         "valueSize#0"
       ]
     },
-    "397": {
+    "338": {
       "op": "frame_dig -1",
       "defined_out": [
         "aggregate%substring3%0#0",
@@ -1517,7 +1159,7 @@
         "valueIndex#0 (copy)"
       ]
     },
-    "399": {
+    "340": {
       "op": "dig 1",
       "defined_out": [
         "aggregate%substring3%0#0",
@@ -1537,7 +1179,7 @@
         "valueSize#0 (copy)"
       ]
     },
-    "401": {
+    "342": {
       "op": "*",
       "defined_out": [
         "aggregate%substring3%0#0",
@@ -1555,7 +1197,7 @@
         "byteIndex#0"
       ]
     },
-    "402": {
+    "343": {
       "op": "dup",
       "stack_out": [
         "boxSize#0",
@@ -1567,7 +1209,7 @@
         "byteIndex#0"
       ]
     },
-    "403": {
+    "344": {
       "op": "cover 3",
       "defined_out": [
         "aggregate%substring3%0#0",
@@ -1586,7 +1228,7 @@
         "byteIndex#0"
       ]
     },
-    "405": {
+    "346": {
       "op": "+",
       "defined_out": [
         "aggregate%substring3%0#0",
@@ -1604,7 +1246,7 @@
         "tmp%4#0"
       ]
     },
-    "406": {
+    "347": {
       "op": "swap",
       "stack_out": [
         "boxSize#0",
@@ -1615,7 +1257,7 @@
         "meta#0"
       ]
     },
-    "407": {
+    "348": {
       "op": "intc_2 // 2",
       "defined_out": [
         "2",
@@ -1635,7 +1277,7 @@
         "2"
       ]
     },
-    "408": {
+    "349": {
       "op": "extract_uint64",
       "defined_out": [
         "aggregate%substring3%0#0",
@@ -1653,7 +1295,7 @@
         "tmp%5#0"
       ]
     },
-    "409": {
+    "350": {
       "op": "<=",
       "defined_out": [
         "aggregate%substring3%0#0",
@@ -1669,7 +1311,7 @@
         "tmp%6#0"
       ]
     },
-    "410": {
+    "351": {
       "error": "ERR:OOB",
       "op": "assert // ERR:OOB",
       "stack_out": [
@@ -1679,10 +1321,10 @@
         "byteIndex#0"
       ]
     },
-    "411": {
+    "352": {
       "op": "intc_0 // 0"
     },
-    "412": {
+    "353": {
       "op": "dup",
       "defined_out": [
         "aggregate%substring3%0#0",
@@ -1700,7 +1342,7 @@
         "i#0"
       ]
     },
-    "413": {
+    "354": {
       "block": "sbGetLocation_while_top@1",
       "stack_in": [
         "boxSize#0",
@@ -1724,7 +1366,7 @@
         "i#0"
       ]
     },
-    "415": {
+    "356": {
       "op": "dup",
       "defined_out": [
         "i#0",
@@ -1741,7 +1383,7 @@
         "i#0 (copy)"
       ]
     },
-    "416": {
+    "357": {
       "op": "frame_dig 2",
       "defined_out": [
         "i#0",
@@ -1760,7 +1402,7 @@
         "totalBoxes#0"
       ]
     },
-    "418": {
+    "359": {
       "op": "<",
       "defined_out": [
         "i#0",
@@ -1778,7 +1420,7 @@
         "tmp%7#0"
       ]
     },
-    "419": {
+    "360": {
       "error": "never?",
       "op": "assert // never?",
       "stack_out": [
@@ -1791,7 +1433,7 @@
         "i#0"
       ]
     },
-    "420": {
+    "361": {
       "op": "frame_dig 1",
       "defined_out": [
         "aggregate%substring3%0#0",
@@ -1809,7 +1451,7 @@
         "aggregate%substring3%0#0"
       ]
     },
-    "422": {
+    "363": {
       "op": "extract 2 0",
       "defined_out": [
         "aggregate%array_trimmed%0#0",
@@ -1828,7 +1470,7 @@
         "aggregate%array_trimmed%0#0"
       ]
     },
-    "425": {
+    "366": {
       "op": "swap",
       "stack_out": [
         "boxSize#0",
@@ -1841,7 +1483,7 @@
         "i#0"
       ]
     },
-    "426": {
+    "367": {
       "op": "intc_2 // 2",
       "defined_out": [
         "2",
@@ -1862,7 +1504,7 @@
         "2"
       ]
     },
-    "427": {
+    "368": {
       "op": "*",
       "defined_out": [
         "aggregate%array_trimmed%0#0",
@@ -1882,7 +1524,7 @@
         "aggregate%bytes_offset%0#0"
       ]
     },
-    "428": {
+    "369": {
       "op": "extract_uint16",
       "defined_out": [
         "aggregate%substring3%0#0",
@@ -1900,7 +1542,7 @@
         "boxSize#0"
       ]
     },
-    "429": {
+    "370": {
       "op": "dup",
       "stack_out": [
         "boxSize#0",
@@ -1913,7 +1555,7 @@
         "boxSize#0"
       ]
     },
-    "430": {
+    "371": {
       "op": "frame_bury 0",
       "defined_out": [
         "aggregate%substring3%0#0",
@@ -1931,7 +1573,7 @@
         "boxSize#0"
       ]
     },
-    "432": {
+    "373": {
       "op": "frame_dig 4",
       "defined_out": [
         "aggregate%substring3%0#0",
@@ -1951,7 +1593,7 @@
         "elapsedBytes#0"
       ]
     },
-    "434": {
+    "375": {
       "op": "+",
       "defined_out": [
         "aggregate%substring3%0#0",
@@ -1971,7 +1613,7 @@
         "tmp%9#0"
       ]
     },
-    "435": {
+    "376": {
       "op": "frame_dig 3",
       "defined_out": [
         "aggregate%substring3%0#0",
@@ -1993,7 +1635,7 @@
         "byteIndex#0"
       ]
     },
-    "437": {
+    "378": {
       "op": ">",
       "defined_out": [
         "aggregate%substring3%0#0",
@@ -2014,7 +1656,7 @@
         "tmp%10#0"
       ]
     },
-    "438": {
+    "379": {
       "op": "bz sbGetLocation_else_body@4",
       "stack_out": [
         "boxSize#0",
@@ -2025,7 +1667,7 @@
         "i#0"
       ]
     },
-    "441": {
+    "382": {
       "op": "frame_dig 3",
       "stack_out": [
         "boxSize#0",
@@ -2037,7 +1679,7 @@
         "byteIndex#0"
       ]
     },
-    "443": {
+    "384": {
       "op": "frame_dig 4",
       "stack_out": [
         "boxSize#0",
@@ -2050,7 +1692,7 @@
         "elapsedBytes#0"
       ]
     },
-    "445": {
+    "386": {
       "op": "-",
       "defined_out": [
         "aggregate%substring3%0#0",
@@ -2071,7 +1713,7 @@
         "tmp%11#0"
       ]
     },
-    "446": {
+    "387": {
       "op": "frame_dig 5",
       "stack_out": [
         "boxSize#0",
@@ -2084,7 +1726,7 @@
         "i#0"
       ]
     },
-    "448": {
+    "389": {
       "op": "itob",
       "defined_out": [
         "aggregate%substring3%0#0",
@@ -2107,7 +1749,7 @@
         "aggregate%val_as_bytes%0#0"
       ]
     },
-    "449": {
+    "390": {
       "op": "swap",
       "stack_out": [
         "boxSize#0",
@@ -2120,7 +1762,7 @@
         "tmp%11#0"
       ]
     },
-    "450": {
+    "391": {
       "op": "itob",
       "defined_out": [
         "aggregate%substring3%0#0",
@@ -2143,7 +1785,7 @@
         "aggregate%val_as_bytes%1#0"
       ]
     },
-    "451": {
+    "392": {
       "op": "concat",
       "defined_out": [
         "aggregate%head%1#0",
@@ -2164,14 +1806,14 @@
         "aggregate%head%1#0"
       ]
     },
-    "452": {
+    "393": {
       "op": "frame_bury 0"
     },
-    "454": {
+    "395": {
       "retsub": true,
       "op": "retsub"
     },
-    "455": {
+    "396": {
       "block": "sbGetLocation_else_body@4",
       "stack_in": [
         "boxSize#0",
@@ -2195,7 +1837,7 @@
         "elapsedBytes#0"
       ]
     },
-    "457": {
+    "398": {
       "op": "frame_dig 0",
       "defined_out": [
         "boxSize#0",
@@ -2212,7 +1854,7 @@
         "boxSize#0"
       ]
     },
-    "459": {
+    "400": {
       "op": "+",
       "stack_out": [
         "boxSize#0",
@@ -2224,7 +1866,7 @@
         "elapsedBytes#0"
       ]
     },
-    "460": {
+    "401": {
       "op": "frame_bury 4",
       "defined_out": [
         "boxSize#0",
@@ -2239,7 +1881,7 @@
         "i#0"
       ]
     },
-    "462": {
+    "403": {
       "op": "frame_dig 5",
       "defined_out": [
         "boxSize#0",
@@ -2256,7 +1898,7 @@
         "i#0"
       ]
     },
-    "464": {
+    "405": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1",
@@ -2275,7 +1917,7 @@
         "1"
       ]
     },
-    "465": {
+    "406": {
       "op": "+",
       "stack_out": [
         "boxSize#0",
@@ -2287,7 +1929,7 @@
         "i#0"
       ]
     },
-    "466": {
+    "407": {
       "op": "frame_bury 5",
       "defined_out": [
         "boxSize#0",
@@ -2303,8 +1945,366 @@
         "i#0"
       ]
     },
-    "468": {
+    "409": {
       "op": "b sbGetLocation_while_top@1"
+    },
+    "412": {
+      "subroutine": "smart_contracts/base/utils.algo.ts::u32",
+      "params": {
+        "v#0": "uint64"
+      },
+      "block": "u32",
+      "stack_in": [],
+      "op": "proto 1 1"
+    },
+    "415": {
+      "op": "frame_dig -1",
+      "defined_out": [
+        "v#0 (copy)"
+      ],
+      "stack_out": [
+        "v#0 (copy)"
+      ]
+    },
+    "417": {
+      "op": "itob",
+      "defined_out": [
+        "aggregate%val_as_bytes%0#0"
+      ],
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "418": {
+      "op": "dup",
+      "defined_out": [
+        "aggregate%val_as_bytes%0#0",
+        "aggregate%val_as_bytes%0#0 (copy)"
+      ],
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0",
+        "aggregate%val_as_bytes%0#0 (copy)"
+      ]
+    },
+    "419": {
+      "op": "bitlen",
+      "defined_out": [
+        "aggregate%bitlen%0#0",
+        "aggregate%val_as_bytes%0#0"
+      ],
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0",
+        "aggregate%bitlen%0#0"
+      ]
+    },
+    "420": {
+      "op": "intc_3 // 32",
+      "defined_out": [
+        "32",
+        "aggregate%bitlen%0#0",
+        "aggregate%val_as_bytes%0#0"
+      ],
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0",
+        "aggregate%bitlen%0#0",
+        "32"
+      ]
+    },
+    "421": {
+      "op": "<=",
+      "defined_out": [
+        "aggregate%no_overflow%0#0",
+        "aggregate%val_as_bytes%0#0"
+      ],
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0",
+        "aggregate%no_overflow%0#0"
+      ]
+    },
+    "422": {
+      "error": "overflow",
+      "op": "assert // overflow",
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "423": {
+      "op": "extract 4 4",
+      "defined_out": [
+        "aggregate%uint32%0#0"
+      ],
+      "stack_out": [
+        "aggregate%uint32%0#0"
+      ]
+    },
+    "426": {
+      "retsub": true,
+      "op": "retsub"
+    },
+    "427": {
+      "subroutine": "smart_contracts/base/types.algo.ts::getEmptyCommitteeMetadata",
+      "params": {},
+      "block": "getEmptyCommitteeMetadata",
+      "stack_in": [],
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0"
+      ],
+      "stack_out": [
+        "0"
+      ]
+    },
+    "428": {
+      "callsub": "smart_contracts/base/utils.algo.ts::u32",
+      "op": "callsub u32",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "431": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "tmp%0#0",
+        "0"
+      ]
+    },
+    "432": {
+      "callsub": "smart_contracts/base/utils.algo.ts::u32",
+      "op": "callsub u32",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%1#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%1#0"
+      ]
+    },
+    "435": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%1#0",
+        "0"
+      ]
+    },
+    "436": {
+      "callsub": "smart_contracts/base/utils.algo.ts::u32",
+      "op": "callsub u32",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%1#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%1#0",
+        "tmp%2#0"
+      ]
+    },
+    "439": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%1#0",
+        "tmp%2#0",
+        "0"
+      ]
+    },
+    "440": {
+      "callsub": "smart_contracts/base/utils.algo.ts::u32",
+      "op": "callsub u32",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%1#0",
+        "tmp%2#0",
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%1#0",
+        "tmp%2#0",
+        "tmp%3#0"
+      ]
+    },
+    "443": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%1#0",
+        "tmp%2#0",
+        "tmp%3#0",
+        "0"
+      ]
+    },
+    "444": {
+      "callsub": "smart_contracts/base/utils.algo.ts::u32",
+      "op": "callsub u32",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%1#0",
+        "tmp%2#0",
+        "tmp%3#0",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%1#0",
+        "tmp%2#0",
+        "tmp%3#0",
+        "tmp%4#0"
+      ]
+    },
+    "447": {
+      "op": "uncover 4",
+      "stack_out": [
+        "tmp%1#0",
+        "tmp%2#0",
+        "tmp%3#0",
+        "tmp%4#0",
+        "tmp%0#0"
+      ]
+    },
+    "449": {
+      "op": "uncover 4",
+      "stack_out": [
+        "tmp%2#0",
+        "tmp%3#0",
+        "tmp%4#0",
+        "tmp%0#0",
+        "tmp%1#0"
+      ]
+    },
+    "451": {
+      "op": "concat",
+      "defined_out": [
+        "aggregate%head%1#0",
+        "tmp%2#0",
+        "tmp%3#0",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "tmp%2#0",
+        "tmp%3#0",
+        "tmp%4#0",
+        "aggregate%head%1#0"
+      ]
+    },
+    "452": {
+      "op": "uncover 3",
+      "stack_out": [
+        "tmp%3#0",
+        "tmp%4#0",
+        "aggregate%head%1#0",
+        "tmp%2#0"
+      ]
+    },
+    "454": {
+      "op": "concat",
+      "defined_out": [
+        "aggregate%head%2#0",
+        "tmp%3#0",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "tmp%3#0",
+        "tmp%4#0",
+        "aggregate%head%2#0"
+      ]
+    },
+    "455": {
+      "op": "uncover 2",
+      "stack_out": [
+        "tmp%4#0",
+        "aggregate%head%2#0",
+        "tmp%3#0"
+      ]
+    },
+    "457": {
+      "op": "concat",
+      "defined_out": [
+        "aggregate%head%3#0",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "tmp%4#0",
+        "aggregate%head%3#0"
+      ]
+    },
+    "458": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "tmp%4#0",
+        "aggregate%head%3#0",
+        "0"
+      ]
+    },
+    "459": {
+      "op": "itob",
+      "defined_out": [
+        "aggregate%head%3#0",
+        "aggregate%val_as_bytes%0#0",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "tmp%4#0",
+        "aggregate%head%3#0",
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "460": {
+      "op": "concat",
+      "defined_out": [
+        "aggregate%head%4#0",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "tmp%4#0",
+        "aggregate%head%4#0"
+      ]
+    },
+    "461": {
+      "op": "swap",
+      "stack_out": [
+        "aggregate%head%4#0",
+        "tmp%4#0"
+      ]
+    },
+    "462": {
+      "op": "concat",
+      "defined_out": [
+        "aggregate%head%5#0"
+      ],
+      "stack_out": [
+        "aggregate%head%5#0"
+      ]
+    },
+    "463": {
+      "op": "pushbytes 0x001e0000",
+      "defined_out": [
+        "0x001e0000",
+        "aggregate%head%5#0"
+      ],
+      "stack_out": [
+        "aggregate%head%5#0",
+        "0x001e0000"
+      ]
+    },
+    "469": {
+      "op": "concat",
+      "defined_out": [
+        "aggregate%concat%0#0"
+      ],
+      "stack_out": [
+        "aggregate%concat%0#0"
+      ]
+    },
+    "470": {
+      "retsub": true,
+      "op": "retsub"
     },
     "471": {
       "subroutine": "smart_contracts/oracle/oracle.algo.ts::CommitteeOracle.registerCommittee[routing]",
@@ -5955,8 +5955,8 @@
       ]
     },
     "836": {
-      "error": "invalid number of bytes for arc4.dynamic_array<smart_contracts/oracle/types.algo.ts::XGovInput>",
-      "op": "assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/oracle/types.algo.ts::XGovInput>",
+      "error": "invalid number of bytes for arc4.dynamic_array<smart_contracts/base/types.algo.ts::XGovInput>",
+      "op": "assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/base/types.algo.ts::XGovInput>",
       "stack_out": [
         "account#1",
         "accountId#0",
@@ -37745,7 +37745,7 @@
         "mustBeComplete#0",
         "committeeBox#0"
       ],
-      "callsub": "smart_contracts/oracle/types.algo.ts::getEmptyCommitteeMetadata",
+      "callsub": "smart_contracts/base/types.algo.ts::getEmptyCommitteeMetadata",
       "op": "callsub getEmptyCommitteeMetadata",
       "defined_out": [
         "tmp%3#0"
@@ -38353,7 +38353,7 @@
         "aggregate%array_length%0#0",
         "item_index_internal%0#0"
       ],
-      "callsub": "smart_contracts/oracle/types.algo.ts::getEmptyCommitteeMetadata",
+      "callsub": "smart_contracts/base/types.algo.ts::getEmptyCommitteeMetadata",
       "op": "callsub getEmptyCommitteeMetadata",
       "defined_out": [
         "tmp%0#1"

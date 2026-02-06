@@ -1,4 +1,4 @@
-import { TestExecutionContext } from '@algorandfoundation/algorand-typescript-testing'
+import type { TestExecutionContext } from '@algorandfoundation/algorand-typescript-testing'
 import { expect } from 'vitest'
 
 export async function expectArc65Error(ctx: TestExecutionContext, fn: () => void, errCode: string) {

@@ -1,7 +1,7 @@
 import { Application, Bytes } from '@algorandfoundation/algorand-typescript'
 import { TestExecutionContext } from '@algorandfoundation/algorand-typescript-testing'
 import { describe, expect, it } from 'vitest'
-import { expectArc65Error } from '../base/common-tests.algo'
+import { expectArc65Error } from '../base/common-tests'
 import { errUnauthorized } from '../base/errors.algo'
 import { Delegator } from './delegator.algo'
 

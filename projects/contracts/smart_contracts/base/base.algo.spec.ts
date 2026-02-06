@@ -3,7 +3,7 @@ import { TestExecutionContext } from '@algorandfoundation/algorand-typescript-te
 import { Uint32 } from '@algorandfoundation/algorand-typescript/arc4'
 import { describe, expect, it } from 'vitest'
 import { AccountIdContract } from './base.algo'
-import { expectArc65Error } from './common-tests.algo'
+import { expectArc65Error } from './common-tests'
 import { errAccountExists, errAccountIdMismatch, errAccountNotExists, errUnauthorized } from './errors.algo'
 import { AccountWithId } from './types.algo'
 import { u32 } from './utils.algo'
