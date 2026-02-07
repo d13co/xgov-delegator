@@ -11,9 +11,8 @@ import {
   uint64,
 } from '@algorandfoundation/algorand-typescript'
 import { abimethod, Uint32 } from '@algorandfoundation/algorand-typescript/arc4'
-import { errAccountExists, errAccountIdMismatch, errAccountNotExists, errUnauthorized } from './errors.algo'
-import { AccountWithId } from './types.algo'
-import { ensure, ensureExtra, u32 } from './utils.algo'
+import { errAccountExists, errAccountNotExists, errUnauthorized } from './errors.algo'
+import { ensure, u32 } from './utils.algo'
 
 class EmptyContract extends Contract {}
 
@@ -64,12 +63,11 @@ export abstract class AccountIdContract extends Contract {
    * @param xGov
    * @returns account ID
    */
-  protected getOrCreateAccountId(account: AccountWithId): Uint32 {
-    let accountId = this.getAccountIdIfExists(account.account)
+  protected getOrCreateAccountId(account: Account): Uint32 {
+    let accountId = this.getAccountIdIfExists(account)
     if (accountId.asUint64() === 0) {
-      return this.createAccountId(account.account)
+      return this.createAccountId(account)
     } else {
-      ensureExtra(accountId === account.accountId, errAccountIdMismatch, account.accountId.bytes)
       return accountId
     }
   }

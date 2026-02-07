@@ -17,32 +17,6 @@ export type CommitteeMetadata = {
   superboxPrefix: string
 }
 
-export type AccountWithId = {
-  accountId: Uint32
-  account: Account
-}
-
-/**
- * Input representation of a committee xGov
- */
-export type XGovInput = {
-  accountId: Uint32
-  account: Account
-  votes: Uint32
-  // } & AccountWithId
-  // results in "Non builtin type must have a name"
-}
-
-/**
- * Stored representation of a committee xGov
- */
-export type AccountIdWithVotes = {
-  accountId: Uint32
-  votes: Uint32
-}
-
-export const XGOV_STORED_SIZE: uint64 = 4 + 4 // AccountID + Votes
-
 export function getEmptyCommitteeMetadata(): CommitteeMetadata {
   return {
     periodStart: u32(0),
@@ -55,10 +29,27 @@ export function getEmptyCommitteeMetadata(): CommitteeMetadata {
   }
 }
 
+/**
+ * Input representation of a committee xGov
+ */
+export type AccountWithVotes = {
+  account: Account
+  votes: Uint32
+}
+
+/**
+ * Stored representation of a committee xGov
+ */
+export type AccountIdWithVotes = {
+  accountId: Uint32
+  votes: Uint32
+}
+
+export const ACCOUNT_ID_WITH_VOTES_STORED_SIZE: uint64 = 4 + 4 // AccountID + Votes
+
 export type AlgohourAccountKey = [uint64, Uint32]
 
 export type AccountAlgohourInput = {
-  accountId: Uint32
   account: Account
   hours: uint64
 }

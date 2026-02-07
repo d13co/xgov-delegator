@@ -42,8 +42,7 @@ export interface XGovCommitteeFile {
   }>;
 }
 
-export type XGov = {
-  accountId: number
+export type AccountWithVotes = {
   account: Address | string
   votes: number
 }

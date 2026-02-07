@@ -1,11 +1,10 @@
 import { Account, Bytes, op } from '@algorandfoundation/algorand-typescript'
 import { TestExecutionContext } from '@algorandfoundation/algorand-typescript-testing'
 import { Uint32 } from '@algorandfoundation/algorand-typescript/arc4'
-import { describe, expect, it } from 'vitest'
+import { beforeEach, describe, expect, it } from 'vitest'
 import { AccountIdContract } from './base.algo'
 import { expectArc65Error } from './common-tests'
-import { errAccountExists, errAccountIdMismatch, errAccountNotExists, errUnauthorized } from './errors.algo'
-import { AccountWithId } from './types.algo'
+import { errAccountExists, errAccountNotExists, errUnauthorized } from './errors.algo'
 import { u32 } from './utils.algo'
 
 // Expose subroutines for testing
@@ -13,12 +12,17 @@ class AccountIdContractTest extends AccountIdContract {
   declare public createAccountId: (account: Account) => Uint32
   declare public getAccountIdIfExists: (account: Account) => Uint32
   declare public mustGetAccountId: (account: Account) => Uint32
-  declare public getOrCreateAccountId: (account: AccountWithId) => Uint32
+  declare public getOrCreateAccountId: (account: Account) => Uint32
   declare public ensureCallerIsAdmin: () => void
 }
 
+let i = 0
+
 describe('Base AccountIdContract contract', () => {
   const ctx = new TestExecutionContext()
+
+  beforeEach(() => ctx.reset()) // prevents transient errors when running suite.
+
   describe('createAccountId', () => {
     it('Creates account id 1 for first account', () => {
       const contract = ctx.contract.create(AccountIdContractTest)
@@ -95,47 +99,22 @@ describe('Base AccountIdContract contract', () => {
       const contract = ctx.contract.create(AccountIdContractTest)
       const account = ctx.any.account()
 
-      const accountWithIdCreate = { account: account, accountId: u32(0) }
-      const actual = contract.getOrCreateAccountId(accountWithIdCreate)
+      const actual = contract.getOrCreateAccountId(account)
 
       const expected = u32(1)
       expect(actual.asUint64()).toEqual(expected.asUint64())
     })
 
-    it('validates account ID if it exists', () => {
+    it('Reuses account ID if it exists', () => {
       const contract = ctx.contract.create(AccountIdContractTest)
       const account = ctx.any.account()
 
-      const accountWithIdCreate = { account: account, accountId: u32(0) }
-      contract.getOrCreateAccountId(accountWithIdCreate)
+      contract.getOrCreateAccountId(account)
 
-      const accountWithIdValidate = { account: account, accountId: u32(1) }
-      const actual = contract.getOrCreateAccountId(accountWithIdValidate)
+      const actual = contract.getOrCreateAccountId(account)
 
       const expected = u32(1)
       expect(actual.asUint64()).toEqual(expected.asUint64())
-    })
-
-    it('throws when invalid account ID passed (nonzero)', () => {
-      const contract = ctx.contract.create(AccountIdContractTest)
-      const account = ctx.any.account()
-
-      const accountWithIdCreate = { account: account, accountId: u32(0) }
-      contract.getOrCreateAccountId(accountWithIdCreate)
-
-      const accountWithIdValidate = { account: account, accountId: u32(2) }
-      expectArc65Error(ctx, () => contract.getOrCreateAccountId(accountWithIdValidate), errAccountIdMismatch)
-    })
-
-    it('throws when invalid account ID passed (zero)', () => {
-      const contract = ctx.contract.create(AccountIdContractTest)
-      const account = ctx.any.account()
-
-      const accountWithIdCreate = { account: account, accountId: u32(0) }
-      contract.getOrCreateAccountId(accountWithIdCreate)
-
-      const accountWithIdValidate = { account: account, accountId: u32(0) }
-      expectArc65Error(ctx, () => contract.getOrCreateAccountId(accountWithIdValidate), errAccountIdMismatch)
     })
   })
 
@@ -146,10 +125,9 @@ describe('Base AccountIdContract contract', () => {
     })
 
     it('ensureCallerIsAdmin fails for non-creator', async () => {
-      ctx.reset() // prevent transient errors when running suite
       const contract = ctx.contract.create(AccountIdContractTest)
       ctx.defaultSender = ctx.any.account() // change sender to non-creator
-      await expectArc65Error(ctx, () => contract.ensureCallerIsAdmin(), errUnauthorized)
+      expectArc65Error(ctx, () => contract.ensureCallerIsAdmin(), errUnauthorized)
     })
   })
 })

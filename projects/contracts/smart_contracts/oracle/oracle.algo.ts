@@ -29,13 +29,12 @@ import {
   errTotalXGovsExceeded,
 } from '../base/errors.algo'
 import {
+  ACCOUNT_ID_WITH_VOTES_STORED_SIZE,
   AccountIdWithVotes,
-  AccountWithId,
+  AccountWithVotes,
   CommitteeId,
   CommitteeMetadata,
   getEmptyCommitteeMetadata,
-  XGOV_STORED_SIZE,
-  XGovInput,
 } from '../base/types.algo'
 import { ensure, ensureExtra, u32 } from '../base/utils.algo'
 
@@ -43,7 +42,7 @@ import { ensure, ensureExtra, u32 } from '../base/utils.algo'
  * Count total xGovs stored in committee superbox
  */
 function getCommitteeSBXGovs(sbMeta: Box<SuperboxMeta>): uint64 {
-  return sbMeta.value.totalByteLength.asUint64() / XGOV_STORED_SIZE
+  return sbMeta.value.totalByteLength.asUint64() / ACCOUNT_ID_WITH_VOTES_STORED_SIZE
 }
 
 export class CommitteeOracle extends AccountIdContract {
@@ -82,7 +81,7 @@ export class CommitteeOracle extends AccountIdContract {
       ingestedVotes: u32(0),
       superboxPrefix: 'S' + this.lastSuperboxPrefix.value.toString(),
     }
-    sbCreate(this.getCommitteeSBPrefix(committeeId), 2048, XGOV_STORED_SIZE, '[uint32,uint32]')
+    sbCreate(this.getCommitteeSBPrefix(committeeId), 2048, ACCOUNT_ID_WITH_VOTES_STORED_SIZE, '[uint32,uint32]')
     this.lastSuperboxPrefix.value = this.lastSuperboxPrefix.value + 1
   }
 
@@ -105,7 +104,7 @@ export class CommitteeOracle extends AccountIdContract {
    * @param committeeId committee ID
    * @param xGovs xGovs to ingest
    */
-  public ingestXGovs(committeeId: CommitteeId, xGovs: XGovInput[]): void {
+  public ingestXGovs(committeeId: CommitteeId, xGovs: AccountWithVotes[]): void {
     this.ensureCallerIsAdmin()
 
     const committee = this.mustGetCommitteeMetadata(committeeId)
@@ -125,19 +124,17 @@ export class CommitteeOracle extends AccountIdContract {
     let ingestedVotes = committee.ingestedVotes.asUint64()
     let writeBuffer = Bytes``
     for (const xGov of clone(xGovs)) {
-      const accountWithId: AccountWithId = { account: xGov.account, accountId: xGov.accountId }
-      // get or create account id
-      xGov.accountId = this.getOrCreateAccountId(accountWithId)
+      const accountId = this.getOrCreateAccountId(xGov.account)
       // ensure xGovs are added in ascending order
-      ensure(xGov.accountId.asUint64() > lastAccountId.asUint64(), errOutOfOrder)
+      ensure(accountId.asUint64() > lastAccountId.asUint64(), errOutOfOrder)
       // store variant removes account
       const xGovStored: AccountIdWithVotes = {
-        accountId: xGov.accountId,
+        accountId: accountId,
         votes: xGov.votes,
       }
       // append to write buffer, write to superbox once
       writeBuffer = writeBuffer.concat(encodeArc4(xGovStored))
-      lastAccountId = xGov.accountId
+      lastAccountId = accountId
       ingestedVotes += xGov.votes.asUint64()
     }
 

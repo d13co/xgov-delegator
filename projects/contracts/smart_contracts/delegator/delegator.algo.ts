@@ -98,8 +98,8 @@ export class Delegator extends AccountIdContract {
     this.ensureCallerIsAdmin()
     ensure(periodStart % periodLength === 0, errPeriodStartInvalid)
 
-    for (let { accountId, account, hours } of clone(accountAlgohourInputs)) {
-      accountId = this.getOrCreateAccountId({ account, accountId })
+    for (let { account, hours } of clone(accountAlgohourInputs)) {
+      const accountId = this.getOrCreateAccountId(account)
       const key: AlgohourAccountKey = [periodStart, accountId]
       const box = this.algohourAccounts(key)
       ensureExtra(!box.exists, errAlgoHoursExist, account.bytes)
@@ -123,8 +123,8 @@ export class Delegator extends AccountIdContract {
     this.ensureCallerIsAdmin()
     ensure(periodStart % periodLength === 0, errPeriodStartInvalid)
 
-    for (let { accountId, account, hours } of clone(accountAlgohourInputs)) {
-      accountId = this.getOrCreateAccountId({ account, accountId })
+    for (let { account, hours } of clone(accountAlgohourInputs)) {
+      const accountId = this.getOrCreateAccountId(account)
       const key: AlgohourAccountKey = [periodStart, accountId]
       const box = this.algohourAccounts(key)
       ensureExtra(box.exists, errAlgoHoursNotExist, account.bytes)

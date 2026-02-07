@@ -1,7 +1,7 @@
 import type { TestExecutionContext } from '@algorandfoundation/algorand-typescript-testing'
 import { expect } from 'vitest'
 
-export async function expectArc65Error(ctx: TestExecutionContext, fn: () => void, errCode: string) {
+export function expectArc65Error(ctx: TestExecutionContext, fn: () => void, errCode: string) {
   try {
     fn()
     throw new Error('Expected function to throw an error, but it did not.')

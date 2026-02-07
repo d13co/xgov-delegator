@@ -1,5 +1,5 @@
 import { CommitteeOracleClient, CommitteeOracleComposer } from "./generated/CommitteeOracleClient";
-import { ConstructorArgs, XGov, SenderWithSigner, XGovCommitteeFile, CommonMethodBuilderArgs, SendResult } from "./types";
+import { ConstructorArgs, AccountWithVotes, SenderWithSigner, XGovCommitteeFile, CommonMethodBuilderArgs, SendResult } from "./types";
 import { requireWriter } from "./util/requiresSender";
 import { calculateCommitteeId } from "./util/comitteeId";
 import { xGovToTuple } from "./util/types";
@@ -171,7 +171,7 @@ export class XGovCommitteesOracleSDK extends XGovCommitteesOracleReaderSDK {
 
   @requireWriter()
   @wrapErrors()
-  makeIngestXGovsTxns({ committeeId, xGovs, builder }: { committeeId: string | Uint8Array; xGovs: XGov[] } & CommonMethodBuilderArgs) {
+  makeIngestXGovsTxns({ committeeId, xGovs, builder }: { committeeId: string | Uint8Array; xGovs: AccountWithVotes[] } & CommonMethodBuilderArgs) {
     const { sender, signer } = this.writerAccount!;
     committeeId = typeof committeeId === "string" ? Buffer.from(committeeId, "base64") : committeeId;
     builder = builder ?? this.writeClient!.newGroup();

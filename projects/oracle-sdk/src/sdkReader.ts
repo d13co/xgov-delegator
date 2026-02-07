@@ -4,7 +4,7 @@ import { ALGORAND_ZERO_ADDRESS_STRING, encodeAddress, makeEmptyTransactionSigner
 import pMap from "p-map";
 import { CommitteeMetadata, CommitteeOracleClient, CommitteeOracleComposer, SuperboxMeta } from "./generated/CommitteeOracleClient";
 import { getConstructorConfig } from "./networkConfig";
-import { CommitteeId, XGov, ReaderConstructorArgs, STORED_XGOV_BYTE_LENGTH, StoredXGov, XGovCommitteeFile } from "./types";
+import { CommitteeId, AccountWithVotes, ReaderConstructorArgs, STORED_XGOV_BYTE_LENGTH, StoredXGov, XGovCommitteeFile } from "./types";
 import { chunk } from "./util/chunk";
 import { chunked } from "./util/chunked";
 import { committeeIdToRaw } from "./util/comitteeId";
@@ -159,12 +159,12 @@ export class XGovCommitteesOracleReaderSDK {
     };
   }
 
-  async getCommitteeXGovs(committeeId: CommitteeId): Promise<XGov[]> {
+  async getCommitteeXGovs(committeeId: CommitteeId): Promise<AccountWithVotes[]> {
     const [storedXGovs, accountMap] = await Promise.all([this.getCommitteeSuperboxData(committeeId), this.getAccountIdMap()]);
     return this.convertStoredXGovsToXGovs(storedXGovs, accountMap);
   }
 
-  protected convertStoredXGovsToXGovs(storedXGovs: StoredXGov[], accountMap: Map<string, number>): XGov[] {
+  protected convertStoredXGovsToXGovs(storedXGovs: StoredXGov[], accountMap: Map<string, number>): AccountWithVotes[] {
     return storedXGovs
       .map(([id, votes]) => {
         const accountRaw = Array.from(accountMap.entries()).find(([, accountId]) => accountId === id);
