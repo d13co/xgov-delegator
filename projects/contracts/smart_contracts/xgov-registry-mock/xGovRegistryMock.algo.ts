@@ -1,5 +1,17 @@
-import { abimethod, Account, BoxMap, clone, Global, uint64 } from '@algorandfoundation/algorand-typescript'
+import {
+  abimethod,
+  Account,
+  BoxMap,
+  clone,
+  compile,
+  Global,
+  itxn,
+  Txn,
+  uint64,
+} from '@algorandfoundation/algorand-typescript'
+import { compileArc4 } from '@algorandfoundation/algorand-typescript/arc4'
 import { AccountIdContract } from '../base/base.algo'
+import { XGovProposalMock } from '../xgov-proposal-mock/xGovProposalMock.algo'
 
 export type XGovBoxValue = {
   votingAddress: Account
@@ -29,6 +41,23 @@ export class XGovRegistryMock extends AccountIdContract {
   }
 
   // Mock methods
+
+  public createProposal() {
+    const proposalContract = compile(XGovProposalMock)
+
+    const created = itxn
+      .applicationCall({
+        approvalProgram: proposalContract.approvalProgram, // intentionally using clear state program for "return true"
+        clearStateProgram: proposalContract.clearStateProgram,
+        globalNumBytes: 2,
+        globalNumUint: 4,
+      })
+      .submit()
+    const appId = created.createdApp.id
+
+    const proposal = compileArc4(XGovProposalMock)
+    proposal.call.setProposer({ appId, args: [Txn.sender] })
+  }
 
   public setXGovBox(voterAddress: Account, value: XGovBoxValue): void {
     this.ensureCallerIsAdmin()
