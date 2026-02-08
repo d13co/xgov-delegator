@@ -1,5 +1,6 @@
 import {
   Account,
+  Application,
   Box,
   BoxMap,
   bytes,
@@ -46,9 +47,11 @@ function getCommitteeSBXGovs(sbMeta: Box<SuperboxMeta>): uint64 {
 }
 
 export class CommitteeOracle extends AccountIdContract {
-  // Committee metadata box map
+  /** xGov registry application ID */
+  xGovRegistryApp = GlobalState<Application>()
+  /** Committee metadata box map */
   committees = BoxMap<CommitteeId, CommitteeMetadata>({ keyPrefix: 'c' })
-  // Incrementing superbox prefix for committees
+  /** Incrementing superbox prefix for committees */
   lastSuperboxPrefix = GlobalState<uint64>({ initialValue: 0 })
 
   /**
@@ -173,6 +176,19 @@ export class CommitteeOracle extends AccountIdContract {
     committee.ingestedVotes = u32(ingestedVotes)
     this.committees(committeeId).value = clone(committee)
   }
+
+  /**
+   * Set the xGov Registry Application ID
+   * @param appId xGov Registry Application ID
+   */
+  public setXGovRegistryApp(appId: Application): void {
+    this.ensureCallerIsAdmin()
+    this.xGovRegistryApp.value = appId
+  }
+
+  /*
+   * Read methods
+   */
 
   /**
    * Get account ID if exists, else return 0

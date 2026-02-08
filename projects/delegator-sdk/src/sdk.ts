@@ -92,14 +92,14 @@ export class XGovDelegatorSDK extends XGovDelegatorReaderSDK {
 
   @requireWriter()
   @wrapErrors()
-  makeSetCommitteeOracleAppId({ appId, builder }: DelegatorContractArgs["setCommitteeOracleAppId(uint64)void"] & CommonMethodBuilderArgs) {
+  makeSetCommitteeOracleApp({ appId, builder }: DelegatorContractArgs["setCommitteeOracleApp(uint64)void"] & CommonMethodBuilderArgs) {
     builder = builder ?? this.writeClient!.newGroup();
-    builder = builder.setCommitteeOracleAppId({ args: { appId } });
+    builder = builder.setCommitteeOracleApp({ args: { appId } });
     return builder;
   }
 
-  setCommitteeOracleAppId = this.makeTxnExecutor({
-    maker: this.makeSetCommitteeOracleAppId,
+  setCommitteeOracleApp = this.makeTxnExecutor({
+    maker: this.makeSetCommitteeOracleApp,
   });
 
   @requireWriter()

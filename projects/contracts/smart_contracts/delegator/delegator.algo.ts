@@ -35,7 +35,7 @@ const periodLength: uint64 = 1_000_000
 
 export class Delegator extends AccountIdContract {
   /** Committee Oracle Application ID */
-  committeeOracleAppId = GlobalState<Application>()
+  committeeOracleApp = GlobalState<Application>()
   /** Synced committee details w/ own delegated totals */
   committees = BoxMap<CommitteeId, DelegatorCommittee>({ keyPrefix: 'C' })
   /** Total algohours for each period */
@@ -47,9 +47,9 @@ export class Delegator extends AccountIdContract {
    * Set the Committee Oracle Application ID
    * @param appId Application ID of Committee Oracle
    */
-  public setCommitteeOracleAppId(appId: Application): void {
+  public setCommitteeOracleApp(appId: Application): void {
     this.ensureCallerIsAdmin()
-    this.committeeOracleAppId.value = appId
+    this.committeeOracleApp.value = appId
   }
 
   /**
@@ -64,7 +64,7 @@ export class Delegator extends AccountIdContract {
 
     const oracleApp = compileArc4(CommitteeOracle)
     const remoteCommittee = oracleApp.call.getCommitteeMetadata({
-      appId: this.committeeOracleAppId.value,
+      appId: this.committeeOracleApp.value,
       args: [committeeId, true],
     }).returnValue
 
@@ -79,7 +79,7 @@ export class Delegator extends AccountIdContract {
     for (const { account, offsetHint } of clone(delegatedAccounts)) {
       const localAccountId = this.getOrCreateAccountId(account)
       const remoteVotes = oracleApp.call.getXGovVotingPower({
-        appId: this.committeeOracleAppId.value,
+        appId: this.committeeOracleApp.value,
         args: [committeeId, account, offsetHint],
       }).returnValue
       ensureExtra(remoteVotes.asUint64() > 0, errNoVotingPower, account.bytes)
@@ -91,6 +91,13 @@ export class Delegator extends AccountIdContract {
     committeeBox.value = clone(committee)
 
     return committee
+  }
+
+  public syncProposalMetadata(proposalId: Application) {
+    // get committee ID from proposal contract
+    // ensure committee metadata is synced
+    // ensure all periods are final
+    // create or update proposal metadata record
   }
 
   /**

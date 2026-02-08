@@ -78,15 +78,15 @@ describe('Delegator e2e tests', () => {
     }
   })
 
-  describe('setCommitteeOracleAppId', () => {
+  describe('setCommitteeOracleApp', () => {
     test(`Admin can set committee oracle app ID`, async () => {
       const { testAccount } = localnet.context
       const { adminSDK } = await deploy(testAccount)
       const appId = 12345n
-      await adminSDK.setCommitteeOracleAppId({ appId })
+      await adminSDK.setCommitteeOracleApp({ appId })
 
-      const { committeeOracleAppId } = await adminSDK.getGlobalState()
-      expect(committeeOracleAppId).toBe(appId)
+      const { committeeOracleApp } = await adminSDK.getGlobalState()
+      expect(committeeOracleApp).toBe(appId)
     })
 
     test(`Nonadmin can not set committee oracle app ID`, async () => {
@@ -94,7 +94,7 @@ describe('Delegator e2e tests', () => {
       const otherAccount = await localnet.context.generateAccount({ initialFunds: (1).algos() })
       const { userSDK } = await deploy(testAccount, otherAccount)
 
-      await expect(userSDK!.setCommitteeOracleAppId({ appId: 12345n })).rejects.toThrowError(/ERR:AUTH/)
+      await expect(userSDK!.setCommitteeOracleApp({ appId: 12345n })).rejects.toThrowError(/ERR:AUTH/)
     })
   })
 

@@ -14,12 +14,12 @@ describe('Delegator tests', () => {
   beforeEach(() => ctx.reset())
 
   describe('setCommitteeOracleAppId', () => {
-    it('admin can change committeeOracleAppId', () => {
+    it('admin can change committeeOracleApp', () => {
       const contract = ctx.contract.create(DelegatorTests)
       const expected = Application(1)
-      contract.setCommitteeOracleAppId(expected)
+      contract.setCommitteeOracleApp(expected)
 
-      const [actual, found] = ctx.ledger.getGlobalState(contract, Bytes('committeeOracleAppId'))
+      const [actual, found] = ctx.ledger.getGlobalState(contract, Bytes('committeeOracleApp'))
       expect(found).toBe(true)
       expect(actual!.value).toEqual(expected)
     })
@@ -28,7 +28,7 @@ describe('Delegator tests', () => {
       const contract = ctx.contract.create(DelegatorTests)
       ctx.defaultSender = ctx.any.account() // change sender to non-creator
 
-      expectArc65Error(ctx, () => contract.setCommitteeOracleAppId(Application(1)), errUnauthorized)
+      expectArc65Error(ctx, () => contract.setCommitteeOracleApp(Application(1)), errUnauthorized)
     })
   })
 
