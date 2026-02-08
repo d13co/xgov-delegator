@@ -11,6 +11,7 @@ import { compileArc4 } from '@algorandfoundation/algorand-typescript/arc4'
 import { AccountIdContract } from '../base/base.algo'
 import {
   errAlgoHoursExist,
+  errAlgoHoursMismatch,
   errAlgoHoursNotExist,
   errCommitteeExists,
   errNoVotingPower,
@@ -128,6 +129,7 @@ export class Delegator extends AccountIdContract {
       const key: AlgohourAccountKey = [periodStart, accountId]
       const box = this.algohourAccounts(key)
       ensureExtra(box.exists, errAlgoHoursNotExist, account.bytes)
+      ensureExtra(box.value === hours, errAlgoHoursMismatch, account.bytes) // ensure hours to remove matches existing hours to prevent accidental double removal
       box.delete()
 
       const totalBox = this.algohourTotals(periodStart)
@@ -143,7 +145,7 @@ export class Delegator extends AccountIdContract {
    * @param account account
    * @returns total algohours
    */
-  private getAccountAlgoHours(periodStart: uint64, periodEnd: uint64, account: Account): uint64 {
+  private getAggregatedAccountAlgoHours(periodStart: uint64, periodEnd: uint64, account: Account): uint64 {
     ensure(periodEnd > periodStart, errPeriodEndLessThanStart)
     ensure(periodStart % periodLength === 0, errPeriodStartInvalid)
     ensure(periodEnd % periodLength === 0, errPeriodEndInvalid)
@@ -163,7 +165,7 @@ export class Delegator extends AccountIdContract {
    * @returns total algohours for period
    */
   @abimethod({ readonly: true })
-  public getAlgohourTotals(periodStart: uint64): uint64 {
+  public getAlgoHourPeriodTotals(periodStart: uint64): uint64 {
     ensure(periodStart % periodLength === 0, errPeriodStartInvalid)
     const box = this.algohourTotals(periodStart)
     return box.exists ? box.value : 0
@@ -176,7 +178,7 @@ export class Delegator extends AccountIdContract {
    * @returns
    */
   @abimethod({ readonly: true })
-  public getAccountAlgohours(periodStart: uint64, account: Account): uint64 {
+  public getAccountAlgoHours(periodStart: uint64, account: Account): uint64 {
     ensure(periodStart % periodLength === 0, errPeriodStartInvalid)
     const key: AlgohourAccountKey = [periodStart, this.mustGetAccountId(account)]
     const box = this.algohourAccounts(key)

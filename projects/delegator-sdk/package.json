@@ -1,5 +1,5 @@
 {
-  "name": "xgov-committees-oracle-sdk",
+  "name": "xgov-delegator-sdk",
   "version": "0.0.1",
   "description": "",
   "repository": {
@@ -9,14 +9,14 @@
   "bugs": {
     "url": "https://github.com/d13co/xgov-delegator/issues"
   },
-  "homepage": "https://github.com/d13co/xgov-delegator/tree/main/projects/oracle-sdk#readme",
+  "homepage": "https://github.com/d13co/xgov-delegator/tree/main/projects/delegator-sdk#readme",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "files": [
     "dist/"
   ],
   "scripts": {
-    "prebuild": "cp ../contracts/smart_contracts/artifacts/oracle/CommitteeOracleClient.ts src/generated/ && tsx ../common/sdks/generate-errors.ts .",
+    "prebuild": "cp ../contracts/smart_contracts/artifacts/delegator/DelegatorClient.ts src/generated/ && tsx ../common/sdks/generate-errors.ts .",
     "build": "tsc"
   },
   "keywords": [],

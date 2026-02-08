@@ -50,6 +50,7 @@ export class XGovCommitteesOracleReaderSDK {
     const xGovs = await this.getCommitteeXGovs(committeeId);
     const params = await this.algorand.getSuggestedParams();
     const networkGenesisHash = Buffer.from(params.genesisHash!).toString("base64");
+    // TODO validate committee ID
     return {
       networkGenesisHash,
       periodEnd: committeeMetadata.periodEnd,
@@ -91,6 +92,7 @@ export class XGovCommitteesOracleReaderSDK {
 
     const params = await this.algorand.getSuggestedParams();
     const networkGenesisHash = Buffer.from(params.genesisHash!).toString("base64");
+    // TODO validate committee ID
 
     return {
       networkGenesisHash,

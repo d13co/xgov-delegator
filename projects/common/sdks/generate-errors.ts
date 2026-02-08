@@ -1,12 +1,21 @@
 /**
  * Script to parse errors.algo.ts and generate SDK error map
  * Parses lines like: export const errName = 'ERR:CODE' // Error message
+ * 
+ * Usage: tsx generate-errors.ts <sdk-root-path>
+ * Example: tsx ../common/sdks/generate-errors.ts .
  */
 import { readFileSync, writeFileSync } from 'fs'
 import { resolve } from 'path'
 
-const errorsFilePath = resolve(__dirname, '../../contracts/smart_contracts/base/errors.algo.ts')
-const outputFilePath = resolve(__dirname, '../src/generated/errors.ts')
+const sdkRoot = process.argv[2]
+if (!sdkRoot) {
+  console.error('Usage: tsx generate-errors.ts <sdk-root-path>')
+  process.exit(1)
+}
+
+const errorsFilePath = resolve(sdkRoot, '../contracts/smart_contracts/base/errors.algo.ts')
+const outputFilePath = resolve(sdkRoot, 'src/generated/errors.ts')
 
 const content = readFileSync(errorsFilePath, 'utf-8')
 

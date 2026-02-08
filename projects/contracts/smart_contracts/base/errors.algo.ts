@@ -22,6 +22,7 @@ export const errAccountIdMismatch = 'ERR:ID' // Account ID mismatch
 // Algohour errors
 export const errAlgoHoursExist = 'ERR:AH_EX' // Algohour account entry already exists
 export const errAlgoHoursNotExist = 'ERR:AH_NX' // Algohour account entry does not exist
+export const errAlgoHoursMismatch = 'ERR:AH' // Algohour mismatch - account does not have expected algohours
 
 export const errPeriodStartInvalid = 'ERR:PS' // Period start is invalid - must align with period length (1M)
 export const errPeriodEndInvalid = 'ERR:PE' // Period end is invalid - must align with period length (1M)
