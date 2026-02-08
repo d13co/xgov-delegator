@@ -435,7 +435,7 @@ addAccountAlgoHours:
     dupn 3
     pushbytes ""
     dup
-    // smart_contracts/delegator/delegator.algo.ts:108
+    // smart_contracts/delegator/delegator.algo.ts:110
     // public addAccountAlgoHours(periodStart: uint64, accountAlgohourInputs: AccountAlgohourInput[]): void {
     txna ApplicationArgs 1
     dup
@@ -461,17 +461,17 @@ addAccountAlgoHours:
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/base/types.algo.ts::AccountAlgohourInput>
-    // smart_contracts/delegator/delegator.algo.ts:109
+    // smart_contracts/delegator/delegator.algo.ts:111
     // this.ensureCallerIsAdmin()
     callsub ensureCallerIsAdmin
-    // smart_contracts/delegator/delegator.algo.ts:110
+    // smart_contracts/delegator/delegator.algo.ts:112
     // ensure(periodStart % periodLength === 0, errPeriodStartInvalid)
     intc 4 // 1000000
     %
     // smart_contracts/base/utils.algo.ts:9
     // if (!cond) {
     bz addAccountAlgoHours_after_if_else@15
-    // smart_contracts/delegator/delegator.algo.ts:110
+    // smart_contracts/delegator/delegator.algo.ts:112
     // ensure(periodStart % periodLength === 0, errPeriodStartInvalid)
     bytec_1 // "ERR:PS"
     // smart_contracts/base/utils.algo.ts:10
@@ -486,7 +486,7 @@ addAccountAlgoHours_after_if_else@15:
     bury 4
 
 addAccountAlgoHours_for_header@2:
-    // smart_contracts/delegator/delegator.algo.ts:112
+    // smart_contracts/delegator/delegator.algo.ts:114
     // for (let { account, hours } of clone(accountAlgohourInputs)) {
     dig 3
     dig 1
@@ -507,10 +507,10 @@ addAccountAlgoHours_for_header@2:
     intc_3 // 32
     extract_uint64
     bury 6
-    // smart_contracts/delegator/delegator.algo.ts:113
+    // smart_contracts/delegator/delegator.algo.ts:115
     // const accountId = this.getOrCreateAccountId(account)
     callsub getOrCreateAccountId
-    // smart_contracts/delegator/delegator.algo.ts:114
+    // smart_contracts/delegator/delegator.algo.ts:116
     // const key: AlgohourAccountKey = [periodStart, accountId]
     dig 3
     itob
@@ -525,7 +525,7 @@ addAccountAlgoHours_for_header@2:
     concat
     dup
     bury 8
-    // smart_contracts/delegator/delegator.algo.ts:116
+    // smart_contracts/delegator/delegator.algo.ts:118
     // ensureExtra(!box.exists, errAlgoHoursExist, account.bytes)
     box_len
     bury 1
@@ -536,7 +536,7 @@ addAccountAlgoHours_for_header@2:
     // log(extra)
     dig 8
     log
-    // smart_contracts/delegator/delegator.algo.ts:116
+    // smart_contracts/delegator/delegator.algo.ts:118
     // ensureExtra(!box.exists, errAlgoHoursExist, account.bytes)
     pushbytes "ERR:AH_EX"
     // smart_contracts/base/utils.algo.ts:18
@@ -547,7 +547,7 @@ addAccountAlgoHours_for_header@2:
     err
 
 addAccountAlgoHours_after_if_else@11:
-    // smart_contracts/delegator/delegator.algo.ts:117
+    // smart_contracts/delegator/delegator.algo.ts:119
     // box.value = hours
     dig 4
     itob
@@ -562,12 +562,12 @@ addAccountAlgoHours_after_if_else@11:
     dig 8
     concat
     dup
-    // smart_contracts/delegator/delegator.algo.ts:120
+    // smart_contracts/delegator/delegator.algo.ts:122
     // if (totalBox.exists) {
     box_len
     bury 1
     bz addAccountAlgoHours_else_body@5
-    // smart_contracts/delegator/delegator.algo.ts:121
+    // smart_contracts/delegator/delegator.algo.ts:123
     // totalBox.value.totalAlgohours += hours
     dup
     box_get
@@ -589,7 +589,7 @@ addAccountAlgoHours_after_if_else@6:
     b addAccountAlgoHours_for_header@2
 
 addAccountAlgoHours_else_body@5:
-    // smart_contracts/delegator/delegator.algo.ts:123
+    // smart_contracts/delegator/delegator.algo.ts:125
     // totalBox.value = { totalAlgohours: hours, final: false }
     dig 6
     pushbytes 0x00
@@ -598,7 +598,7 @@ addAccountAlgoHours_else_body@5:
     b addAccountAlgoHours_after_if_else@6
 
 addAccountAlgoHours_after_for@8:
-    // smart_contracts/delegator/delegator.algo.ts:108
+    // smart_contracts/delegator/delegator.algo.ts:110
     // public addAccountAlgoHours(periodStart: uint64, accountAlgohourInputs: AccountAlgohourInput[]): void {
     intc_1 // 1
     return
@@ -610,7 +610,7 @@ removeAccountAlgoHours:
     dupn 4
     pushbytes ""
     dup
-    // smart_contracts/delegator/delegator.algo.ts:133
+    // smart_contracts/delegator/delegator.algo.ts:135
     // public removeAccountAlgoHours(periodStart: uint64, accountAlgohourInputs: AccountAlgohourInput[]): void {
     txna ApplicationArgs 1
     dup
@@ -636,17 +636,17 @@ removeAccountAlgoHours:
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/base/types.algo.ts::AccountAlgohourInput>
-    // smart_contracts/delegator/delegator.algo.ts:134
+    // smart_contracts/delegator/delegator.algo.ts:136
     // this.ensureCallerIsAdmin()
     callsub ensureCallerIsAdmin
-    // smart_contracts/delegator/delegator.algo.ts:135
+    // smart_contracts/delegator/delegator.algo.ts:137
     // ensure(periodStart % periodLength === 0, errPeriodStartInvalid)
     intc 4 // 1000000
     %
     // smart_contracts/base/utils.algo.ts:9
     // if (!cond) {
     bz removeAccountAlgoHours_after_if_else@24
-    // smart_contracts/delegator/delegator.algo.ts:135
+    // smart_contracts/delegator/delegator.algo.ts:137
     // ensure(periodStart % periodLength === 0, errPeriodStartInvalid)
     bytec_1 // "ERR:PS"
     // smart_contracts/base/utils.algo.ts:10
@@ -661,7 +661,7 @@ removeAccountAlgoHours_after_if_else@24:
     bury 4
 
 removeAccountAlgoHours_for_header@2:
-    // smart_contracts/delegator/delegator.algo.ts:137
+    // smart_contracts/delegator/delegator.algo.ts:139
     // for (let { account, hours } of clone(accountAlgohourInputs)) {
     dig 3
     dig 1
@@ -712,7 +712,7 @@ removeAccountAlgoHours_after_if_else@8:
     dig 8
     box_get
     assert // Box must have value
-    // smart_contracts/delegator/delegator.algo.ts:139
+    // smart_contracts/delegator/delegator.algo.ts:141
     // const key: AlgohourAccountKey = [periodStart, accountId]
     dig 3
     itob
@@ -727,7 +727,7 @@ removeAccountAlgoHours_after_if_else@8:
     concat
     dup
     bury 8
-    // smart_contracts/delegator/delegator.algo.ts:141
+    // smart_contracts/delegator/delegator.algo.ts:143
     // ensureExtra(box.exists, errAlgoHoursNotExist, account.bytes)
     box_len
     bury 1
@@ -738,7 +738,7 @@ removeAccountAlgoHours_after_if_else@8:
     // log(extra)
     dig 9
     log
-    // smart_contracts/delegator/delegator.algo.ts:141
+    // smart_contracts/delegator/delegator.algo.ts:143
     // ensureExtra(box.exists, errAlgoHoursNotExist, account.bytes)
     bytec 7 // "ERR:AH_NX"
     // smart_contracts/base/utils.algo.ts:18
@@ -749,7 +749,7 @@ removeAccountAlgoHours_after_if_else@8:
     err
 
 removeAccountAlgoHours_after_if_else@12:
-    // smart_contracts/delegator/delegator.algo.ts:142
+    // smart_contracts/delegator/delegator.algo.ts:144
     // ensureExtra(box.value === hours, errAlgoHoursMismatch, account.bytes) // ensure hours to remove matches existing hours to prevent accidental double removal
     dig 6
     box_get
@@ -764,7 +764,7 @@ removeAccountAlgoHours_after_if_else@12:
     // log(extra)
     dig 9
     log
-    // smart_contracts/delegator/delegator.algo.ts:142
+    // smart_contracts/delegator/delegator.algo.ts:144
     // ensureExtra(box.value === hours, errAlgoHoursMismatch, account.bytes) // ensure hours to remove matches existing hours to prevent accidental double removal
     bytec 8 // "ERR:AH"
     // smart_contracts/base/utils.algo.ts:18
@@ -775,7 +775,7 @@ removeAccountAlgoHours_after_if_else@12:
     err
 
 removeAccountAlgoHours_after_if_else@16:
-    // smart_contracts/delegator/delegator.algo.ts:143
+    // smart_contracts/delegator/delegator.algo.ts:145
     // box.delete()
     dig 6
     box_del
@@ -787,14 +787,14 @@ removeAccountAlgoHours_after_if_else@16:
     concat
     dup
     bury 7
-    // smart_contracts/delegator/delegator.algo.ts:146
+    // smart_contracts/delegator/delegator.algo.ts:148
     // ensure(totalBox.exists, errAlgoHoursNotExist)
     box_len
     bury 1
     // smart_contracts/base/utils.algo.ts:9
     // if (!cond) {
     bnz removeAccountAlgoHours_after_if_else@20
-    // smart_contracts/delegator/delegator.algo.ts:146
+    // smart_contracts/delegator/delegator.algo.ts:148
     // ensure(totalBox.exists, errAlgoHoursNotExist)
     bytec 7 // "ERR:AH_NX"
     // smart_contracts/base/utils.algo.ts:10
@@ -805,7 +805,7 @@ removeAccountAlgoHours_after_if_else@16:
     err
 
 removeAccountAlgoHours_after_if_else@20:
-    // smart_contracts/delegator/delegator.algo.ts:147
+    // smart_contracts/delegator/delegator.algo.ts:149
     // totalBox.value.totalAlgohours -= hours
     dig 5
     dup
@@ -826,7 +826,7 @@ removeAccountAlgoHours_after_if_else@20:
     b removeAccountAlgoHours_for_header@2
 
 removeAccountAlgoHours_after_for@5:
-    // smart_contracts/delegator/delegator.algo.ts:133
+    // smart_contracts/delegator/delegator.algo.ts:135
     // public removeAccountAlgoHours(periodStart: uint64, accountAlgohourInputs: AccountAlgohourInput[]): void {
     intc_1 // 1
     return
@@ -835,7 +835,7 @@ removeAccountAlgoHours_after_for@5:
 // smart_contracts/delegator/delegator.algo.ts::Delegator.updateAlgoHourPeriodFinality[routing]() -> void:
 updateAlgoHourPeriodFinality:
     intc_0 // 0
-    // smart_contracts/delegator/delegator.algo.ts:156
+    // smart_contracts/delegator/delegator.algo.ts:158
     // @abimethod({ readonly: true })
     txna ApplicationArgs 1
     dup
@@ -862,17 +862,17 @@ updateAlgoHourPeriodFinality:
     intc_0 // 0
     getbit
     swap
-    // smart_contracts/delegator/delegator.algo.ts:158
+    // smart_contracts/delegator/delegator.algo.ts:160
     // this.ensureCallerIsAdmin()
     callsub ensureCallerIsAdmin
-    // smart_contracts/delegator/delegator.algo.ts:159
+    // smart_contracts/delegator/delegator.algo.ts:161
     // ensure(periodStart % periodLength === 0, errPeriodStartInvalid)
     intc 4 // 1000000
     %
     // smart_contracts/base/utils.algo.ts:9
     // if (!cond) {
     bz updateAlgoHourPeriodFinality_after_if_else@3
-    // smart_contracts/delegator/delegator.algo.ts:159
+    // smart_contracts/delegator/delegator.algo.ts:161
     // ensure(periodStart % periodLength === 0, errPeriodStartInvalid)
     bytec_1 // "ERR:PS"
     // smart_contracts/base/utils.algo.ts:10
@@ -883,7 +883,7 @@ updateAlgoHourPeriodFinality:
     err
 
 updateAlgoHourPeriodFinality_after_if_else@3:
-    // smart_contracts/delegator/delegator.algo.ts:160
+    // smart_contracts/delegator/delegator.algo.ts:162
     // const box = this.algohourPeriodTotals(periodStart)
     dig 2
     itob
@@ -894,14 +894,14 @@ updateAlgoHourPeriodFinality_after_if_else@3:
     concat
     dup
     bury 5
-    // smart_contracts/delegator/delegator.algo.ts:161
+    // smart_contracts/delegator/delegator.algo.ts:163
     // ensure(box.exists, errAlgoHoursNotExist)
     box_len
     bury 1
     // smart_contracts/base/utils.algo.ts:9
     // if (!cond) {
     bnz updateAlgoHourPeriodFinality_after_if_else@7
-    // smart_contracts/delegator/delegator.algo.ts:161
+    // smart_contracts/delegator/delegator.algo.ts:163
     // ensure(box.exists, errAlgoHoursNotExist)
     bytec 7 // "ERR:AH_NX"
     // smart_contracts/base/utils.algo.ts:10
@@ -912,7 +912,7 @@ updateAlgoHourPeriodFinality_after_if_else@3:
     err
 
 updateAlgoHourPeriodFinality_after_if_else@7:
-    // smart_contracts/delegator/delegator.algo.ts:162
+    // smart_contracts/delegator/delegator.algo.ts:164
     // ensure(box.value.totalAlgohours === totalAlgohours, errAlgoHoursMismatch)
     dig 3
     box_get
@@ -924,7 +924,7 @@ updateAlgoHourPeriodFinality_after_if_else@7:
     // smart_contracts/base/utils.algo.ts:9
     // if (!cond) {
     bnz updateAlgoHourPeriodFinality_after_if_else@11
-    // smart_contracts/delegator/delegator.algo.ts:162
+    // smart_contracts/delegator/delegator.algo.ts:164
     // ensure(box.value.totalAlgohours === totalAlgohours, errAlgoHoursMismatch)
     bytec 8 // "ERR:AH"
     // smart_contracts/base/utils.algo.ts:10
@@ -935,7 +935,7 @@ updateAlgoHourPeriodFinality_after_if_else@7:
     err
 
 updateAlgoHourPeriodFinality_after_if_else@11:
-    // smart_contracts/delegator/delegator.algo.ts:163
+    // smart_contracts/delegator/delegator.algo.ts:165
     // box.value.final = final
     dig 3
     dup
@@ -948,7 +948,7 @@ updateAlgoHourPeriodFinality_after_if_else@11:
     intc_2 // 8
     swap
     box_replace
-    // smart_contracts/delegator/delegator.algo.ts:156
+    // smart_contracts/delegator/delegator.algo.ts:158
     // @abimethod({ readonly: true })
     intc_1 // 1
     return
@@ -957,7 +957,7 @@ updateAlgoHourPeriodFinality_after_if_else@11:
 // smart_contracts/delegator/delegator.algo.ts::Delegator.getAlgoHourPeriodTotals[routing]() -> void:
 getAlgoHourPeriodTotals:
     intc_0 // 0
-    // smart_contracts/delegator/delegator.algo.ts:199
+    // smart_contracts/delegator/delegator.algo.ts:201
     // @abimethod({ readonly: true })
     txna ApplicationArgs 1
     dup
@@ -967,14 +967,14 @@ getAlgoHourPeriodTotals:
     assert // invalid number of bytes for arc4.uint64
     btoi
     dup
-    // smart_contracts/delegator/delegator.algo.ts:201
+    // smart_contracts/delegator/delegator.algo.ts:203
     // ensure(periodStart % periodLength === 0, errPeriodStartInvalid)
     intc 4 // 1000000
     %
     // smart_contracts/base/utils.algo.ts:9
     // if (!cond) {
     bz getAlgoHourPeriodTotals_after_if_else@7
-    // smart_contracts/delegator/delegator.algo.ts:201
+    // smart_contracts/delegator/delegator.algo.ts:203
     // ensure(periodStart % periodLength === 0, errPeriodStartInvalid)
     bytec_1 // "ERR:PS"
     // smart_contracts/base/utils.algo.ts:10
@@ -985,7 +985,7 @@ getAlgoHourPeriodTotals:
     err
 
 getAlgoHourPeriodTotals_after_if_else@7:
-    // smart_contracts/delegator/delegator.algo.ts:202
+    // smart_contracts/delegator/delegator.algo.ts:204
     // const box = this.algohourPeriodTotals(periodStart)
     dup
     itob
@@ -996,7 +996,7 @@ getAlgoHourPeriodTotals_after_if_else@7:
     concat
     dup
     bury 3
-    // smart_contracts/delegator/delegator.algo.ts:203
+    // smart_contracts/delegator/delegator.algo.ts:205
     // return box.exists ? box.value : { totalAlgohours: 0, final: false }
     box_len
     bury 1
@@ -1006,7 +1006,7 @@ getAlgoHourPeriodTotals_after_if_else@7:
     assert // Box must have value
 
 getAlgoHourPeriodTotals_ternary_merge@4:
-    // smart_contracts/delegator/delegator.algo.ts:199
+    // smart_contracts/delegator/delegator.algo.ts:201
     // @abimethod({ readonly: true })
     bytec_0 // 0x151f7c75
     swap
@@ -1016,7 +1016,7 @@ getAlgoHourPeriodTotals_ternary_merge@4:
     return
 
 getAlgoHourPeriodTotals_ternary_false@3:
-    // smart_contracts/delegator/delegator.algo.ts:203
+    // smart_contracts/delegator/delegator.algo.ts:205
     // return box.exists ? box.value : { totalAlgohours: 0, final: false }
     pushbytes 0x000000000000000000
     b getAlgoHourPeriodTotals_ternary_merge@4
@@ -1026,7 +1026,7 @@ getAlgoHourPeriodTotals_ternary_false@3:
 getAccountAlgoHours:
     intc_0 // 0
     dup
-    // smart_contracts/delegator/delegator.algo.ts:212
+    // smart_contracts/delegator/delegator.algo.ts:214
     // @abimethod({ readonly: true })
     txna ApplicationArgs 1
     dup
@@ -1043,14 +1043,14 @@ getAccountAlgoHours:
     intc_3 // 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    // smart_contracts/delegator/delegator.algo.ts:214
+    // smart_contracts/delegator/delegator.algo.ts:216
     // ensure(periodStart % periodLength === 0, errPeriodStartInvalid)
     intc 4 // 1000000
     %
     // smart_contracts/base/utils.algo.ts:9
     // if (!cond) {
     bz getAccountAlgoHours_after_if_else@10
-    // smart_contracts/delegator/delegator.algo.ts:214
+    // smart_contracts/delegator/delegator.algo.ts:216
     // ensure(periodStart % periodLength === 0, errPeriodStartInvalid)
     bytec_1 // "ERR:PS"
     // smart_contracts/base/utils.algo.ts:10
@@ -1061,22 +1061,22 @@ getAccountAlgoHours:
     err
 
 getAccountAlgoHours_after_if_else@10:
-    // smart_contracts/delegator/delegator.algo.ts:215
+    // smart_contracts/delegator/delegator.algo.ts:217
     // const accountId = this.getAccountIdIfExists(account)
     dup
     callsub getAccountIdIfExists
     dup
     bury 5
-    // smart_contracts/delegator/delegator.algo.ts:216
+    // smart_contracts/delegator/delegator.algo.ts:218
     // if (accountId.asUint64() === 0) {
     btoi
     bnz getAccountAlgoHours_after_if_else@3
-    // smart_contracts/delegator/delegator.algo.ts:217
+    // smart_contracts/delegator/delegator.algo.ts:219
     // return 0
     intc_0 // 0
 
 getAccountAlgoHours_after_inlined_smart_contracts/delegator/delegator.algo.ts::Delegator.getAccountAlgoHours@7:
-    // smart_contracts/delegator/delegator.algo.ts:212
+    // smart_contracts/delegator/delegator.algo.ts:214
     // @abimethod({ readonly: true })
     itob
     bytec_0 // 0x151f7c75
@@ -1087,7 +1087,7 @@ getAccountAlgoHours_after_inlined_smart_contracts/delegator/delegator.algo.ts::D
     return
 
 getAccountAlgoHours_after_if_else@3:
-    // smart_contracts/delegator/delegator.algo.ts:219
+    // smart_contracts/delegator/delegator.algo.ts:221
     // const key: AlgohourAccountKey = [periodStart, accountId]
     dig 1
     itob
@@ -1100,7 +1100,7 @@ getAccountAlgoHours_after_if_else@3:
     concat
     dup
     bury 4
-    // smart_contracts/delegator/delegator.algo.ts:221
+    // smart_contracts/delegator/delegator.algo.ts:223
     // return box.exists ? box.value : 0
     box_len
     bury 1
@@ -1109,15 +1109,15 @@ getAccountAlgoHours_after_if_else@3:
     box_get
     assert // Box must have value
     btoi
-    // smart_contracts/delegator/delegator.algo.ts:212
+    // smart_contracts/delegator/delegator.algo.ts:214
     // @abimethod({ readonly: true })
     b getAccountAlgoHours_after_inlined_smart_contracts/delegator/delegator.algo.ts::Delegator.getAccountAlgoHours@7
 
 getAccountAlgoHours_ternary_false@5:
-    // smart_contracts/delegator/delegator.algo.ts:221
+    // smart_contracts/delegator/delegator.algo.ts:223
     // return box.exists ? box.value : 0
     intc_0 // 0
-    // smart_contracts/delegator/delegator.algo.ts:212
+    // smart_contracts/delegator/delegator.algo.ts:214
     // @abimethod({ readonly: true })
     b getAccountAlgoHours_after_inlined_smart_contracts/delegator/delegator.algo.ts::Delegator.getAccountAlgoHours@7
 

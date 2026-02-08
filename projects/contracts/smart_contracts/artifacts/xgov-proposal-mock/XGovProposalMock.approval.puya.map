@@ -5,7 +5,7 @@
     "../../base/utils.algo.ts",
     "../../xgov-proposal-mock/xGovProposalMock.algo.ts"
   ],
-  "mappings": ";;;;;;;;;;;;;;;;;;;;;AAmBE;;;;;;;;;;;;;;;AAAoD;AAApD;AEfF;;AAAA;;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;;;AAAA;;;;;;;;;;;;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAKG;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAFQ;AAAA;AAAA;AAAA;AAKY;AAAA;AAAA;;AAAA;AACG;;;AAAS;;AAAA;AAAA;AAAA;AACxB;AAAA;;;AAAA;AAAA;;AAAA;AAAA;AALR;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAI4C;;;;AAM7C;;;AAAA;AAAA;AAAA;AAAA;AAAA;AACE;;;AAfY;;;;;;;;;;;;;;AAgBZ;AAAA;AAFF;AAAA;AAKA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AACE;;;AAnBW;;;;;;;;;;;;;;AAoBX;AAAA;AAFF;AAAA;AAKA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AACE;;;AAvBO;AAAA;;AAAA;AAwBP;AAAA;AAAA;AAFF;AAAA;AFyDC;;;AAAA;AAGsB;AAAG;AAAA;;AAAA;AAAxB;;;AACE;AAIkB;;;;AANN;;;AAAA;;;AAEZ;;;;AAAA;;;AAAA;AADiC;AAAA;AAAA;AAAA;;;;;AAHpC;AAAA;AAPQ;;AAAe;;AAAf;ACvEL;;;ADuE2C;;;;;;;;;;ACtE7C;AACA;",
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAmBE;;;;;;;;;;;;;;;AAAoD;AAApD;AEFS;AAAmD;;AAA5D;AACc;AAEE;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAFhB;AAIa;AAAyD;AAAtE;AACiB;AAA4D;AAA7E;AAPF;;AAAA;;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;;;AAAA;;;;;;;;;;;;;;;;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAUG;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAFQ;;;AAAA;AAAA;AAAA;AAKY;AAAA;AAAA;;AAAA;AACG;;;AAAS;;AAAA;AAAA;AAAA;AACxB;AAAA;;;AAAA;AAAA;;AAAA;AAAA;AALR;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAI4C;;;;AAM7C;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AACE;;;AApBO;AAqBP;AAAA;AAFF;AAAA;AAKA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AACE;;;AAxBY;AAyBZ;AAAA;AAFF;AAAA;AAKA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AACE;;;AAzBW;AA0BX;AAAA;AAFF;AAAA;AAKA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AACE;;;AA7Be;AA8Bf;AAAA;AAFF;AAAA;AAKA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AACE;;;AAjCO;;;AAAA;;AAAA;AAkCP;AAAA;AAAA;AAFF;AAAA;AF8BC;;;AAAA;AAGsB;AAAG;AAAA;;AAAA;AAAxB;;;AACE;AAIkB;;;;AANN;;;;AAAA;;;;AAEZ;;;;AAAA;;;AAAA;AADiC;AAAA;AAAA;AAAA;;;;;AAHpC;AAAA;AAPQ;;AAAe;;AAAf;ACvEL;;;ADuE2C;;;;;;;;;;ACtE7C;AACA;",
   "op_pc_offset": 0,
   "pc_events": {
     "1": {
@@ -13,12 +13,12 @@
       "params": {},
       "block": "main",
       "stack_in": [],
-      "op": "intcblock 1 0 32 8"
+      "op": "intcblock 1 0 8 32"
     },
     "7": {
-      "op": "bytecblock \"V\" base64(C4EBQw==)"
+      "op": "bytecblock \"status\" \"committee_id\" \"vote_open_ts\" \"voting_duration\" base64(C4EBQw==)"
     },
-    "16": {
+    "63": {
       "op": "txn ApplicationID",
       "defined_out": [
         "reinterpret_bool%0#0"
@@ -27,11 +27,11 @@
         "reinterpret_bool%0#0"
       ]
     },
-    "18": {
+    "65": {
       "op": "bnz main_after_if_else@2",
       "stack_out": []
     },
-    "21": {
+    "68": {
       "op": "pushbytes \"lastAccountId\"",
       "defined_out": [
         "\"lastAccountId\""
@@ -40,7 +40,7 @@
         "\"lastAccountId\""
       ]
     },
-    "36": {
+    "83": {
       "op": "intc_1 // 0",
       "defined_out": [
         "\"lastAccountId\"",
@@ -51,11 +51,99 @@
         "0"
       ]
     },
-    "37": {
+    "84": {
       "op": "app_global_put",
       "stack_out": []
     },
-    "38": {
+    "85": {
+      "op": "bytec_0 // \"status\"",
+      "defined_out": [
+        "\"status\""
+      ],
+      "stack_out": [
+        "\"status\""
+      ]
+    },
+    "86": {
+      "op": "pushint 25 // 25",
+      "defined_out": [
+        "\"status\"",
+        "25"
+      ],
+      "stack_out": [
+        "\"status\"",
+        "25"
+      ]
+    },
+    "88": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "89": {
+      "op": "bytec_1 // \"committee_id\"",
+      "defined_out": [
+        "\"committee_id\""
+      ],
+      "stack_out": [
+        "\"committee_id\""
+      ]
+    },
+    "90": {
+      "op": "pushbytes 0x0000000000000000000000000000000000000000000000000000000000000000",
+      "defined_out": [
+        "\"committee_id\"",
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      ],
+      "stack_out": [
+        "\"committee_id\"",
+        "0x0000000000000000000000000000000000000000000000000000000000000000"
+      ]
+    },
+    "124": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "125": {
+      "op": "bytec_2 // \"vote_open_ts\"",
+      "defined_out": [
+        "\"vote_open_ts\""
+      ],
+      "stack_out": [
+        "\"vote_open_ts\""
+      ]
+    },
+    "126": {
+      "op": "intc_1 // 0",
+      "stack_out": [
+        "\"vote_open_ts\"",
+        "0"
+      ]
+    },
+    "127": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "128": {
+      "op": "bytec_3 // \"voting_duration\"",
+      "defined_out": [
+        "\"voting_duration\""
+      ],
+      "stack_out": [
+        "\"voting_duration\""
+      ]
+    },
+    "129": {
+      "op": "intc_1 // 0",
+      "stack_out": [
+        "\"voting_duration\"",
+        "0"
+      ]
+    },
+    "130": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "131": {
       "block": "main_after_if_else@2",
       "stack_in": [],
       "op": "txn NumAppArgs",
@@ -66,11 +154,11 @@
         "tmp%0#1"
       ]
     },
-    "40": {
-      "op": "bz main___algots__.defaultCreate@14",
+    "133": {
+      "op": "bz main___algots__.defaultCreate@16",
       "stack_out": []
     },
-    "43": {
+    "136": {
       "op": "txn OnCompletion",
       "defined_out": [
         "tmp%2#0"
@@ -79,7 +167,7 @@
         "tmp%2#0"
       ]
     },
-    "45": {
+    "138": {
       "op": "!",
       "defined_out": [
         "tmp%3#0"
@@ -88,12 +176,12 @@
         "tmp%3#0"
       ]
     },
-    "46": {
+    "139": {
       "error": "OnCompletion must be NoOp",
       "op": "assert // OnCompletion must be NoOp",
       "stack_out": []
     },
-    "47": {
+    "140": {
       "op": "txn ApplicationID",
       "defined_out": [
         "tmp%4#0"
@@ -102,55 +190,63 @@
         "tmp%4#0"
       ]
     },
-    "49": {
+    "142": {
       "op": "assert",
       "stack_out": []
     },
-    "50": {
-      "op": "pushbytess 0x24615f90 0xd07a349e 0x45ccc5b9 0xa3a2d57a 0x4118ecbf // method \"get_voter_box(address)(uint64,bool)\", method \"setCommitteeId(byte[32])void\", method \"setVoteOpenTs(uint64)void\", method \"setVoterBox(address,uint64)void\", method \"increaseBudget(uint64)void\"",
+    "143": {
+      "op": "pushbytess 0x24615f90 0x2e815514 0xd07a349e 0x45ccc5b9 0x969f5acf 0xa3a2d57a 0x4118ecbf // method \"get_voter_box(address)(uint64,bool)\", method \"setStatus(uint64)void\", method \"setCommitteeId(byte[32])void\", method \"setVoteOpenTs(uint64)void\", method \"setVotingDuration(uint64)void\", method \"setVoterBox(address,uint64)void\", method \"increaseBudget(uint64)void\"",
       "defined_out": [
         "Method(get_voter_box(address)(uint64,bool))",
         "Method(increaseBudget(uint64)void)",
         "Method(setCommitteeId(byte[32])void)",
+        "Method(setStatus(uint64)void)",
         "Method(setVoteOpenTs(uint64)void)",
-        "Method(setVoterBox(address,uint64)void)"
+        "Method(setVoterBox(address,uint64)void)",
+        "Method(setVotingDuration(uint64)void)"
       ],
       "stack_out": [
         "Method(get_voter_box(address)(uint64,bool))",
+        "Method(setStatus(uint64)void)",
         "Method(setCommitteeId(byte[32])void)",
         "Method(setVoteOpenTs(uint64)void)",
+        "Method(setVotingDuration(uint64)void)",
         "Method(setVoterBox(address,uint64)void)",
         "Method(increaseBudget(uint64)void)"
       ]
     },
-    "77": {
+    "180": {
       "op": "txna ApplicationArgs 0",
       "defined_out": [
         "Method(get_voter_box(address)(uint64,bool))",
         "Method(increaseBudget(uint64)void)",
         "Method(setCommitteeId(byte[32])void)",
+        "Method(setStatus(uint64)void)",
         "Method(setVoteOpenTs(uint64)void)",
         "Method(setVoterBox(address,uint64)void)",
+        "Method(setVotingDuration(uint64)void)",
         "tmp%6#0"
       ],
       "stack_out": [
         "Method(get_voter_box(address)(uint64,bool))",
+        "Method(setStatus(uint64)void)",
         "Method(setCommitteeId(byte[32])void)",
         "Method(setVoteOpenTs(uint64)void)",
+        "Method(setVotingDuration(uint64)void)",
         "Method(setVoterBox(address,uint64)void)",
         "Method(increaseBudget(uint64)void)",
         "tmp%6#0"
       ]
     },
-    "80": {
-      "op": "match getVoterBox setCommitteeId setVoteOpenTs setVoterBox increaseBudget",
+    "183": {
+      "op": "match getVoterBox setStatus setCommitteeId setVoteOpenTs setVotingDuration setVoterBox increaseBudget",
       "stack_out": []
     },
-    "92": {
+    "199": {
       "op": "err"
     },
-    "93": {
-      "block": "main___algots__.defaultCreate@14",
+    "200": {
+      "block": "main___algots__.defaultCreate@16",
       "stack_in": [],
       "op": "txn OnCompletion",
       "defined_out": [
@@ -160,7 +256,7 @@
         "tmp%7#0"
       ]
     },
-    "95": {
+    "202": {
       "op": "!",
       "defined_out": [
         "tmp%8#0"
@@ -169,7 +265,7 @@
         "tmp%8#0"
       ]
     },
-    "96": {
+    "203": {
       "op": "txn ApplicationID",
       "defined_out": [
         "tmp%8#0",
@@ -180,7 +276,7 @@
         "tmp%9#0"
       ]
     },
-    "98": {
+    "205": {
       "op": "!",
       "defined_out": [
         "tmp%10#0",
@@ -191,7 +287,7 @@
         "tmp%10#0"
       ]
     },
-    "99": {
+    "206": {
       "op": "&&",
       "defined_out": [
         "tmp%11#0"
@@ -200,12 +296,12 @@
         "tmp%11#0"
       ]
     },
-    "100": {
+    "207": {
       "error": "OnCompletion must be NoOp && can only call when creating",
       "op": "assert // OnCompletion must be NoOp && can only call when creating",
       "stack_out": []
     },
-    "101": {
+    "208": {
       "op": "intc_0 // 1",
       "defined_out": [
         "1"
@@ -214,11 +310,11 @@
         "1"
       ]
     },
-    "102": {
+    "209": {
       "op": "return",
       "stack_out": []
     },
-    "103": {
+    "210": {
       "subroutine": "smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts::XGovProposalMock.getVoterBox[routing]",
       "params": {},
       "block": "getVoterBox",
@@ -231,7 +327,7 @@
         "voterAddress#0"
       ]
     },
-    "106": {
+    "213": {
       "op": "dup",
       "defined_out": [
         "voterAddress#0",
@@ -242,7 +338,7 @@
         "voterAddress#0 (copy)"
       ]
     },
-    "107": {
+    "214": {
       "op": "len",
       "defined_out": [
         "len%0#0",
@@ -253,8 +349,8 @@
         "len%0#0"
       ]
     },
-    "108": {
-      "op": "intc_2 // 32",
+    "215": {
+      "op": "intc_3 // 32",
       "defined_out": [
         "32",
         "len%0#0",
@@ -266,7 +362,7 @@
         "32"
       ]
     },
-    "109": {
+    "216": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -277,15 +373,15 @@
         "eq%0#0"
       ]
     },
-    "110": {
+    "217": {
       "error": "invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
       "op": "assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
       "stack_out": [
         "voterAddress#0"
       ]
     },
-    "111": {
-      "op": "bytec_0 // \"V\"",
+    "218": {
+      "op": "pushbytes \"V\"",
       "defined_out": [
         "\"V\"",
         "voterAddress#0"
@@ -295,14 +391,14 @@
         "\"V\""
       ]
     },
-    "112": {
+    "221": {
       "op": "swap",
       "stack_out": [
         "\"V\"",
         "voterAddress#0"
       ]
     },
-    "113": {
+    "222": {
       "op": "concat",
       "defined_out": [
         "box#0"
@@ -311,7 +407,7 @@
         "box#0"
       ]
     },
-    "114": {
+    "223": {
       "op": "dup",
       "defined_out": [
         "box#0"
@@ -321,7 +417,7 @@
         "box#0"
       ]
     },
-    "115": {
+    "224": {
       "op": "box_len",
       "defined_out": [
         "_%0#0",
@@ -334,7 +430,7 @@
         "exists#0"
       ]
     },
-    "116": {
+    "225": {
       "op": "dup",
       "stack_out": [
         "box#0",
@@ -343,7 +439,7 @@
         "exists#0 (copy)"
       ]
     },
-    "117": {
+    "226": {
       "op": "uncover 2",
       "defined_out": [
         "_%0#0",
@@ -357,7 +453,7 @@
         "_%0#0"
       ]
     },
-    "119": {
+    "228": {
       "op": "pop",
       "stack_out": [
         "box#0",
@@ -365,14 +461,14 @@
         "exists#0"
       ]
     },
-    "120": {
+    "229": {
       "op": "bz getVoterBox_ternary_false@3",
       "stack_out": [
         "box#0",
         "exists#0"
       ]
     },
-    "123": {
+    "232": {
       "op": "dig 1",
       "stack_out": [
         "box#0",
@@ -380,7 +476,7 @@
         "box#0"
       ]
     },
-    "125": {
+    "234": {
       "op": "box_get",
       "defined_out": [
         "aggregate%box_get%0#0",
@@ -395,7 +491,7 @@
         "aggregate%box_get%1#0"
       ]
     },
-    "126": {
+    "235": {
       "error": "Box must have value",
       "op": "assert // Box must have value",
       "stack_out": [
@@ -404,7 +500,7 @@
         "aggregate%box_get%0#0"
       ]
     },
-    "127": {
+    "236": {
       "op": "btoi",
       "defined_out": [
         "box#0",
@@ -417,7 +513,7 @@
         "value#0"
       ]
     },
-    "128": {
+    "237": {
       "block": "getVoterBox_ternary_merge@4",
       "stack_in": [
         "box#0",
@@ -434,7 +530,7 @@
         "aggregate%val_as_bytes%0#0"
       ]
     },
-    "129": {
+    "238": {
       "op": "pushbytes 0x00",
       "defined_out": [
         "0x00",
@@ -447,7 +543,7 @@
         "0x00"
       ]
     },
-    "132": {
+    "241": {
       "op": "intc_1 // 0",
       "defined_out": [
         "0",
@@ -462,7 +558,7 @@
         "0"
       ]
     },
-    "133": {
+    "242": {
       "op": "dig 3",
       "defined_out": [
         "0",
@@ -479,7 +575,7 @@
         "exists#0"
       ]
     },
-    "135": {
+    "244": {
       "op": "setbit",
       "defined_out": [
         "aggregate%encoded_bool%0#0",
@@ -493,7 +589,7 @@
         "aggregate%encoded_bool%0#0"
       ]
     },
-    "136": {
+    "245": {
       "op": "concat",
       "defined_out": [
         "aggregate%head%1#0",
@@ -505,7 +601,7 @@
         "aggregate%head%1#0"
       ]
     },
-    "137": {
+    "246": {
       "op": "pushbytes 0x151f7c75",
       "defined_out": [
         "0x151f7c75",
@@ -519,7 +615,7 @@
         "0x151f7c75"
       ]
     },
-    "143": {
+    "252": {
       "op": "swap",
       "stack_out": [
         "box#0",
@@ -528,7 +624,7 @@
         "aggregate%head%1#0"
       ]
     },
-    "144": {
+    "253": {
       "op": "concat",
       "defined_out": [
         "exists#0",
@@ -540,14 +636,14 @@
         "tmp%3#0"
       ]
     },
-    "145": {
+    "254": {
       "op": "log",
       "stack_out": [
         "box#0",
         "exists#0"
       ]
     },
-    "146": {
+    "255": {
       "op": "intc_0 // 1",
       "defined_out": [
         "1",
@@ -559,14 +655,14 @@
         "1"
       ]
     },
-    "147": {
+    "256": {
       "op": "return",
       "stack_out": [
         "box#0",
         "exists#0"
       ]
     },
-    "148": {
+    "257": {
       "block": "getVoterBox_ternary_false@3",
       "stack_in": [
         "box#0",
@@ -582,10 +678,124 @@
         "value#0"
       ]
     },
-    "149": {
+    "258": {
       "op": "b getVoterBox_ternary_merge@4"
     },
-    "152": {
+    "261": {
+      "subroutine": "smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts::XGovProposalMock.setStatus[routing]",
+      "params": {},
+      "block": "setStatus",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "264": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "265": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0"
+      ]
+    },
+    "266": {
+      "op": "intc_2 // 8",
+      "defined_out": [
+        "8",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "267": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "268": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "269": {
+      "op": "btoi",
+      "defined_out": [
+        "status#0"
+      ],
+      "stack_out": [
+        "status#0"
+      ]
+    },
+    "270": {
+      "callsub": "smart_contracts/base/base.algo.ts::AccountIdContract.ensureCallerIsAdmin",
+      "op": "callsub ensureCallerIsAdmin"
+    },
+    "273": {
+      "op": "bytec_0 // \"status\"",
+      "defined_out": [
+        "\"status\"",
+        "status#0"
+      ],
+      "stack_out": [
+        "status#0",
+        "\"status\""
+      ]
+    },
+    "274": {
+      "op": "swap",
+      "stack_out": [
+        "\"status\"",
+        "status#0"
+      ]
+    },
+    "275": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "276": {
+      "op": "intc_0 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "277": {
+      "op": "return",
+      "stack_out": []
+    },
+    "278": {
       "subroutine": "smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts::XGovProposalMock.setCommitteeId[routing]",
       "params": {},
       "block": "setCommitteeId",
@@ -598,7 +808,7 @@
         "committeeId#0"
       ]
     },
-    "155": {
+    "281": {
       "op": "dup",
       "defined_out": [
         "committeeId#0",
@@ -609,7 +819,7 @@
         "committeeId#0 (copy)"
       ]
     },
-    "156": {
+    "282": {
       "op": "len",
       "defined_out": [
         "committeeId#0",
@@ -620,8 +830,8 @@
         "len%0#0"
       ]
     },
-    "157": {
-      "op": "intc_2 // 32",
+    "283": {
+      "op": "intc_3 // 32",
       "defined_out": [
         "32",
         "committeeId#0",
@@ -633,7 +843,7 @@
         "32"
       ]
     },
-    "158": {
+    "284": {
       "op": "==",
       "defined_out": [
         "committeeId#0",
@@ -644,19 +854,19 @@
         "eq%0#0"
       ]
     },
-    "159": {
+    "285": {
       "error": "invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
       "op": "assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
       "stack_out": [
         "committeeId#0"
       ]
     },
-    "160": {
+    "286": {
       "callsub": "smart_contracts/base/base.algo.ts::AccountIdContract.ensureCallerIsAdmin",
       "op": "callsub ensureCallerIsAdmin"
     },
-    "163": {
-      "op": "pushbytes \"committee_id\"",
+    "289": {
+      "op": "bytec_1 // \"committee_id\"",
       "defined_out": [
         "\"committee_id\"",
         "committeeId#0"
@@ -666,18 +876,18 @@
         "\"committee_id\""
       ]
     },
-    "177": {
+    "290": {
       "op": "swap",
       "stack_out": [
         "\"committee_id\"",
         "committeeId#0"
       ]
     },
-    "178": {
+    "291": {
       "op": "app_global_put",
       "stack_out": []
     },
-    "179": {
+    "292": {
       "op": "intc_0 // 1",
       "defined_out": [
         "1"
@@ -686,11 +896,11 @@
         "1"
       ]
     },
-    "180": {
+    "293": {
       "op": "return",
       "stack_out": []
     },
-    "181": {
+    "294": {
       "subroutine": "smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts::XGovProposalMock.setVoteOpenTs[routing]",
       "params": {},
       "block": "setVoteOpenTs",
@@ -703,7 +913,7 @@
         "tmp%0#0"
       ]
     },
-    "184": {
+    "297": {
       "op": "dup",
       "defined_out": [
         "tmp%0#0",
@@ -714,7 +924,7 @@
         "tmp%0#0 (copy)"
       ]
     },
-    "185": {
+    "298": {
       "op": "len",
       "defined_out": [
         "len%0#0",
@@ -725,8 +935,8 @@
         "len%0#0"
       ]
     },
-    "186": {
-      "op": "intc_3 // 8",
+    "299": {
+      "op": "intc_2 // 8",
       "defined_out": [
         "8",
         "len%0#0",
@@ -738,7 +948,7 @@
         "8"
       ]
     },
-    "187": {
+    "300": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -749,14 +959,14 @@
         "eq%0#0"
       ]
     },
-    "188": {
+    "301": {
       "error": "invalid number of bytes for arc4.uint64",
       "op": "assert // invalid number of bytes for arc4.uint64",
       "stack_out": [
         "tmp%0#0"
       ]
     },
-    "189": {
+    "302": {
       "op": "btoi",
       "defined_out": [
         "voteOpenTs#0"
@@ -765,12 +975,12 @@
         "voteOpenTs#0"
       ]
     },
-    "190": {
+    "303": {
       "callsub": "smart_contracts/base/base.algo.ts::AccountIdContract.ensureCallerIsAdmin",
       "op": "callsub ensureCallerIsAdmin"
     },
-    "193": {
-      "op": "pushbytes \"vote_open_ts\"",
+    "306": {
+      "op": "bytec_2 // \"vote_open_ts\"",
       "defined_out": [
         "\"vote_open_ts\"",
         "voteOpenTs#0"
@@ -780,18 +990,18 @@
         "\"vote_open_ts\""
       ]
     },
-    "207": {
+    "307": {
       "op": "swap",
       "stack_out": [
         "\"vote_open_ts\"",
         "voteOpenTs#0"
       ]
     },
-    "208": {
+    "308": {
       "op": "app_global_put",
       "stack_out": []
     },
-    "209": {
+    "309": {
       "op": "intc_0 // 1",
       "defined_out": [
         "1"
@@ -800,11 +1010,125 @@
         "1"
       ]
     },
-    "210": {
+    "310": {
       "op": "return",
       "stack_out": []
     },
-    "211": {
+    "311": {
+      "subroutine": "smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts::XGovProposalMock.setVotingDuration[routing]",
+      "params": {},
+      "block": "setVotingDuration",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "314": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "315": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0"
+      ]
+    },
+    "316": {
+      "op": "intc_2 // 8",
+      "defined_out": [
+        "8",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "317": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "318": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "319": {
+      "op": "btoi",
+      "defined_out": [
+        "votingDuration#0"
+      ],
+      "stack_out": [
+        "votingDuration#0"
+      ]
+    },
+    "320": {
+      "callsub": "smart_contracts/base/base.algo.ts::AccountIdContract.ensureCallerIsAdmin",
+      "op": "callsub ensureCallerIsAdmin"
+    },
+    "323": {
+      "op": "bytec_3 // \"voting_duration\"",
+      "defined_out": [
+        "\"voting_duration\"",
+        "votingDuration#0"
+      ],
+      "stack_out": [
+        "votingDuration#0",
+        "\"voting_duration\""
+      ]
+    },
+    "324": {
+      "op": "swap",
+      "stack_out": [
+        "\"voting_duration\"",
+        "votingDuration#0"
+      ]
+    },
+    "325": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "326": {
+      "op": "intc_0 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "327": {
+      "op": "return",
+      "stack_out": []
+    },
+    "328": {
       "subroutine": "smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts::XGovProposalMock.setVoterBox[routing]",
       "params": {},
       "block": "setVoterBox",
@@ -817,7 +1141,7 @@
         "voterAddress#0"
       ]
     },
-    "214": {
+    "331": {
       "op": "dup",
       "defined_out": [
         "voterAddress#0",
@@ -828,7 +1152,7 @@
         "voterAddress#0 (copy)"
       ]
     },
-    "215": {
+    "332": {
       "op": "len",
       "defined_out": [
         "len%0#0",
@@ -839,8 +1163,8 @@
         "len%0#0"
       ]
     },
-    "216": {
-      "op": "intc_2 // 32",
+    "333": {
+      "op": "intc_3 // 32",
       "defined_out": [
         "32",
         "len%0#0",
@@ -852,7 +1176,7 @@
         "32"
       ]
     },
-    "217": {
+    "334": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -863,14 +1187,14 @@
         "eq%0#0"
       ]
     },
-    "218": {
+    "335": {
       "error": "invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
       "op": "assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
       "stack_out": [
         "voterAddress#0"
       ]
     },
-    "219": {
+    "336": {
       "op": "txna ApplicationArgs 2",
       "defined_out": [
         "tmp%2#0",
@@ -881,7 +1205,7 @@
         "tmp%2#0"
       ]
     },
-    "222": {
+    "339": {
       "op": "dup",
       "defined_out": [
         "tmp%2#0",
@@ -894,7 +1218,7 @@
         "tmp%2#0 (copy)"
       ]
     },
-    "223": {
+    "340": {
       "op": "len",
       "defined_out": [
         "len%1#0",
@@ -907,8 +1231,8 @@
         "len%1#0"
       ]
     },
-    "224": {
-      "op": "intc_3 // 8",
+    "341": {
+      "op": "intc_2 // 8",
       "defined_out": [
         "8",
         "len%1#0",
@@ -922,7 +1246,7 @@
         "8"
       ]
     },
-    "225": {
+    "342": {
       "op": "==",
       "defined_out": [
         "eq%1#0",
@@ -935,7 +1259,7 @@
         "eq%1#0"
       ]
     },
-    "226": {
+    "343": {
       "error": "invalid number of bytes for arc4.uint64",
       "op": "assert // invalid number of bytes for arc4.uint64",
       "stack_out": [
@@ -943,7 +1267,7 @@
         "tmp%2#0"
       ]
     },
-    "227": {
+    "344": {
       "op": "btoi",
       "defined_out": [
         "voterAddress#0",
@@ -954,12 +1278,12 @@
         "votes#0"
       ]
     },
-    "228": {
+    "345": {
       "callsub": "smart_contracts/base/base.algo.ts::AccountIdContract.ensureCallerIsAdmin",
       "op": "callsub ensureCallerIsAdmin"
     },
-    "231": {
-      "op": "bytec_0 // \"V\"",
+    "348": {
+      "op": "pushbytes \"V\"",
       "defined_out": [
         "\"V\"",
         "voterAddress#0",
@@ -971,7 +1295,7 @@
         "\"V\""
       ]
     },
-    "232": {
+    "351": {
       "op": "uncover 2",
       "stack_out": [
         "votes#0",
@@ -979,7 +1303,7 @@
         "voterAddress#0"
       ]
     },
-    "234": {
+    "353": {
       "op": "concat",
       "defined_out": [
         "box_prefixed_key%0#0",
@@ -990,14 +1314,14 @@
         "box_prefixed_key%0#0"
       ]
     },
-    "235": {
+    "354": {
       "op": "swap",
       "stack_out": [
         "box_prefixed_key%0#0",
         "votes#0"
       ]
     },
-    "236": {
+    "355": {
       "op": "itob",
       "defined_out": [
         "box_prefixed_key%0#0",
@@ -1008,11 +1332,11 @@
         "encoded_value%0#0"
       ]
     },
-    "237": {
+    "356": {
       "op": "box_put",
       "stack_out": []
     },
-    "238": {
+    "357": {
       "op": "intc_0 // 1",
       "defined_out": [
         "1"
@@ -1021,11 +1345,11 @@
         "1"
       ]
     },
-    "239": {
+    "358": {
       "op": "return",
       "stack_out": []
     },
-    "240": {
+    "359": {
       "subroutine": "smart_contracts/base/base.algo.ts::AccountIdContract.increaseBudget[routing]",
       "params": {},
       "block": "increaseBudget",
@@ -1038,7 +1362,7 @@
         "tmp%0#0"
       ]
     },
-    "243": {
+    "362": {
       "op": "btoi",
       "defined_out": [
         "itxns#0"
@@ -1047,7 +1371,7 @@
         "itxns#0"
       ]
     },
-    "244": {
+    "363": {
       "op": "intc_1 // 0",
       "defined_out": [
         "i#0",
@@ -1058,7 +1382,7 @@
         "i#0"
       ]
     },
-    "245": {
+    "364": {
       "block": "increaseBudget_while_top@2",
       "stack_in": [
         "itxns#0",
@@ -1074,7 +1398,7 @@
         "i#0"
       ]
     },
-    "246": {
+    "365": {
       "op": "dig 2",
       "defined_out": [
         "i#0",
@@ -1087,7 +1411,7 @@
         "itxns#0"
       ]
     },
-    "248": {
+    "367": {
       "op": "<",
       "defined_out": [
         "i#0",
@@ -1100,17 +1424,17 @@
         "tmp%0#1"
       ]
     },
-    "249": {
+    "368": {
       "op": "bz increaseBudget_after_while@5",
       "stack_out": [
         "itxns#0",
         "i#0"
       ]
     },
-    "252": {
+    "371": {
       "op": "itxn_begin"
     },
-    "253": {
+    "372": {
       "op": "pushint 5 // 5",
       "defined_out": [
         "5",
@@ -1123,15 +1447,15 @@
         "5"
       ]
     },
-    "255": {
+    "374": {
       "op": "itxn_field OnCompletion",
       "stack_out": [
         "itxns#0",
         "i#0"
       ]
     },
-    "257": {
-      "op": "bytec_1 // base64(C4EBQw==)",
+    "376": {
+      "op": "bytec 4 // base64(C4EBQw==)",
       "defined_out": [
         "C4EBQw==",
         "i#0",
@@ -1143,29 +1467,29 @@
         "C4EBQw=="
       ]
     },
-    "258": {
+    "378": {
       "op": "itxn_field ClearStateProgramPages",
       "stack_out": [
         "itxns#0",
         "i#0"
       ]
     },
-    "260": {
-      "op": "bytec_1 // base64(C4EBQw==)",
+    "380": {
+      "op": "bytec 4 // base64(C4EBQw==)",
       "stack_out": [
         "itxns#0",
         "i#0",
         "C4EBQw=="
       ]
     },
-    "261": {
+    "382": {
       "op": "itxn_field ApprovalProgramPages",
       "stack_out": [
         "itxns#0",
         "i#0"
       ]
     },
-    "263": {
+    "384": {
       "op": "pushint 6 // 6",
       "defined_out": [
         "6",
@@ -1178,14 +1502,14 @@
         "6"
       ]
     },
-    "265": {
+    "386": {
       "op": "itxn_field TypeEnum",
       "stack_out": [
         "itxns#0",
         "i#0"
       ]
     },
-    "267": {
+    "388": {
       "op": "intc_1 // 0",
       "defined_out": [
         "0",
@@ -1198,17 +1522,17 @@
         "0"
       ]
     },
-    "268": {
+    "389": {
       "op": "itxn_field Fee",
       "stack_out": [
         "itxns#0",
         "i#0"
       ]
     },
-    "270": {
+    "391": {
       "op": "itxn_submit"
     },
-    "271": {
+    "392": {
       "op": "dup",
       "stack_out": [
         "itxns#0",
@@ -1216,7 +1540,7 @@
         "i#0"
       ]
     },
-    "272": {
+    "393": {
       "op": "intc_0 // 1",
       "defined_out": [
         "1",
@@ -1230,7 +1554,7 @@
         "1"
       ]
     },
-    "273": {
+    "394": {
       "op": "+",
       "stack_out": [
         "itxns#0",
@@ -1238,7 +1562,7 @@
         "i#0"
       ]
     },
-    "274": {
+    "395": {
       "op": "bury 1",
       "defined_out": [
         "i#0",
@@ -1249,10 +1573,10 @@
         "i#0"
       ]
     },
-    "276": {
+    "397": {
       "op": "b increaseBudget_while_top@2"
     },
-    "279": {
+    "400": {
       "block": "increaseBudget_after_while@5",
       "stack_in": [
         "itxns#0",
@@ -1268,14 +1592,14 @@
         "1"
       ]
     },
-    "280": {
+    "401": {
       "op": "return",
       "stack_out": [
         "itxns#0",
         "i#0"
       ]
     },
-    "281": {
+    "402": {
       "subroutine": "smart_contracts/base/base.algo.ts::AccountIdContract.ensureCallerIsAdmin",
       "params": {},
       "block": "ensureCallerIsAdmin",
@@ -1288,7 +1612,7 @@
         "tmp%0#0"
       ]
     },
-    "283": {
+    "404": {
       "op": "global CreatorAddress",
       "defined_out": [
         "tmp%0#0",
@@ -1299,7 +1623,7 @@
         "tmp%1#0"
       ]
     },
-    "285": {
+    "406": {
       "op": "==",
       "defined_out": [
         "cond#0"
@@ -1308,11 +1632,11 @@
         "cond#0"
       ]
     },
-    "286": {
+    "407": {
       "op": "bnz ensureCallerIsAdmin_after_if_else@3",
       "stack_out": []
     },
-    "289": {
+    "410": {
       "op": "pushbytes \"ERR:AUTH\"",
       "defined_out": [
         "\"ERR:AUTH\""
@@ -1321,14 +1645,14 @@
         "\"ERR:AUTH\""
       ]
     },
-    "299": {
+    "420": {
       "op": "log",
       "stack_out": []
     },
-    "300": {
+    "421": {
       "op": "err"
     },
-    "301": {
+    "422": {
       "block": "ensureCallerIsAdmin_after_if_else@3",
       "stack_in": [],
       "retsub": true,

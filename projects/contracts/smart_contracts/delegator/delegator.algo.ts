@@ -94,10 +94,12 @@ export class Delegator extends AccountIdContract {
   }
 
   public syncProposalMetadata(proposalId: Application) {
+    // get xgov registry app id from oracle
+    // validate proposal was created by xgov registry
     // get committee ID from proposal contract
     // ensure committee metadata is synced
     // ensure all periods are final
-    // create or update proposal metadata record
+    // create (or update?) proposal metadata record
   }
 
   /**
