@@ -3,7 +3,7 @@ import { makeEmptyTransactionSigner } from "algosdk";
 import { getConstructorConfig } from "./networkConfig";
 import { DelegatorContractArgs, DelegatorGlobalState, ReaderConstructorArgs } from "./types";
 import { errorTransformer, wrapErrors } from "./util/wrapErrors";
-import { DelegatorClient } from "./generated/DelegatorClient";
+import { AlgohourPeriodTotals, DelegatorClient } from "./generated/DelegatorClient";
 
 export class XGovDelegatorReaderSDK {
   public algorand: AlgorandClient;
@@ -43,7 +43,7 @@ export class XGovDelegatorReaderSDK {
   }
 
   @wrapErrors()
-  async getAlgoHourPeriodTotals({ periodStart }: DelegatorContractArgs["getAlgoHourPeriodTotals(uint64)uint64"]): Promise<bigint> {
+  async getAlgoHourPeriodTotals({ periodStart }: DelegatorContractArgs["getAlgoHourPeriodTotals(uint64)(uint64,bool)"]): Promise<AlgohourPeriodTotals> {
     const { return: retVal } = await this.readClient.send.getAlgoHourPeriodTotals({ args: { periodStart } })
     return retVal!
   }

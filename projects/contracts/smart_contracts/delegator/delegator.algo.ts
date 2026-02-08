@@ -24,6 +24,7 @@ import {
   AccountIdWithVotes,
   AccountWithOffsetHint,
   AlgohourAccountKey,
+  AlgohourPeriodTotals,
   CommitteeId,
   DelegatorCommittee,
 } from '../base/types.algo'
@@ -33,11 +34,13 @@ import { CommitteeOracle } from '../oracle/oracle.algo'
 const periodLength: uint64 = 1_000_000
 
 export class Delegator extends AccountIdContract {
+  /** Committee Oracle Application ID */
   committeeOracleAppId = GlobalState<Application>()
-
+  /** Synced committee details w/ own delegated totals */
   committees = BoxMap<CommitteeId, DelegatorCommittee>({ keyPrefix: 'C' })
-
-  algohourTotals = BoxMap<uint64, uint64>({ keyPrefix: 'H' }) // TODO make into struct and add "finalized" value?
+  /** Total algohours for each period */
+  algohourPeriodTotals = BoxMap<uint64, AlgohourPeriodTotals>({ keyPrefix: 'H' })
+  /** Algohours for each account for each period */
   algohourAccounts = BoxMap<AlgohourAccountKey, uint64>({ keyPrefix: 'h' })
 
   /**
@@ -74,7 +77,7 @@ export class Delegator extends AccountIdContract {
 
     let extDelegatedVotes: uint64 = 0
     for (const { account, offsetHint } of clone(delegatedAccounts)) {
-      const localAccountId = this.mustGetAccountId(account)
+      const localAccountId = this.getOrCreateAccountId(account)
       const remoteVotes = oracleApp.call.getXGovVotingPower({
         appId: this.committeeOracleAppId.value,
         args: [committeeId, account, offsetHint],
@@ -106,11 +109,11 @@ export class Delegator extends AccountIdContract {
       ensureExtra(!box.exists, errAlgoHoursExist, account.bytes)
       box.value = hours
 
-      const totalBox = this.algohourTotals(periodStart)
+      const totalBox = this.algohourPeriodTotals(periodStart)
       if (totalBox.exists) {
-        totalBox.value += hours
+        totalBox.value.totalAlgohours += hours
       } else {
-        totalBox.value = hours
+        totalBox.value = { totalAlgohours: hours, final: false }
       }
     }
   }
@@ -125,18 +128,37 @@ export class Delegator extends AccountIdContract {
     ensure(periodStart % periodLength === 0, errPeriodStartInvalid)
 
     for (let { account, hours } of clone(accountAlgohourInputs)) {
-      const accountId = this.getOrCreateAccountId(account)
+      const accountId = this.mustGetAccountId(account)
       const key: AlgohourAccountKey = [periodStart, accountId]
       const box = this.algohourAccounts(key)
       ensureExtra(box.exists, errAlgoHoursNotExist, account.bytes)
       ensureExtra(box.value === hours, errAlgoHoursMismatch, account.bytes) // ensure hours to remove matches existing hours to prevent accidental double removal
       box.delete()
 
-      const totalBox = this.algohourTotals(periodStart)
+      const totalBox = this.algohourPeriodTotals(periodStart)
       ensure(totalBox.exists, errAlgoHoursNotExist)
-      totalBox.value -= hours
+      totalBox.value.totalAlgohours -= hours
     }
   }
+
+  /**
+   * Update period algohour finality - indicates account algohour records are complete for this period
+   * @param periodStart period start
+   * @returns total algohours for period
+   */
+  @abimethod({ readonly: true })
+  public updateAlgoHourPeriodFinality(periodStart: uint64, totalAlgohours: uint64, final: boolean): void {
+    this.ensureCallerIsAdmin()
+    ensure(periodStart % periodLength === 0, errPeriodStartInvalid)
+    const box = this.algohourPeriodTotals(periodStart)
+    ensure(box.exists, errAlgoHoursNotExist)
+    ensure(box.value.totalAlgohours === totalAlgohours, errAlgoHoursMismatch)
+    box.value.final = final
+  }
+
+  /*
+   * Getters
+   */
 
   /**
    * Sum account algohours over multiple 1M periods
@@ -149,7 +171,10 @@ export class Delegator extends AccountIdContract {
     ensure(periodEnd > periodStart, errPeriodEndLessThanStart)
     ensure(periodStart % periodLength === 0, errPeriodStartInvalid)
     ensure(periodEnd % periodLength === 0, errPeriodEndInvalid)
-    const accountId = this.mustGetAccountId(account)
+    const accountId = this.getAccountIdIfExists(account)
+    if (accountId.asUint64() === 0) {
+      return 0
+    }
     let algohours: uint64 = 0
     for (let period = periodStart; period < periodEnd; period += periodLength) {
       const key: AlgohourAccountKey = [period, accountId]
@@ -165,10 +190,10 @@ export class Delegator extends AccountIdContract {
    * @returns total algohours for period
    */
   @abimethod({ readonly: true })
-  public getAlgoHourPeriodTotals(periodStart: uint64): uint64 {
+  public getAlgoHourPeriodTotals(periodStart: uint64): AlgohourPeriodTotals {
     ensure(periodStart % periodLength === 0, errPeriodStartInvalid)
-    const box = this.algohourTotals(periodStart)
-    return box.exists ? box.value : 0
+    const box = this.algohourPeriodTotals(periodStart)
+    return box.exists ? box.value : { totalAlgohours: 0, final: false }
   }
 
   /**
@@ -180,7 +205,11 @@ export class Delegator extends AccountIdContract {
   @abimethod({ readonly: true })
   public getAccountAlgoHours(periodStart: uint64, account: Account): uint64 {
     ensure(periodStart % periodLength === 0, errPeriodStartInvalid)
-    const key: AlgohourAccountKey = [periodStart, this.mustGetAccountId(account)]
+    const accountId = this.getAccountIdIfExists(account)
+    if (accountId.asUint64() === 0) {
+      return 0
+    }
+    const key: AlgohourAccountKey = [periodStart, accountId]
     const box = this.algohourAccounts(key)
     return box.exists ? box.value : 0
   }

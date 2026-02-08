@@ -65,3 +65,8 @@ export type AccountWithOffsetHint = {
   account: Account
   offsetHint: Uint32
 }
+
+export type AlgohourPeriodTotals = {
+  totalAlgohours: uint64
+  final: boolean
+}

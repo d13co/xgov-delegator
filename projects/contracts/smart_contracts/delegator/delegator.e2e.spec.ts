@@ -6,7 +6,7 @@ import { beforeAll, beforeEach, describe, expect, test } from 'vitest'
 import { increaseBudgetBaseCost, increaseBudgetIncrementCost, XGovDelegatorSDK } from 'xgov-delegator-sdk'
 import { DelegatorFactory } from '../artifacts/delegator/DelegatorClient'
 
-describe('Delegator contract', () => {
+describe('Delegator e2e tests', () => {
   const localnet = algorandFixture()
   beforeAll(() => {
     Config.configure({
@@ -17,9 +17,9 @@ describe('Delegator contract', () => {
   })
   beforeEach(localnet.newScope)
 
-  const deploy = async (account: Address) => {
+  const deploy = async (adminAccount: Address, userAccount?: Address) => {
     const factory = localnet.algorand.client.getTypedAppFactory(DelegatorFactory, {
-      defaultSender: account,
+      defaultSender: adminAccount,
     })
 
     const { appClient } = await factory.deploy({
@@ -29,18 +29,30 @@ describe('Delegator contract', () => {
 
     await localnet.algorand.account.ensureFundedFromEnvironment(appClient.appAddress, (10).algos())
 
-    const sender = account
+    const sender = adminAccount
     const signer = localnet.algorand.account.getSigner(sender)
 
-    return {
+    const retVal: { client: typeof appClient; adminSDK: XGovDelegatorSDK; userSDK?: XGovDelegatorSDK } = {
       client: appClient,
-      sdk: new XGovDelegatorSDK({
+      adminSDK: new XGovDelegatorSDK({
         algorand: localnet.algorand,
         delegatorAppId: appClient.appId,
         writerAccount: { sender, signer },
         debug: false,
       }),
     }
+
+    if (userAccount) {
+      const userSigner = localnet.algorand.account.getSigner(userAccount)
+      retVal.userSDK = new XGovDelegatorSDK({
+        algorand: localnet.algorand,
+        delegatorAppId: appClient.appId,
+        writerAccount: { sender: userAccount, signer: userSigner },
+        debug: false,
+      })
+    }
+
+    return retVal
   }
 
   describe('increaseBudget opcode cost', () => {
@@ -50,13 +62,13 @@ describe('Delegator contract', () => {
         const sender = testAccount.toString()
         const signer = testAccount.signer
 
-        const { sdk } = await deploy(testAccount)
+        const { adminSDK } = await deploy(testAccount)
 
         const {
           simulateResponse: {
             txnGroups: [{ appBudgetConsumed }],
           },
-        } = await sdk
+        } = await adminSDK
           .writeClient!.newGroup()
           .increaseBudget({ sender, signer, args: { itxns: BigInt(i) }, extraFee: (i * 1000).microAlgo() })
           .simulate()
@@ -69,12 +81,145 @@ describe('Delegator contract', () => {
   describe('setCommitteeOracleAppId', () => {
     test(`Admin can set committee oracle app ID`, async () => {
       const { testAccount } = localnet.context
-      const { sdk } = await deploy(testAccount)
+      const { adminSDK } = await deploy(testAccount)
       const appId = 12345n
-      await sdk.setCommitteeOracleAppId({ appId })
+      await adminSDK.setCommitteeOracleAppId({ appId })
 
-      const { committeeOracleAppId } = await sdk.getGlobalState()
+      const { committeeOracleAppId } = await adminSDK.getGlobalState()
       expect(committeeOracleAppId).toBe(appId)
+    })
+
+    test(`Nonadmin can not set committee oracle app ID`, async () => {
+      const { testAccount } = localnet.context
+      const otherAccount = await localnet.context.generateAccount({ initialFunds: (1).algos() })
+      const { userSDK } = await deploy(testAccount, otherAccount)
+
+      await expect(userSDK!.setCommitteeOracleAppId({ appId: 12345n })).rejects.toThrowError(/ERR:AUTH/)
+    })
+  })
+
+  describe('addAccountAlgoHours', () => {
+    const periodStart = 1_000_000n
+    const account = 'DTHIRTEENNLSYGLSEXTXC6X4SVDWMFRCPAOAUCXWIXJRCVBWIIGLYARNQE'
+    const algoHours = 100n
+
+    test(`Admin can add account algo hours`, async () => {
+      const { testAccount } = localnet.context
+      const { adminSDK } = await deploy(testAccount)
+      await adminSDK.addAccountAlgoHours({ periodStart, accountAlgohours: [{ account, algoHours }] })
+    })
+
+    test(`Admin can add account algo hours for multiple periods`, async () => {
+      const { testAccount } = localnet.context
+      const { adminSDK } = await deploy(testAccount)
+      await adminSDK.addAccountAlgoHours({ periodStart, accountAlgohours: [{ account, algoHours }] })
+      await adminSDK.addAccountAlgoHours({ periodStart: 2_000_000n, accountAlgohours: [{ account, algoHours }] })
+    })
+
+    test(`Nonadmin can not add algo hours`, async () => {
+      const { testAccount } = localnet.context
+      const otherAccount = await localnet.context.generateAccount({ initialFunds: (1).algos() })
+      const { userSDK } = await deploy(testAccount, otherAccount)
+      await expect(
+        userSDK!.addAccountAlgoHours({ periodStart, accountAlgohours: [{ account, algoHours }] }),
+      ).rejects.toThrowError(/ERR:AUTH/)
+    })
+
+    test('It should fail if periodStart is not aligned to 1M', async () => {
+      const { testAccount } = localnet.context
+      const { adminSDK } = await deploy(testAccount)
+      const invalidPeriodStart = 1_000_001n
+      await expect(
+        adminSDK.addAccountAlgoHours({ periodStart: invalidPeriodStart, accountAlgohours: [{ account, algoHours }] }),
+      ).rejects.toThrowError(/ERR:PS/)
+    })
+
+    test('It should fail when adding more algohours to an existing period', async () => {
+      const { testAccount } = localnet.context
+      const { adminSDK } = await deploy(testAccount)
+      await adminSDK.addAccountAlgoHours({ periodStart, accountAlgohours: [{ account, algoHours }] })
+      await expect(
+        adminSDK.addAccountAlgoHours({ periodStart, accountAlgohours: [{ account, algoHours }] }),
+      ).rejects.toThrowError(/ERR:AH_EX/)
+    })
+  })
+
+  describe('getAccountAlgoHours', () => {
+    const periodStart = 1_000_000n
+    const account = 'DTHIRTEENNLSYGLSEXTXC6X4SVDWMFRCPAOAUCXWIXJRCVBWIIGLYARNQE'
+    const algoHours = 100n
+
+    test('It should return account algo hours for period', async () => {
+      const { testAccount } = localnet.context
+      const { adminSDK } = await deploy(testAccount)
+      await adminSDK.addAccountAlgoHours({ periodStart, accountAlgohours: [{ account, algoHours }] })
+
+      const returnedAlgoHours = await adminSDK.getAccountAlgoHours({ periodStart, account })
+      expect(returnedAlgoHours).toBe(algoHours)
+    })
+
+    test('It should return 0 if account has no algo hours for period', async () => {
+      const { testAccount } = localnet.context
+      const { adminSDK } = await deploy(testAccount)
+
+      const returnedAlgoHours = await adminSDK.getAccountAlgoHours({ periodStart, account })
+      expect(returnedAlgoHours).toBe(0n)
+    })
+
+    test('It should fail if periodStart is not aligned to 1M', async () => {
+      const { testAccount } = localnet.context
+      const { adminSDK } = await deploy(testAccount)
+      const invalidPeriodStart = 1_000_001n
+      await expect(adminSDK.getAccountAlgoHours({ periodStart: invalidPeriodStart, account })).rejects.toThrowError(
+        /ERR:PS/,
+      )
+    })
+  })
+
+  describe('getAlgoHourPeriodTotals', () => {
+    const periodStart = 1_000_000n
+    const account1 = 'DTHIRTEENNLSYGLSEXTXC6X4SVDWMFRCPAOAUCXWIXJRCVBWIIGLYARNQE'
+    const account2 = 'ROBOTMMVHPOETOTAX3J26UXYKVZX6QB7FHHYGBC44JNBUXMTABD5I3CODE'
+    const algoHours1 = 100n
+    const algoHours2 = 100n
+
+    test('It should return total algohours for period', async () => {
+      const { testAccount } = localnet.context
+      const { adminSDK } = await deploy(testAccount)
+      await adminSDK.addAccountAlgoHours({
+        periodStart,
+        accountAlgohours: [{ account: account1, algoHours: algoHours1 }],
+      })
+      await adminSDK.addAccountAlgoHours({
+        periodStart,
+        accountAlgohours: [{ account: account2, algoHours: algoHours2 }],
+      })
+
+      const totalAlgoHours = await adminSDK.getAlgoHourPeriodTotals({ periodStart })
+      expect(totalAlgoHours).toEqual({ totalAlgohours: algoHours1 + algoHours2, final: false })
+    })
+
+    test('It should return zero for unknown period', async () => {
+      const { testAccount } = localnet.context
+      const { adminSDK } = await deploy(testAccount)
+      await adminSDK.addAccountAlgoHours({
+        periodStart,
+        accountAlgohours: [{ account: account1, algoHours: algoHours1 }],
+      })
+
+      const totalAlgoHours = await adminSDK.getAlgoHourPeriodTotals({ periodStart: 2_000_000n })
+      expect(totalAlgoHours).toEqual({ totalAlgohours: 0n, final: false })
+    })
+
+    test('It should fail if periodStart is not aligned to 1M', async () => {
+      const { testAccount } = localnet.context
+      const { adminSDK } = await deploy(testAccount)
+      await adminSDK.addAccountAlgoHours({
+        periodStart,
+        accountAlgohours: [{ account: account1, algoHours: algoHours1 }],
+      })
+
+      await expect(adminSDK.getAlgoHourPeriodTotals({ periodStart: 2_000_001n })).rejects.toThrowError(/ERR:PS/)
     })
   })
 })
