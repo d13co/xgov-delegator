@@ -20,7 +20,7 @@
     "npm": ">=9.0"
   },
   "dependencies": {
-    "@algorandfoundation/algorand-typescript": "^1.0.1",
+    "@algorandfoundation/algorand-typescript": "^1.1.0",
     "@d13co/superbox": "^1.1.0",
     "xgov-committees-oracle-sdk": "link:../oracle-sdk"
   },
@@ -28,8 +28,8 @@
     "@algorandfoundation/algokit-client-generator": "^6.0.0",
     "@algorandfoundation/algokit-utils": "^9.0.0",
     "@algorandfoundation/algokit-utils-debug": "^1.0.4",
-    "@algorandfoundation/algorand-typescript-testing": "^1.0.1",
-    "@algorandfoundation/puya-ts": "^1.0.1",
+    "@algorandfoundation/algorand-typescript-testing": "^1.1.0",
+    "@algorandfoundation/puya-ts": "^1.1.0",
     "@eslint/js": "^9.18.0",
     "@rollup/plugin-typescript": "^12.1.2",
     "@tsconfig/node22": "^22.0.0",
