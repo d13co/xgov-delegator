@@ -46,9 +46,11 @@ function getCommitteeSBXGovs(sbMeta: Box<SuperboxMeta>): uint64 {
   return sbMeta.value.totalByteLength.asUint64() / ACCOUNT_ID_WITH_VOTES_STORED_SIZE
 }
 
+export const oracleXGovRegistryAppKey = Bytes`xGovRegistryApp`
+
 export class CommitteeOracle extends AccountIdContract {
   /** xGov registry application ID */
-  xGovRegistryApp = GlobalState<Application>()
+  xGovRegistryApp = GlobalState<Application>({ key: oracleXGovRegistryAppKey })
   /** Committee metadata box map */
   committees = BoxMap<CommitteeId, CommitteeMetadata>({ keyPrefix: 'c' })
   /** Incrementing superbox prefix for committees */
@@ -255,6 +257,7 @@ export class CommitteeOracle extends AccountIdContract {
    * @param startDataPage
    * @param dataPageLength
    */
+  @abimethod({ readonly: true })
   public logCommitteePages(
     committeeId: CommitteeId,
     logMetadata: boolean,

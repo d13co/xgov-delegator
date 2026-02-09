@@ -21,7 +21,14 @@ export const ErrorMessages: Record<string, string> = {
   "ERR:ID": "Account ID mismatch",
   "ERR:AH_EX": "Algohour account entry already exists",
   "ERR:AH_NX": "Algohour account entry does not exist",
+  "ERR:AH_NF": "Algohour account entry is not final",
   "ERR:PS": "Period start is invalid - must align with period length (1M)",
   "ERR:PE": "Period end is invalid - must align with period length (1M)",
-  "ERR:A_NV": "No voting power for account"
+  "ERR:A_NV": "No voting power for account",
+  "ERR:XGRM": "xGov registry app ID in oracle is missing",
+  "ERR:XGPC": "Proposal creator does not match xGov registry escrow",
+  "ERR:XGPM": "Committee ID missing from proposal. This should never happen.",
+  "ERR:XGVOM": "Vote open timestamp missing from proposal. This should never happen.",
+  "ERR:XGVDM": "Voting duration missing from proposal. This should never happen.",
+  "ERR:P_EX": "Proposal already exists in delegator"
 };

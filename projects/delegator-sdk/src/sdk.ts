@@ -159,4 +159,52 @@ export class XGovDelegatorSDK extends XGovDelegatorReaderSDK {
   removeAccountAlgoHours = this.makeTxnExecutor({
     maker: this.makeRemoveAccountAlgoHours,
   });
+
+  @requireWriter()
+  @wrapErrors()
+  makeSetVoteSubmitThreshold({ threshold, builder }: DelegatorContractArgs["setVoteSubmitThreshold(uint64)void"] & CommonMethodBuilderArgs) {
+    builder = builder ?? this.writeClient!.newGroup();
+    builder = builder.setVoteSubmitThreshold({ args: { threshold } });
+    return builder;
+  }
+
+  setVoteSubmitThreshold = this.makeTxnExecutor({
+    maker: this.makeSetVoteSubmitThreshold,
+  });
+
+  @requireWriter()
+  @wrapErrors()
+  makeSetAbsenteeMode({ mode, builder }: DelegatorContractArgs["setAbsenteeMode(string)void"] & CommonMethodBuilderArgs) {
+    builder = builder ?? this.writeClient!.newGroup();
+    builder = builder.setAbsenteeMode({ args: { mode } });
+    return builder;
+  }
+
+  setAbsenteeMode = this.makeTxnExecutor({
+    maker: this.makeSetAbsenteeMode,
+  });
+
+  @requireWriter()
+  @wrapErrors()
+  makeSyncProposalMetadata({ proposalId, builder }: DelegatorContractArgs["syncProposalMetadata(uint64)(string,byte[32],uint32,uint32,(uint32,uint32)[],(uint32,uint32)[],uint64,uint64,uint64,uint64,uint64,uint64)"] & CommonMethodBuilderArgs) {
+    builder = builder ?? this.writeClient!.newGroup();
+    builder = builder.syncProposalMetadata({ args: { proposalId } });
+    return builder;
+  }
+
+  syncProposalMetadata = this.makeTxnExecutor({
+    maker: this.makeSyncProposalMetadata,
+  });
+
+  @requireWriter()
+  @wrapErrors()
+  makeUpdateAlgoHourPeriodFinality({ periodStart, totalAlgohours, final, builder }: DelegatorContractArgs["updateAlgoHourPeriodFinality(uint64,uint64,bool)void"] & CommonMethodBuilderArgs) {
+    builder = builder ?? this.writeClient!.newGroup();
+    builder = builder.updateAlgoHourPeriodFinality({ args: { periodStart, totalAlgohours, final } });
+    return builder;
+  }
+
+  updateAlgoHourPeriodFinality = this.makeTxnExecutor({
+    maker: this.makeUpdateAlgoHourPeriodFinality,
+  });
 }

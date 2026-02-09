@@ -1,6 +1,6 @@
 import { AlgorandClient } from "@algorandfoundation/algokit-utils";
 import { Account, Address, TransactionSigner } from "algosdk";
-import { CommitteeOracleComposer } from "./generated/CommitteeOracleClient";
+import { CommitteeOracleArgs, CommitteeOracleComposer } from "./generated/CommitteeOracleClient";
 import { SendSingleTransactionResult, SendAtomicTransactionComposerResults } from "@algorandfoundation/algokit-utils/types/transaction";
 
 export type Network = "mainnet" | "testnet";
@@ -59,3 +59,5 @@ export interface CommonMethodBuilderArgs {
 }
 
 export type SendResult = SendSingleTransactionResult | SendAtomicTransactionComposerResults
+
+export type OracleContractArgs = CommitteeOracleArgs["obj"];

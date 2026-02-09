@@ -22,8 +22,18 @@ export const errAccountIdMismatch = 'ERR:ID' // Account ID mismatch
 // Algohour errors
 export const errAlgoHoursExist = 'ERR:AH_EX' // Algohour account entry already exists
 export const errAlgoHoursNotExist = 'ERR:AH_NX' // Algohour account entry does not exist
+export const errAlgoHoursNotFinal = 'ERR:AH_NF' // Algohour account entry is not final
 export const errAlgoHoursMismatch = 'ERR:AH' // Algohour mismatch - account does not have expected algohours
 
 export const errPeriodStartInvalid = 'ERR:PS' // Period start is invalid - must align with period length (1M)
 export const errPeriodEndInvalid = 'ERR:PE' // Period end is invalid - must align with period length (1M)
 export const errNoVotingPower = 'ERR:A_NV' // No voting power for account
+
+// xGov sync errors
+export const errXGovRegistryMissing = 'ERR:XGRM' // xGov registry app ID in oracle is missing
+export const errXGovProposalInvalidCreator = 'ERR:XGPC' // Proposal creator does not match xGov registry escrow
+export const errXGovProposalCommitteeMissing = 'ERR:XGPM' // Committee ID missing from proposal. This should never happen.
+export const errXGovProposalVoteOpenTsMissing = 'ERR:XGVOM' // Vote open timestamp missing from proposal. This should never happen.
+export const errXGovProposalVotingDurationMissing = 'ERR:XGVDM' // Voting duration missing from proposal. This should never happen.
+
+export const errProposalExists = 'ERR:P_EX' // Proposal already exists in delegator

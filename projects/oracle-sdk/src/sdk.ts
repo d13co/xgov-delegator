@@ -1,5 +1,5 @@
 import { CommitteeOracleClient, CommitteeOracleComposer } from "./generated/CommitteeOracleClient";
-import { ConstructorArgs, AccountWithVotes, SenderWithSigner, XGovCommitteeFile, CommonMethodBuilderArgs, SendResult } from "./types";
+import { ConstructorArgs, AccountWithVotes, SenderWithSigner, XGovCommitteeFile, CommonMethodBuilderArgs, SendResult, OracleContractArgs } from "./types";
 import { requireWriter } from "./util/requiresSender";
 import { calculateCommitteeId } from "./util/comitteeId";
 import { xGovToTuple } from "./util/types";
@@ -33,7 +33,8 @@ export class XGovCommitteesOracleSDK extends XGovCommitteesOracleReaderSDK {
     const committeeMetadata = await this.getCommitteeMetadata(committeeId);
     if (!committeeMetadata) {
       this.debug && console.log("Registering committee...");
-      const { txIds } = await this.registerCommittee({ committeeId, ...committeeFile });
+      const { registryId: xGovRegistryId, ...rest } = committeeFile;
+      const { txIds } = await this.registerCommittee({ committeeId, xGovRegistryId, ...rest });
       this.debug && console.log("Committee registered ", ...txIds);
     }
     const accounts = committeeFile.xGovs.map(({ address }) => address);
@@ -135,14 +136,14 @@ export class XGovCommitteesOracleSDK extends XGovCommitteesOracleReaderSDK {
     periodEnd,
     totalMembers,
     totalVotes,
-    registryId,
+    xGovRegistryId,
     builder,
-  }: { committeeId: string | Uint8Array } & XGovCommitteeFile & CommonMethodBuilderArgs) {
+  }: Omit<OracleContractArgs["registerCommittee(byte[32],uint32,uint32,uint32,uint32,uint64)void"], "committeeId"> & { committeeId: string | Uint8Array } & CommonMethodBuilderArgs) {
     committeeId = typeof committeeId === "string" ? Buffer.from(committeeId, "base64") : committeeId;
     const { sender, signer } = this.writerAccount!;
     builder = builder ?? this.writeClient!.newGroup();
     return builder.registerCommittee({
-      args: { committeeId, periodStart, periodEnd, totalMembers, totalVotes, xGovRegistryId: registryId },
+      args: { committeeId, periodStart, periodEnd, totalMembers, totalVotes, xGovRegistryId },
       sender,
       signer,
     });
@@ -198,7 +199,7 @@ export class XGovCommitteesOracleSDK extends XGovCommitteesOracleReaderSDK {
 
   @requireWriter()
   @wrapErrors()
-  makeSetXGovRegistryAppTxns({ appId, builder }: { appId: bigint } & CommonMethodBuilderArgs) {
+  makeSetXGovRegistryAppTxns({ appId, builder }: OracleContractArgs["setXGovRegistryApp(uint64)void"] & CommonMethodBuilderArgs) {
     builder = builder ?? this.writeClient!.newGroup();
     builder = builder.setXGovRegistryApp({ args: { appId } });
     return builder;
@@ -206,5 +207,26 @@ export class XGovCommitteesOracleSDK extends XGovCommitteesOracleReaderSDK {
 
   setXGovRegistryApp = this.makeTxnExecutor({
     maker: this.makeSetXGovRegistryAppTxns,
+  });
+
+  @requireWriter()
+  @wrapErrors()
+  makeUningestXGovsTxns({
+    committeeId,
+    numXGovs,
+    builder,
+  }: Omit<OracleContractArgs["uningestXGovs(byte[32],uint64)void"], "committeeId"> & { committeeId: string | Uint8Array } & CommonMethodBuilderArgs) {
+    const { sender, signer } = this.writerAccount!;
+    committeeId = typeof committeeId === "string" ? Buffer.from(committeeId, "base64") : committeeId;
+    builder = builder ?? this.writeClient!.newGroup();
+    return builder.uningestXGovs({
+      args: { committeeId, numXGovs },
+      sender,
+      signer,
+    });
+  }
+
+  uningestXGovs = this.makeTxnExecutor({
+    maker: this.makeUningestXGovsTxns,
   });
 }

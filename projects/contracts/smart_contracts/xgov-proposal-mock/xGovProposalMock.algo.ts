@@ -1,4 +1,4 @@
-import { abimethod, Account, BoxMap, GlobalState, Txn, uint64 } from '@algorandfoundation/algorand-typescript'
+import { abimethod, Account, BoxMap, Bytes, GlobalState, Txn, uint64 } from '@algorandfoundation/algorand-typescript'
 import { Contract, StaticBytes } from '@algorandfoundation/algorand-typescript/arc4'
 import { CommitteeId } from '../base/types.algo'
 import { ensure } from '../base/utils.algo'
@@ -14,15 +14,20 @@ export const STATUS_REVIEWED: uint64 = 45 // Approved proposal has been reviewed
 export const STATUS_FUNDED: uint64 = 50 // Proposal has been funded
 export const STATUS_BLOCKED: uint64 = 60 // Blocked with veto, the Grant Proposal can not be paid
 
+export const xGovProposalStatusKey = Bytes`status` // Key to get proposal status from proposal contract global state
+export const xGovProposalCommitteeIdKey = Bytes`committee_id` // Key to get committee ID from proposal contract global state
+export const xGovProposalVoteOpenTsKey = Bytes`vote_open_ts` // Key to get vote open timestamp from proposal contract global state
+export const xGovProposalVotingDurationKey = Bytes`voting_duration` // Key to get voting duration from proposal contract global state
+
 export class XGovProposalMock extends Contract {
   proposer = GlobalState<Account>({ initialValue: Txn.sender })
-  status = GlobalState<uint64>({ key: 'status', initialValue: STATUS_EMPTY })
+  status = GlobalState<uint64>({ key: xGovProposalStatusKey, initialValue: STATUS_EMPTY })
   committeeId = GlobalState<CommitteeId>({
-    key: 'committee_id',
+    key: xGovProposalCommitteeIdKey,
     initialValue: new StaticBytes<32>(),
   })
-  voteOpenTs = GlobalState<uint64>({ key: 'vote_open_ts', initialValue: 0 })
-  votingDuration = GlobalState<uint64>({ key: 'voting_duration', initialValue: 0 })
+  voteOpenTs = GlobalState<uint64>({ key: xGovProposalVoteOpenTsKey, initialValue: 0 })
+  votingDuration = GlobalState<uint64>({ key: xGovProposalVotingDurationKey, initialValue: 0 })
   voters = BoxMap<Account, uint64>({ keyPrefix: 'V' })
 
   @abimethod({ readonly: true, name: 'get_voter_box' })

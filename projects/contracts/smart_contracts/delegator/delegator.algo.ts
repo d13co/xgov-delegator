@@ -5,19 +5,28 @@ import {
   BoxMap,
   clone,
   GlobalState,
+  op,
   uint64,
 } from '@algorandfoundation/algorand-typescript'
-import { compileArc4 } from '@algorandfoundation/algorand-typescript/arc4'
+import { compileArc4, StaticBytes } from '@algorandfoundation/algorand-typescript/arc4'
 import { AccountIdContract } from '../base/base.algo'
 import {
   errAlgoHoursExist,
   errAlgoHoursMismatch,
   errAlgoHoursNotExist,
+  errAlgoHoursNotFinal,
   errCommitteeExists,
+  errCommitteeNotExists,
   errNoVotingPower,
   errPeriodEndInvalid,
   errPeriodEndLessThanStart,
   errPeriodStartInvalid,
+  errProposalExists,
+  errXGovProposalCommitteeMissing,
+  errXGovProposalInvalidCreator,
+  errXGovProposalVoteOpenTsMissing,
+  errXGovProposalVotingDurationMissing,
+  errXGovRegistryMissing,
 } from '../base/errors.algo'
 import {
   AccountAlgohourInput,
@@ -27,17 +36,31 @@ import {
   AlgohourPeriodTotals,
   CommitteeId,
   DelegatorCommittee,
+  DelegatorProposal,
 } from '../base/types.algo'
 import { ensure, ensureExtra, u32 } from '../base/utils.algo'
-import { CommitteeOracle } from '../oracle/oracle.algo'
+import { CommitteeOracle, oracleXGovRegistryAppKey } from '../oracle/oracle.algo'
+import {
+  xGovProposalCommitteeIdKey,
+  xGovProposalVoteOpenTsKey,
+  xGovProposalVotingDurationKey,
+} from '../xgov-proposal-mock/xGovProposalMock.algo'
 
 const periodLength: uint64 = 1_000_000
+
+export type AbsenteeMode = 'strict' | 'scaled'
 
 export class Delegator extends AccountIdContract {
   /** Committee Oracle Application ID */
   committeeOracleApp = GlobalState<Application>()
+  /** Time in seconds before external vote end to submit votes */
+  voteSubmitThreshold = GlobalState<uint64>({ initialValue: 3600 * 3 })
+  /** Absentee mode: strict or scaled */
+  absenteeMode = GlobalState<string>({ initialValue: 'strict' })
   /** Synced committee details w/ own delegated totals */
   committees = BoxMap<CommitteeId, DelegatorCommittee>({ keyPrefix: 'C' })
+  /** Proposal metadata */
+  proposals = BoxMap<Application, DelegatorProposal>({ keyPrefix: 'P' })
   /** Total algohours for each period */
   algohourPeriodTotals = BoxMap<uint64, AlgohourPeriodTotals>({ keyPrefix: 'H' })
   /** Algohours for each account for each period */
@@ -50,6 +73,24 @@ export class Delegator extends AccountIdContract {
   public setCommitteeOracleApp(appId: Application): void {
     this.ensureCallerIsAdmin()
     this.committeeOracleApp.value = appId
+  }
+
+  /**
+   * Set the vote submit threshold (time in seconds before external vote end)
+   * @param threshold Time in seconds
+   */
+  public setVoteSubmitThreshold(threshold: uint64): void {
+    this.ensureCallerIsAdmin()
+    this.voteSubmitThreshold.value = threshold
+  }
+
+  /**
+   * Set the absentee mode
+   * @param mode 'strict' or 'scaled'
+   */
+  public setAbsenteeMode(mode: AbsenteeMode): void {
+    this.ensureCallerIsAdmin()
+    this.absenteeMode.value = mode
   }
 
   /**
@@ -93,13 +134,68 @@ export class Delegator extends AccountIdContract {
     return committee
   }
 
-  public syncProposalMetadata(proposalId: Application) {
+  public syncProposalMetadata(proposalId: Application): DelegatorProposal {
+    // only sync once (?) TODO: update state as separate method? need to consider how to handle changes in proposal state on xGov after sync
+    const proposalBox = this.proposals(proposalId)
+    ensure(!proposalBox.exists, errProposalExists)
+
     // get xgov registry app id from oracle
     // validate proposal was created by xgov registry
+    const [registryAppId, registryAppExists] = op.AppGlobal.getExUint64(
+      this.committeeOracleApp.value,
+      oracleXGovRegistryAppKey,
+    )
+    ensure(registryAppExists, errXGovRegistryMissing)
+    const proposalCreator = proposalId.creator
+    const registryEscrow = Application(registryAppId).address
+    ensure(proposalCreator === registryEscrow, errXGovProposalInvalidCreator)
+
     // get committee ID from proposal contract
     // ensure committee metadata is synced
+    const [_committeeId, committeeIdExists] = op.AppGlobal.getExBytes(proposalId, xGovProposalCommitteeIdKey)
+    ensure(committeeIdExists, errXGovProposalCommitteeMissing)
+    const committeeId = new StaticBytes<32>(_committeeId)
+    const committeeBox = this.committees(committeeId)
+    ensure(committeeBox.exists, errCommitteeNotExists)
+    const committeeMetadata = committeeBox.value as Readonly<DelegatorCommittee>
+
+    let totalAlgoHours: uint64 = 0
     // ensure all periods are final
-    // create (or update?) proposal metadata record
+    for (
+      let period: uint64 = committeeMetadata.periodStart.asUint64();
+      period < committeeMetadata.periodEnd.asUint64();
+      period += periodLength
+    ) {
+      const periodTotalsBox = this.algohourPeriodTotals(period)
+      ensureExtra(periodTotalsBox.exists, errAlgoHoursNotExist, op.itob(period))
+      ensureExtra(periodTotalsBox.value.final, errAlgoHoursNotFinal, op.itob(period))
+
+      totalAlgoHours += periodTotalsBox.value.totalAlgohours
+    }
+
+    // get vote end ts
+    const [voteOpenTs, voteOpenTsExists] = op.AppGlobal.getExUint64(proposalId, xGovProposalVoteOpenTsKey)
+    const [votingDuration, votingDurationExists] = op.AppGlobal.getExUint64(proposalId, xGovProposalVotingDurationKey)
+    ensure(voteOpenTsExists, errXGovProposalVoteOpenTsMissing)
+    ensure(votingDurationExists, errXGovProposalVotingDurationMissing)
+    const voteEndTs: uint64 = voteOpenTs + votingDuration
+
+    const proposalMetadata: DelegatorProposal = {
+      status: 'WAIT',
+      committeeId: committeeId,
+      extVoteEndTime: u32(voteEndTs),
+      extTotalVotingPower: committeeMetadata.extDelegatedVotes,
+      extAccountsPendingVotes: clone(committeeMetadata.extDelegatedAccountVotes),
+      extAccountsVoted: [] as AccountIdWithVotes[],
+      intVoteEndTime: voteEndTs - this.voteSubmitThreshold.value, // set internal vote end time earlier than external to allow for vote submission before xGov proposal voting ends
+      intTotalAlgohours: totalAlgoHours,
+      intVotedAlgohours: 0,
+      intVotesYesAlgohours: 0,
+      intVotesNoAlgohours: 0,
+      intVotesBoycottAlgohours: 0,
+    }
+    proposalBox.value = clone(proposalMetadata)
+    return proposalMetadata
   }
 
   /**
