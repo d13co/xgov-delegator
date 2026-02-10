@@ -186,7 +186,7 @@ export class XGovDelegatorSDK extends XGovDelegatorReaderSDK {
 
   @requireWriter()
   @wrapErrors()
-  makeSyncProposalMetadata({ proposalId, builder }: DelegatorContractArgs["syncProposalMetadata(uint64)(string,byte[32],uint32,uint32,(uint32,uint32)[],(uint32,uint32)[],uint64,uint64,uint64,uint64,uint64,uint64)"] & CommonMethodBuilderArgs) {
+  makeSyncProposalMetadata({ proposalId, builder }: DelegatorContractArgs["syncProposalMetadata(uint64)(string,byte[32],uint32,uint32,uint32,(uint32,uint32)[],(uint32,uint32)[],uint32,uint64,uint64,uint64,uint64,uint64,uint64)"] & CommonMethodBuilderArgs) {
     builder = builder ?? this.writeClient!.newGroup();
     builder = builder.syncProposalMetadata({ args: { proposalId } });
     return builder;
@@ -206,5 +206,38 @@ export class XGovDelegatorSDK extends XGovDelegatorReaderSDK {
 
   updateAlgoHourPeriodFinality = this.makeTxnExecutor({
     maker: this.makeUpdateAlgoHourPeriodFinality,
+  });
+
+  @requireWriter()
+  @wrapErrors()
+  makeVoteInternal({
+    proposalId,
+    voterAccount,
+    vote,
+    builder,
+  }: DelegatorContractArgs["voteInternal(uint64,address,(uint64,uint64,uint64,uint64))void"] & CommonMethodBuilderArgs) {
+    builder = builder ?? this.writeClient!.newGroup();
+    builder = builder.voteInternal({ args: { proposalId, voterAccount, vote } });
+    return builder;
+  }
+
+  voteInternal = this.makeTxnExecutor({
+    maker: this.makeVoteInternal,
+  });
+
+  @requireWriter()
+  @wrapErrors()
+  makeVoteExternal({
+    proposalId,
+    extAccounts,
+    builder,
+  }: DelegatorContractArgs["voteExternal(uint64,address[])void"] & CommonMethodBuilderArgs) {
+    builder = builder ?? this.writeClient!.newGroup();
+    builder = builder.voteExternal({ args: { proposalId, extAccounts } });
+    return builder;
+  }
+
+  voteExternal = this.makeTxnExecutor({
+    maker: this.makeVoteExternal,
   });
 }

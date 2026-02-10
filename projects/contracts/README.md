@@ -76,8 +76,7 @@ value: DelegatorCommittee struct
 key: proposal_id (Application)
 
 value: DelegatorProposal struct
-- `status`: string - 'WAIT' | 'VOTE' | 'VOTD' | 'CANC'
-  - is VOTE needed or can it be removed? logically we would just go WAIT>VOTED
+- `status`: string - 'WAIT' | 'VOTD' | 'CANC'
 - `committeeId`: byte[32]
 - `extVoteEndTime`: uint32
 - `extTotalVotingPower`: uint32 (not dupe - committee member may have been removed for absenteeism)

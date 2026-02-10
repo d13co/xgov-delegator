@@ -2031,13 +2031,8 @@ logCommitteePages:
     intc_0 // 0
     bytec_1 // ""
     dupn 2
-    // smart_contracts/oracle/oracle.algo.ts:260-265
-    // public logCommitteePages(
-    //   committeeId: CommitteeId,
-    //   logMetadata: boolean,
-    //   startDataPage: uint64,
-    //   dataPageLength: uint64,
-    // ): void {
+    // smart_contracts/oracle/oracle.algo.ts:260
+    // @abimethod({ readonly: true })
     txna ApplicationArgs 1
     dupn 2
     len
@@ -2069,7 +2064,7 @@ logCommitteePages:
     assert // invalid number of bytes for arc4.uint64
     btoi
     swap
-    // smart_contracts/oracle/oracle.algo.ts:267
+    // smart_contracts/oracle/oracle.algo.ts:268
     // const superboxPrefix = this.getCommitteeSBPrefix(committeeId)
     callsub getCommitteeSBPrefix
     dup
@@ -2078,14 +2073,14 @@ logCommitteePages:
     bytec_0 // "_m"
     concat
     dup
-    // smart_contracts/oracle/oracle.algo.ts:269
+    // smart_contracts/oracle/oracle.algo.ts:270
     // ensure(sbMetaBoxRef.exists, errCommitteeNotExists)
     box_len
     bury 1
     // smart_contracts/base/utils.algo.ts:9
     // if (!cond) {
     bnz logCommitteePages_after_if_else@14
-    // smart_contracts/oracle/oracle.algo.ts:269
+    // smart_contracts/oracle/oracle.algo.ts:270
     // ensure(sbMetaBoxRef.exists, errCommitteeNotExists)
     bytec 7 // "ERR:C_NX"
     // smart_contracts/base/utils.algo.ts:10
@@ -2096,31 +2091,31 @@ logCommitteePages:
     err
 
 logCommitteePages_after_if_else@14:
-    // smart_contracts/oracle/oracle.algo.ts:270
+    // smart_contracts/oracle/oracle.algo.ts:271
     // const sbMeta = clone(sbMetaBoxRef.value)
     dup
     box_get
     swap
     bury 11
     assert // Box must have value
-    // smart_contracts/oracle/oracle.algo.ts:271
+    // smart_contracts/oracle/oracle.algo.ts:272
     // if (logMetadata) {
     dig 4
     bz logCommitteePages_after_if_else@3
-    // smart_contracts/oracle/oracle.algo.ts:272
+    // smart_contracts/oracle/oracle.algo.ts:273
     // const committeeMetadata = this.mustGetCommitteeMetadata(committeeId) // ensure committee exists
     dig 5
     callsub mustGetCommitteeMetadata
-    // smart_contracts/oracle/oracle.algo.ts:273
+    // smart_contracts/oracle/oracle.algo.ts:274
     // log(encodeArc4(committeeMetadata))
     log
-    // smart_contracts/oracle/oracle.algo.ts:274
+    // smart_contracts/oracle/oracle.algo.ts:275
     // log(encodeArc4(sbMeta))
     dig 9
     log
 
 logCommitteePages_after_if_else@3:
-    // smart_contracts/oracle/oracle.algo.ts:278
+    // smart_contracts/oracle/oracle.algo.ts:279
     // const maxDataPages = sbMeta.boxByteLengths.length
     dup
     pushint 28 // 28
@@ -2128,37 +2123,37 @@ logCommitteePages_after_if_else@3:
     box_extract
     btoi
     bury 8
-    // smart_contracts/oracle/oracle.algo.ts:279
+    // smart_contracts/oracle/oracle.algo.ts:280
     // for (let i: uint64 = 0; i < dataPageLength; i++) {
     intc_0 // 0
     bury 9
 
 logCommitteePages_while_top@4:
-    // smart_contracts/oracle/oracle.algo.ts:279
+    // smart_contracts/oracle/oracle.algo.ts:280
     // for (let i: uint64 = 0; i < dataPageLength; i++) {
     dig 8
     dig 3
     <
     bz logCommitteePages_after_while@9
-    // smart_contracts/oracle/oracle.algo.ts:280
+    // smart_contracts/oracle/oracle.algo.ts:281
     // const page: uint64 = startDataPage + i
     dig 3
     dig 9
     +
     dup
     bury 8
-    // smart_contracts/oracle/oracle.algo.ts:281
+    // smart_contracts/oracle/oracle.algo.ts:282
     // if (page >= maxDataPages) {
     dig 8
     >=
     bz logCommitteePages_else_body@7
-    // smart_contracts/oracle/oracle.algo.ts:282
+    // smart_contracts/oracle/oracle.algo.ts:283
     // log(Bytes``) // no page at index; logging empty
     bytec_1 // ""
     log
 
 logCommitteePages_after_if_else@8:
-    // smart_contracts/oracle/oracle.algo.ts:279
+    // smart_contracts/oracle/oracle.algo.ts:280
     // for (let i: uint64 = 0; i < dataPageLength; i++) {
     dig 8
     intc_1 // 1
@@ -2167,14 +2162,14 @@ logCommitteePages_after_if_else@8:
     b logCommitteePages_while_top@4
 
 logCommitteePages_else_body@7:
-    // smart_contracts/oracle/oracle.algo.ts:284
+    // smart_contracts/oracle/oracle.algo.ts:285
     // const dataBoxName = superboxPrefix + itoa(page) // TODO export dataBoxRef from superbox lib and use that instead of reconstructing name
     dig 6
     callsub @d13co/superbox/smart_contracts/superbox/lib/utils.algo.ts::itoa
     dig 2
     swap
     concat
-    // smart_contracts/oracle/oracle.algo.ts:285
+    // smart_contracts/oracle/oracle.algo.ts:286
     // log(Box<bytes>({ key: dataBoxName }).value)
     box_get
     assert // Box must have value
@@ -2182,20 +2177,15 @@ logCommitteePages_else_body@7:
     b logCommitteePages_after_if_else@8
 
 logCommitteePages_after_while@9:
-    // smart_contracts/oracle/oracle.algo.ts:260-265
-    // public logCommitteePages(
-    //   committeeId: CommitteeId,
-    //   logMetadata: boolean,
-    //   startDataPage: uint64,
-    //   dataPageLength: uint64,
-    // ): void {
+    // smart_contracts/oracle/oracle.algo.ts:260
+    // @abimethod({ readonly: true })
     intc_1 // 1
     return
 
 
 // smart_contracts/oracle/oracle.algo.ts::CommitteeOracle.getCommitteeSuperboxMeta[routing]() -> void:
 getCommitteeSuperboxMeta:
-    // smart_contracts/oracle/oracle.algo.ts:295
+    // smart_contracts/oracle/oracle.algo.ts:296
     // @abimethod({ readonly: true })
     txna ApplicationArgs 1
     dup
@@ -2203,18 +2193,18 @@ getCommitteeSuperboxMeta:
     intc_3 // 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    // smart_contracts/oracle/oracle.algo.ts:297
+    // smart_contracts/oracle/oracle.algo.ts:298
     // const superboxName = this.getCommitteeSBPrefix(committeeId)
     callsub getCommitteeSBPrefix
     // node_modules/@d13co/superbox/smart_contracts/superbox/lib/utils.algo.ts:45
     // return metaBoxMap(name + '_m')
     bytec_0 // "_m"
     concat
-    // smart_contracts/oracle/oracle.algo.ts:298
+    // smart_contracts/oracle/oracle.algo.ts:299
     // return sbMetaBox(superboxName).value
     box_get
     assert // Box must have value
-    // smart_contracts/oracle/oracle.algo.ts:295
+    // smart_contracts/oracle/oracle.algo.ts:296
     // @abimethod({ readonly: true })
     bytec 5 // 0x151f7c75
     swap
@@ -2227,7 +2217,7 @@ getCommitteeSuperboxMeta:
 // smart_contracts/oracle/oracle.algo.ts::CommitteeOracle.getXGovVotingPower[routing]() -> void:
 getXGovVotingPower:
     intc_0 // 0
-    // smart_contracts/oracle/oracle.algo.ts:308
+    // smart_contracts/oracle/oracle.algo.ts:309
     // @abimethod({ readonly: true })
     txna ApplicationArgs 1
     dupn 2
@@ -2248,22 +2238,22 @@ getXGovVotingPower:
     pushint 4 // 4
     ==
     assert // invalid number of bytes for arc4.uint32
-    // smart_contracts/oracle/oracle.algo.ts:310
+    // smart_contracts/oracle/oracle.algo.ts:311
     // this.mustGetCommitteeMetadata(committeeId)
     swap
     callsub mustGetCommitteeMetadata
     pop
-    // smart_contracts/oracle/oracle.algo.ts:312
+    // smart_contracts/oracle/oracle.algo.ts:313
     // const accountId = this.getAccountIdIfExists(account)
     callsub getAccountIdIfExists
     dup
-    // smart_contracts/oracle/oracle.algo.ts:313
+    // smart_contracts/oracle/oracle.algo.ts:314
     // ensure(accountId.asUint64() !== 0, errAccountNotExists)
     btoi
     // smart_contracts/base/utils.algo.ts:9
     // if (!cond) {
     bnz getXGovVotingPower_after_if_else@6
-    // smart_contracts/oracle/oracle.algo.ts:313
+    // smart_contracts/oracle/oracle.algo.ts:314
     // ensure(accountId.asUint64() !== 0, errAccountNotExists)
     pushbytes "ERR:A_NX"
     // smart_contracts/base/utils.algo.ts:10
@@ -2274,7 +2264,7 @@ getXGovVotingPower:
     err
 
 getXGovVotingPower_after_if_else@6:
-    // smart_contracts/oracle/oracle.algo.ts:315
+    // smart_contracts/oracle/oracle.algo.ts:316
     // const xGov = this.getStoredXGovAt(this.getCommitteeSBPrefix(committeeId), accountOffsetHint.asUint64())
     dig 2
     callsub getCommitteeSBPrefix
@@ -2283,7 +2273,7 @@ getXGovVotingPower_after_if_else@6:
     callsub getStoredXGovAt
     dup
     bury 5
-    // smart_contracts/oracle/oracle.algo.ts:316
+    // smart_contracts/oracle/oracle.algo.ts:317
     // ensureExtra(xGov.accountId === accountId, errAccountHintMismatch, accountId.bytes)
     extract 0 4
     dig 1
@@ -2295,7 +2285,7 @@ getXGovVotingPower_after_if_else@6:
     // log(extra)
     dup
     log
-    // smart_contracts/oracle/oracle.algo.ts:316
+    // smart_contracts/oracle/oracle.algo.ts:317
     // ensureExtra(xGov.accountId === accountId, errAccountHintMismatch, accountId.bytes)
     pushbytes "ERR:AH"
     // smart_contracts/base/utils.algo.ts:18
@@ -2306,11 +2296,11 @@ getXGovVotingPower_after_if_else@6:
     err
 
 getXGovVotingPower_after_if_else@3:
-    // smart_contracts/oracle/oracle.algo.ts:318
+    // smart_contracts/oracle/oracle.algo.ts:319
     // return xGov.votes
     dig 3
     extract 4 4
-    // smart_contracts/oracle/oracle.algo.ts:308
+    // smart_contracts/oracle/oracle.algo.ts:309
     // @abimethod({ readonly: true })
     bytec 5 // 0x151f7c75
     swap
@@ -2393,7 +2383,7 @@ increaseBudget_after_while@5:
 
 // smart_contracts/oracle/oracle.algo.ts::CommitteeOracle.mustGetCommitteeMetadata(committeeId: bytes) -> bytes:
 mustGetCommitteeMetadata:
-    // smart_contracts/oracle/oracle.algo.ts:326
+    // smart_contracts/oracle/oracle.algo.ts:327
     // private mustGetCommitteeMetadata(committeeId: CommitteeId): CommitteeMetadata {
     proto 1 1
     // smart_contracts/oracle/oracle.algo.ts:55
@@ -2402,14 +2392,14 @@ mustGetCommitteeMetadata:
     frame_dig -1
     concat
     dup
-    // smart_contracts/oracle/oracle.algo.ts:328
+    // smart_contracts/oracle/oracle.algo.ts:329
     // ensure(committeeBox.exists, errCommitteeNotExists)
     box_len
     bury 1
     // smart_contracts/base/utils.algo.ts:9
     // if (!cond) {
     bnz mustGetCommitteeMetadata_after_if_else@3
-    // smart_contracts/oracle/oracle.algo.ts:328
+    // smart_contracts/oracle/oracle.algo.ts:329
     // ensure(committeeBox.exists, errCommitteeNotExists)
     bytec 7 // "ERR:C_NX"
     // smart_contracts/base/utils.algo.ts:10
@@ -2420,7 +2410,7 @@ mustGetCommitteeMetadata:
     err
 
 mustGetCommitteeMetadata_after_if_else@3:
-    // smart_contracts/oracle/oracle.algo.ts:329
+    // smart_contracts/oracle/oracle.algo.ts:330
     // return committeeBox.value
     frame_dig 0
     box_get
@@ -2431,10 +2421,10 @@ mustGetCommitteeMetadata_after_if_else@3:
 
 // smart_contracts/oracle/oracle.algo.ts::CommitteeOracle.getCommitteeSBPrefix(committeeId: bytes) -> bytes:
 getCommitteeSBPrefix:
-    // smart_contracts/oracle/oracle.algo.ts:337
+    // smart_contracts/oracle/oracle.algo.ts:338
     // private getCommitteeSBPrefix(committeeId: CommitteeId): string {
     proto 1 1
-    // smart_contracts/oracle/oracle.algo.ts:338
+    // smart_contracts/oracle/oracle.algo.ts:339
     // return this.mustGetCommitteeMetadata(committeeId).superboxPrefix
     frame_dig -1
     callsub mustGetCommitteeMetadata
@@ -2450,7 +2440,7 @@ getCommitteeSBPrefix:
 
 // smart_contracts/oracle/oracle.algo.ts::CommitteeOracle.getStoredXGovAt(superboxName: bytes, index: uint64) -> bytes:
 getStoredXGovAt:
-    // smart_contracts/oracle/oracle.algo.ts:347
+    // smart_contracts/oracle/oracle.algo.ts:348
     // private getStoredXGovAt(superboxName: string, index: uint64): AccountIdWithVotes {
     proto 2 1
     // node_modules/@d13co/superbox/smart_contracts/superbox/lib/superbox.algo.ts:236
@@ -2508,7 +2498,7 @@ getStoredXGovAt:
     swap
     select
     substring3
-    // smart_contracts/oracle/oracle.algo.ts:349
+    // smart_contracts/oracle/oracle.algo.ts:350
     // return decodeArc4<AccountIdWithVotes>(xGovData)
     retsub
 

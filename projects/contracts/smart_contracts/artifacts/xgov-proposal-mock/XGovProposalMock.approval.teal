@@ -3,7 +3,7 @@
 
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
-    intcblock 1 0 32 8
+    intcblock 1 0 8 32
     bytecblock "proposer" "status" "committee_id" "vote_open_ts" "voting_duration"
     txn ApplicationID
     bnz main_after_if_else@2
@@ -47,18 +47,18 @@ main_after_if_else@2:
     // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:22
     // export class XGovProposalMock extends Contract {
     txn NumAppArgs
-    bz main___algots__.defaultCreate@16
+    bz main___algots__.defaultCreate@17
     txn OnCompletion
     !
     assert // OnCompletion must be NoOp
     txn ApplicationID
     assert
-    pushbytess 0x24615f90 0x86dd3d61 0x2e815514 0xd07a349e 0x45ccc5b9 0x969f5acf 0xa3a2d57a // method "get_voter_box(address)(uint64,bool)", method "setProposer(address)void", method "setStatus(uint64)void", method "setCommitteeId(byte[32])void", method "setVoteOpenTs(uint64)void", method "setVotingDuration(uint64)void", method "setVoterBox(address,uint64)void"
+    pushbytess 0x24615f90 0x1841a0d2 0x86dd3d61 0x2e815514 0xd07a349e 0x45ccc5b9 0x969f5acf 0xa3a2d57a // method "get_voter_box(address)(uint64,bool)", method "vote(address,uint64,uint64)string", method "setProposer(address)void", method "setStatus(uint64)void", method "setCommitteeId(byte[32])void", method "setVoteOpenTs(uint64)void", method "setVotingDuration(uint64)void", method "setVoterBox(address,uint64)void"
     txna ApplicationArgs 0
-    match getVoterBox setProposer setStatus setCommitteeId setVoteOpenTs setVotingDuration setVoterBox
+    match getVoterBox vote setProposer setStatus setCommitteeId setVoteOpenTs setVotingDuration setVoterBox
     err
 
-main___algots__.defaultCreate@16:
+main___algots__.defaultCreate@17:
     // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:22
     // export class XGovProposalMock extends Contract {
     txn OnCompletion
@@ -78,7 +78,7 @@ getVoterBox:
     txna ApplicationArgs 1
     dup
     len
-    intc_2 // 32
+    intc_3 // 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:31
@@ -126,27 +126,52 @@ getVoterBox_ternary_false@3:
     b getVoterBox_ternary_merge@4
 
 
+// smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts::XGovProposalMock.vote[routing]() -> void:
+vote:
+    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:41
+    // public vote(voter: Account, approvals: uint64, rejections: uint64): string {
+    txna ApplicationArgs 1
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 3
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    pushbytes 0x151f7c750000
+    log
+    intc_0 // 1
+    return
+
+
 // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts::XGovProposalMock.setProposer[routing]() -> void:
 setProposer:
-    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:43
+    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:46
     // public setProposer(proposer: Account) {
     txna ApplicationArgs 1
     dup
     len
-    intc_2 // 32
+    intc_3 // 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:44
+    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:47
     // this.ensureCallerIsProposer()
     callsub ensureCallerIsProposer
     // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:23
     // proposer = GlobalState<Account>({ initialValue: Txn.sender })
     bytec_0 // "proposer"
-    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:45
+    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:48
     // this.proposer.value = proposer
     swap
     app_global_put
-    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:43
+    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:46
     // public setProposer(proposer: Account) {
     intc_0 // 1
     return
@@ -154,26 +179,26 @@ setProposer:
 
 // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts::XGovProposalMock.setStatus[routing]() -> void:
 setStatus:
-    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:48
+    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:51
     // public setStatus(status: uint64): void {
     txna ApplicationArgs 1
     dup
     len
-    intc_3 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:49
+    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:52
     // this.ensureCallerIsProposer()
     callsub ensureCallerIsProposer
     // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:24
     // status = GlobalState<uint64>({ key: xGovProposalStatusKey, initialValue: STATUS_EMPTY })
     bytec_1 // "status"
-    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:50
+    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:53
     // this.status.value = status
     swap
     app_global_put
-    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:48
+    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:51
     // public setStatus(status: uint64): void {
     intc_0 // 1
     return
@@ -181,15 +206,15 @@ setStatus:
 
 // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts::XGovProposalMock.setCommitteeId[routing]() -> void:
 setCommitteeId:
-    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:53
+    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:56
     // public setCommitteeId(committeeId: CommitteeId): void {
     txna ApplicationArgs 1
     dup
     len
-    intc_2 // 32
+    intc_3 // 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:54
+    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:57
     // this.ensureCallerIsProposer()
     callsub ensureCallerIsProposer
     // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:25-28
@@ -198,11 +223,11 @@ setCommitteeId:
     //   initialValue: new StaticBytes<32>(),
     // })
     bytec_2 // "committee_id"
-    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:55
+    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:58
     // this.committeeId.value = committeeId
     swap
     app_global_put
-    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:53
+    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:56
     // public setCommitteeId(committeeId: CommitteeId): void {
     intc_0 // 1
     return
@@ -210,26 +235,26 @@ setCommitteeId:
 
 // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts::XGovProposalMock.setVoteOpenTs[routing]() -> void:
 setVoteOpenTs:
-    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:58
+    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:61
     // public setVoteOpenTs(voteOpenTs: uint64): void {
     txna ApplicationArgs 1
     dup
     len
-    intc_3 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:59
+    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:62
     // this.ensureCallerIsProposer()
     callsub ensureCallerIsProposer
     // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:29
     // voteOpenTs = GlobalState<uint64>({ key: xGovProposalVoteOpenTsKey, initialValue: 0 })
     bytec_3 // "vote_open_ts"
-    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:60
+    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:63
     // this.voteOpenTs.value = voteOpenTs
     swap
     app_global_put
-    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:58
+    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:61
     // public setVoteOpenTs(voteOpenTs: uint64): void {
     intc_0 // 1
     return
@@ -237,26 +262,26 @@ setVoteOpenTs:
 
 // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts::XGovProposalMock.setVotingDuration[routing]() -> void:
 setVotingDuration:
-    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:63
+    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:66
     // public setVotingDuration(votingDuration: uint64): void {
     txna ApplicationArgs 1
     dup
     len
-    intc_3 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:64
+    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:67
     // this.ensureCallerIsProposer()
     callsub ensureCallerIsProposer
     // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:30
     // votingDuration = GlobalState<uint64>({ key: xGovProposalVotingDurationKey, initialValue: 0 })
     bytec 4 // "voting_duration"
-    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:65
+    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:68
     // this.votingDuration.value = votingDuration
     swap
     app_global_put
-    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:63
+    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:66
     // public setVotingDuration(votingDuration: uint64): void {
     intc_0 // 1
     return
@@ -264,22 +289,22 @@ setVotingDuration:
 
 // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts::XGovProposalMock.setVoterBox[routing]() -> void:
 setVoterBox:
-    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:68
+    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:71
     // public setVoterBox(voterAddress: Account, votes: uint64): void {
     txna ApplicationArgs 1
     dup
     len
-    intc_2 // 32
+    intc_3 // 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     txna ApplicationArgs 2
     dup
     len
-    intc_3 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:69
+    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:72
     // this.ensureCallerIsProposer()
     callsub ensureCallerIsProposer
     // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:31
@@ -287,12 +312,12 @@ setVoterBox:
     pushbytes "V"
     uncover 2
     concat
-    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:70
+    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:73
     // this.voters(voterAddress).value = votes
     swap
     itob
     box_put
-    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:68
+    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:71
     // public setVoterBox(voterAddress: Account, votes: uint64): void {
     intc_0 // 1
     return
@@ -300,16 +325,16 @@ setVoterBox:
 
 // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts::XGovProposalMock.ensureCallerIsProposer() -> void:
 ensureCallerIsProposer:
-    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:74
+    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:77
     // const caller = Txn.sender
     txn Sender
-    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:75
+    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:78
     // ensure(caller === this.proposer.value, 'ERR:AUTH')
     intc_1 // 0
     // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:23
     // proposer = GlobalState<Account>({ initialValue: Txn.sender })
     bytec_0 // "proposer"
-    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:75
+    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:78
     // ensure(caller === this.proposer.value, 'ERR:AUTH')
     app_global_get_ex
     assert // check GlobalState exists
@@ -317,7 +342,7 @@ ensureCallerIsProposer:
     // smart_contracts/base/utils.algo.ts:9
     // if (!cond) {
     bnz ensureCallerIsProposer_after_if_else@3
-    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:75
+    // smart_contracts/xgov-proposal-mock/xGovProposalMock.algo.ts:78
     // ensure(caller === this.proposer.value, 'ERR:AUTH')
     pushbytes "ERR:AUTH"
     // smart_contracts/base/utils.algo.ts:10

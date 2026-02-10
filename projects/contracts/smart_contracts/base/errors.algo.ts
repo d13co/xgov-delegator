@@ -37,3 +37,11 @@ export const errXGovProposalVoteOpenTsMissing = 'ERR:XGVOM' // Vote open timesta
 export const errXGovProposalVotingDurationMissing = 'ERR:XGVDM' // Voting duration missing from proposal. This should never happen.
 
 export const errProposalExists = 'ERR:P_EX' // Proposal already exists in delegator
+export const errProposalNotExists = 'ERR:P_NX' // Proposal does not exist in delegator
+export const errProposalCancelled = 'ERR:P_C' // Proposal has been cancelled
+export const errEarly = 'ERR:EAR' // Too early to perform this action
+export const errLate = 'ERR:LAT' // Too late to perform this action
+export const errIncorrectVotes = 'ERR:IV' // Incorrect vote total - vote totals must match the account voting power
+export const errNoVotes = 'ERR:NV' // No votes found
+export const errAccountNumMismatch = 'ERR:ANM' // Number of accounts provided does not match number of accounts with pending votes in proposal
+export const errState = 'ERR:ST' // Invalid state for this action

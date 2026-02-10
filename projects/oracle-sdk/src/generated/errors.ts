@@ -30,5 +30,13 @@ export const ErrorMessages: Record<string, string> = {
   "ERR:XGPM": "Committee ID missing from proposal. This should never happen.",
   "ERR:XGVOM": "Vote open timestamp missing from proposal. This should never happen.",
   "ERR:XGVDM": "Voting duration missing from proposal. This should never happen.",
-  "ERR:P_EX": "Proposal already exists in delegator"
+  "ERR:P_EX": "Proposal already exists in delegator",
+  "ERR:P_NX": "Proposal does not exist in delegator",
+  "ERR:P_C": "Proposal has been cancelled",
+  "ERR:EAR": "Too early to perform this action",
+  "ERR:LAT": "Too late to perform this action",
+  "ERR:IV": "Incorrect vote total - vote totals must match the account voting power",
+  "ERR:NV": "No votes found",
+  "ERR:ANM": "Number of accounts provided does not match number of accounts with pending votes in proposal",
+  "ERR:ST": "Invalid state for this action"
 };

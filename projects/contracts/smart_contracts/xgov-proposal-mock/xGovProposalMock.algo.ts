@@ -38,6 +38,9 @@ export class XGovProposalMock extends Contract {
     return [value, exists]
   }
 
+  public vote(voter: Account, approvals: uint64, rejections: uint64): string {
+    return ''
+  }
   // Mock methods
 
   public setProposer(proposer: Account) {

@@ -4,24 +4,37 @@ import {
   Application,
   BoxMap,
   clone,
+  Global,
   GlobalState,
+  log,
   op,
+  Txn,
   uint64,
 } from '@algorandfoundation/algorand-typescript'
-import { compileArc4, StaticBytes } from '@algorandfoundation/algorand-typescript/arc4'
+import { compileArc4, encodeArc4, StaticBytes, Uint32 } from '@algorandfoundation/algorand-typescript/arc4'
 import { AccountIdContract } from '../base/base.algo'
 import {
+  errAccountIdMismatch,
+  errAccountNumMismatch,
   errAlgoHoursExist,
   errAlgoHoursMismatch,
   errAlgoHoursNotExist,
   errAlgoHoursNotFinal,
   errCommitteeExists,
   errCommitteeNotExists,
+  errEarly,
+  errIncorrectVotes,
+  errLate,
+  errNoVotes,
   errNoVotingPower,
   errPeriodEndInvalid,
   errPeriodEndLessThanStart,
   errPeriodStartInvalid,
+  errProposalCancelled,
   errProposalExists,
+  errProposalNotExists,
+  errState,
+  errUnauthorized,
   errXGovProposalCommitteeMissing,
   errXGovProposalInvalidCreator,
   errXGovProposalVoteOpenTsMissing,
@@ -37,11 +50,15 @@ import {
   CommitteeId,
   DelegatorCommittee,
   DelegatorProposal,
+  DelegatorVote,
+  getEmptyDelegatorCommittee,
+  getEmptyDelegatorProposal,
 } from '../base/types.algo'
 import { ensure, ensureExtra, u32 } from '../base/utils.algo'
 import { CommitteeOracle, oracleXGovRegistryAppKey } from '../oracle/oracle.algo'
 import {
   xGovProposalCommitteeIdKey,
+  XGovProposalMock,
   xGovProposalVoteOpenTsKey,
   xGovProposalVotingDurationKey,
 } from '../xgov-proposal-mock/xGovProposalMock.algo'
@@ -49,6 +66,10 @@ import {
 const periodLength: uint64 = 1_000_000
 
 export type AbsenteeMode = 'strict' | 'scaled'
+
+type ProposalId = Application
+type AccountId = Uint32
+type VoteKey = [ProposalId, AccountId]
 
 export class Delegator extends AccountIdContract {
   /** Committee Oracle Application ID */
@@ -65,6 +86,8 @@ export class Delegator extends AccountIdContract {
   algohourPeriodTotals = BoxMap<uint64, AlgohourPeriodTotals>({ keyPrefix: 'H' })
   /** Algohours for each account for each period */
   algohourAccounts = BoxMap<AlgohourAccountKey, uint64>({ keyPrefix: 'h' })
+  /** Voting records */
+  votes = BoxMap<VoteKey, DelegatorVote>({ keyPrefix: 'V' })
 
   /**
    * Set the Committee Oracle Application ID
@@ -135,7 +158,7 @@ export class Delegator extends AccountIdContract {
   }
 
   public syncProposalMetadata(proposalId: Application): DelegatorProposal {
-    // only sync once (?) TODO: update state as separate method? need to consider how to handle changes in proposal state on xGov after sync
+    // initial sync only. Updates to use separate resync method
     const proposalBox = this.proposals(proposalId)
     ensure(!proposalBox.exists, errProposalExists)
 
@@ -174,6 +197,7 @@ export class Delegator extends AccountIdContract {
     }
 
     // get vote end ts
+    // TODO get status
     const [voteOpenTs, voteOpenTsExists] = op.AppGlobal.getExUint64(proposalId, xGovProposalVoteOpenTsKey)
     const [votingDuration, votingDurationExists] = op.AppGlobal.getExUint64(proposalId, xGovProposalVotingDurationKey)
     ensure(voteOpenTsExists, errXGovProposalVoteOpenTsMissing)
@@ -183,19 +207,142 @@ export class Delegator extends AccountIdContract {
     const proposalMetadata: DelegatorProposal = {
       status: 'WAIT',
       committeeId: committeeId,
+      extVoteStartTime: u32(voteOpenTs),
       extVoteEndTime: u32(voteEndTs),
       extTotalVotingPower: committeeMetadata.extDelegatedVotes,
       extAccountsPendingVotes: clone(committeeMetadata.extDelegatedAccountVotes),
       extAccountsVoted: [] as AccountIdWithVotes[],
-      intVoteEndTime: voteEndTs - this.voteSubmitThreshold.value, // set internal vote end time earlier than external to allow for vote submission before xGov proposal voting ends
+      intVoteEndTime: u32(voteEndTs - this.voteSubmitThreshold.value), // set internal vote end time earlier than external to allow for vote submission before xGov proposal voting ends
       intTotalAlgohours: totalAlgoHours,
       intVotedAlgohours: 0,
       intVotesYesAlgohours: 0,
       intVotesNoAlgohours: 0,
+      intVotesAbstainAlgohours: 0,
       intVotesBoycottAlgohours: 0,
     }
     proposalBox.value = clone(proposalMetadata)
     return proposalMetadata
+  }
+
+  /**
+   * Cast internal vote for proposal. This will update the proposal metadata and voting records, but will NOT submit votes to the xGov proposal contract.
+   * @param proposalId xGov proposal Application ID
+   * @param voterAccount Account of the voter. Must be the same as Txn.sender for now
+   * @param vote Voting record for this vote, including yes, no, abstain, and boycott votes. The contract will verify that the total votes matches the voting power of the account.
+   */
+  public voteInternal(proposalId: Application, voterAccount: Account, vote: DelegatorVote): void {
+    // perhaps internal delegation later, for now only allow voting from the account that earned the algohours
+    ensure(Txn.sender === voterAccount, errUnauthorized)
+
+    const proposalBox = this.proposals(proposalId)
+    ensure(proposalBox.exists, errProposalNotExists)
+    const proposal = clone(proposalBox.value)
+    ensure(proposal.status !== 'CANC', errProposalCancelled)
+
+    const committeeBox = this.committees(proposal.committeeId)
+    ensure(committeeBox.exists, errCommitteeNotExists)
+    const committee = committeeBox.value as Readonly<DelegatorCommittee>
+
+    ensure(proposal.extVoteStartTime.asUint64() <= Global.latestTimestamp, errEarly)
+    ensure(Global.latestTimestamp < proposal.intVoteEndTime.asUint64(), errLate)
+
+    const votingPower = this.getAggregatedAccountAlgoHours(
+      committee.periodStart.asUint64(),
+      committee.periodEnd.asUint64(),
+      voterAccount,
+    )
+    ensure(votingPower > 0, errNoVotingPower)
+    const totalVotesCast: uint64 = vote.yesVotes + vote.noVotes + vote.boycottVotes + vote.abstainVotes
+    ensure(totalVotesCast === votingPower, errIncorrectVotes)
+
+    const voterAccountId = this.mustGetAccountId(voterAccount)
+    const voteBoxKey: VoteKey = [proposalId, voterAccountId]
+    const voteBox = this.votes(voteBoxKey)
+
+    if (voteBox.exists) {
+      // updating existing vote
+      const previousVote = voteBox.value as Readonly<DelegatorVote>
+      // first remove existing vote from proposal totals
+      proposal.intVotedAlgohours -= totalVotesCast
+      proposal.intVotesYesAlgohours -= previousVote.yesVotes
+      proposal.intVotesNoAlgohours -= previousVote.noVotes
+      proposal.intVotesBoycottAlgohours -= previousVote.boycottVotes
+      proposal.intVotesAbstainAlgohours -= previousVote.abstainVotes
+    }
+
+    if (proposal.status !== 'VOTE') {
+      proposal.status = 'VOTE'
+    }
+    proposal.intVotedAlgohours += totalVotesCast
+    proposal.intVotesYesAlgohours += vote.yesVotes
+    proposal.intVotesNoAlgohours += vote.noVotes
+    proposal.intVotesBoycottAlgohours += vote.boycottVotes
+    proposal.intVotesAbstainAlgohours += vote.abstainVotes
+    voteBox.value = clone(vote)
+    proposalBox.value = clone(proposal)
+
+    // TODO emit event
+  }
+
+  // TODO resyncProposalMetadata
+  // update status, detect cancelled proposals
+  // update delegated accounts having voted
+
+  /**
+   * Submit a vote to the xGov proposal contract for each external account, with approvals and rejections calculated based on the internal vote and absentee mode
+   * @param proposalId xGov proposal Application ID
+   * @param extAccounts external accounts to submit votes for. MUST match the ext. accounts pending votes in proposal metadata in the same ORDER.
+   */
+  public voteExternal(proposalId: Application, extAccounts: Account[]): void {
+    const proposalBox = this.proposals(proposalId)
+    ensure(proposalBox.exists, errProposalNotExists)
+    const proposal = clone(proposalBox.value)
+    // TODO resync
+    ensure(proposal.status === 'VOTE', errState)
+
+    ensure(proposal.extVoteStartTime.asUint64() <= Global.latestTimestamp, errEarly)
+    ensure(Global.latestTimestamp < proposal.extVoteEndTime.asUint64(), errLate)
+    ensure(proposal.intVotedAlgohours > 0, errNoVotes)
+    ensure(extAccounts.length === proposal.extAccountsPendingVotes.length, errAccountNumMismatch)
+
+    let totalApprovals: uint64 = 0
+    let totalRejections: uint64 = 0
+    const isBoycott = proposal.intVotesBoycottAlgohours * 2 >= proposal.intTotalAlgohours
+    if (!isBoycott) {
+      const denominator = this.absenteeMode.value === 'scaled' ? proposal.intVotedAlgohours : proposal.intTotalAlgohours
+      totalApprovals = (proposal.intVotesYesAlgohours * proposal.extTotalVotingPower.asUint64()) / denominator
+      totalRejections = (proposal.intVotesNoAlgohours * proposal.extTotalVotingPower.asUint64()) / denominator
+    }
+
+    // TODO emit total votes event
+
+    for (let i: uint64 = 0; i < extAccounts.length; i++) {
+      const extAccount = extAccounts[i]
+      const extAccountId = this.accountIds(extAccount).value
+      const extAccountsPendingVote = clone(proposal.extAccountsPendingVotes[i])
+      ensureExtra(extAccountId === extAccountsPendingVote.accountId, errAccountIdMismatch, op.itob(i))
+
+      let approvals: uint64 = 0
+      let rejections: uint64 = 0
+      if (isBoycott) {
+        approvals = extAccountsPendingVote.votes.asUint64()
+        rejections = extAccountsPendingVote.votes.asUint64()
+      } else {
+        // round down issues are intentionally ignored here
+        approvals = (totalApprovals * extAccountsPendingVote.votes.asUint64()) / proposal.extTotalVotingPower.asUint64()
+        rejections =
+          (totalRejections * extAccountsPendingVote.votes.asUint64()) / proposal.extTotalVotingPower.asUint64()
+      }
+      // TODO emit individual vote event
+      compileArc4(XGovProposalMock).call.vote({
+        appId: proposalId,
+        args: [extAccount, approvals, rejections],
+      })
+      proposal.extAccountsVoted.push(extAccountsPendingVote)
+    }
+    proposal.extAccountsPendingVotes = []
+    proposal.status = 'VOTD'
+    proposalBox.value = clone(proposal)
   }
 
   /**
@@ -251,7 +398,6 @@ export class Delegator extends AccountIdContract {
    * @param periodStart period start
    * @returns total algohours for period
    */
-  @abimethod({ readonly: true })
   public updateAlgoHourPeriodFinality(periodStart: uint64, totalAlgohours: uint64, final: boolean): void {
     this.ensureCallerIsAdmin()
     ensure(periodStart % periodLength === 0, errPeriodStartInvalid)
@@ -317,5 +463,37 @@ export class Delegator extends AccountIdContract {
     const key: AlgohourAccountKey = [periodStart, accountId]
     const box = this.algohourAccounts(key)
     return box.exists ? box.value : 0
+  }
+
+  /**
+   * Log committee metadata for multiple committees
+   * @param committeeIds Committee IDs to log
+   */
+  @abimethod({ readonly: true })
+  public logCommitteeMetadata(committeeIds: CommitteeId[]): void {
+    for (const committeeId of committeeIds) {
+      const metadata = this.committees(committeeId)
+      if (metadata.exists) {
+        log(encodeArc4(metadata.value))
+      } else {
+        log(encodeArc4(getEmptyDelegatorCommittee()))
+      }
+    }
+  }
+
+  /**
+   * Log proposal metadata for multiple proposals
+   * @param proposalIds Proposal Application IDs to log
+   */
+  @abimethod({ readonly: true })
+  public logProposalMetadata(proposalIds: Application[]): void {
+    for (const proposalId of proposalIds) {
+      const metadata = this.proposals(proposalId)
+      if (metadata.exists) {
+        log(encodeArc4(metadata.value))
+      } else {
+        log(encodeArc4(getEmptyDelegatorProposal()))
+      }
+    }
   }
 }
