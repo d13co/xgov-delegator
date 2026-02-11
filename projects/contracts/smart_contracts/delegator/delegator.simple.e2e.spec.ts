@@ -1,12 +1,12 @@
 import { Config } from '@algorandfoundation/algokit-utils'
 import { registerDebugEventHandlers } from '@algorandfoundation/algokit-utils-debug'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
-import { Address } from 'algosdk'
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest'
-import { increaseBudgetBaseCost, increaseBudgetIncrementCost, XGovDelegatorSDK } from 'xgov-delegator-sdk'
-import { DelegatorFactory } from '../artifacts/delegator/DelegatorClient'
+import { increaseBudgetBaseCost, increaseBudgetIncrementCost } from 'xgov-delegator-sdk'
+import { deployDelegatorSimple } from '../common-tests'
 
-describe('Delegator e2e tests', () => {
+
+describe('Delegator simple e2e tests', () => {
   const localnet = algorandFixture()
   beforeAll(() => {
     Config.configure({
@@ -17,44 +17,6 @@ describe('Delegator e2e tests', () => {
   })
   beforeEach(localnet.newScope)
 
-  const deploy = async (adminAccount: Address, userAccount?: Address) => {
-    const factory = localnet.algorand.client.getTypedAppFactory(DelegatorFactory, {
-      defaultSender: adminAccount,
-    })
-
-    const { appClient } = await factory.deploy({
-      onUpdate: 'append',
-      onSchemaBreak: 'append',
-    })
-
-    await localnet.algorand.account.ensureFundedFromEnvironment(appClient.appAddress, (10).algos())
-
-    const sender = adminAccount
-    const signer = localnet.algorand.account.getSigner(sender)
-
-    const retVal: { client: typeof appClient; adminSDK: XGovDelegatorSDK; userSDK?: XGovDelegatorSDK } = {
-      client: appClient,
-      adminSDK: new XGovDelegatorSDK({
-        algorand: localnet.algorand,
-        delegatorAppId: appClient.appId,
-        writerAccount: { sender, signer },
-        debug: false,
-      }),
-    }
-
-    if (userAccount) {
-      const userSigner = localnet.algorand.account.getSigner(userAccount)
-      retVal.userSDK = new XGovDelegatorSDK({
-        algorand: localnet.algorand,
-        delegatorAppId: appClient.appId,
-        writerAccount: { sender: userAccount, signer: userSigner },
-        debug: false,
-      })
-    }
-
-    return retVal
-  }
-
   describe('increaseBudget opcode cost', () => {
     for (let i = 0; i < 3; i++) {
       test(`It should cost ${increaseBudgetBaseCost + i * increaseBudgetIncrementCost} with itxns=${i}`, async () => {
@@ -62,7 +24,7 @@ describe('Delegator e2e tests', () => {
         const sender = testAccount.toString()
         const signer = testAccount.signer
 
-        const { adminSDK } = await deploy(testAccount)
+        const { adminSDK } = await deployDelegatorSimple(localnet, testAccount)
 
         const {
           simulateResponse: {
@@ -81,7 +43,7 @@ describe('Delegator e2e tests', () => {
   describe('setCommitteeOracleApp', () => {
     test(`Admin can set committee oracle app ID`, async () => {
       const { testAccount } = localnet.context
-      const { adminSDK } = await deploy(testAccount)
+      const { adminSDK } = await deployDelegatorSimple(localnet, testAccount)
       const appId = 12345n
       await adminSDK.setCommitteeOracleApp({ appId })
 
@@ -92,7 +54,7 @@ describe('Delegator e2e tests', () => {
     test(`Nonadmin can not set committee oracle app ID`, async () => {
       const { testAccount } = localnet.context
       const otherAccount = await localnet.context.generateAccount({ initialFunds: (1).algos() })
-      const { userSDK } = await deploy(testAccount, otherAccount)
+      const { userSDK } = await deployDelegatorSimple(localnet, testAccount, otherAccount)
 
       await expect(userSDK!.setCommitteeOracleApp({ appId: 12345n })).rejects.toThrowError(/ERR:AUTH/)
     })
@@ -105,13 +67,13 @@ describe('Delegator e2e tests', () => {
 
     test(`Admin can add account algo hours`, async () => {
       const { testAccount } = localnet.context
-      const { adminSDK } = await deploy(testAccount)
+      const { adminSDK } = await deployDelegatorSimple(localnet, testAccount)
       await adminSDK.addAccountAlgoHours({ periodStart, accountAlgohours: [{ account, algoHours }] })
     })
 
     test(`Admin can add account algo hours for multiple periods`, async () => {
       const { testAccount } = localnet.context
-      const { adminSDK } = await deploy(testAccount)
+      const { adminSDK } = await deployDelegatorSimple(localnet, testAccount)
       await adminSDK.addAccountAlgoHours({ periodStart, accountAlgohours: [{ account, algoHours }] })
       await adminSDK.addAccountAlgoHours({ periodStart: 2_000_000n, accountAlgohours: [{ account, algoHours }] })
     })
@@ -119,7 +81,7 @@ describe('Delegator e2e tests', () => {
     test(`Nonadmin can not add algo hours`, async () => {
       const { testAccount } = localnet.context
       const otherAccount = await localnet.context.generateAccount({ initialFunds: (1).algos() })
-      const { userSDK } = await deploy(testAccount, otherAccount)
+      const { userSDK } = await deployDelegatorSimple(localnet, testAccount, otherAccount)
       await expect(
         userSDK!.addAccountAlgoHours({ periodStart, accountAlgohours: [{ account, algoHours }] }),
       ).rejects.toThrowError(/ERR:AUTH/)
@@ -127,7 +89,7 @@ describe('Delegator e2e tests', () => {
 
     test('It should fail if periodStart is not aligned to 1M', async () => {
       const { testAccount } = localnet.context
-      const { adminSDK } = await deploy(testAccount)
+      const { adminSDK } = await deployDelegatorSimple(localnet, testAccount)
       const invalidPeriodStart = 1_000_001n
       await expect(
         adminSDK.addAccountAlgoHours({ periodStart: invalidPeriodStart, accountAlgohours: [{ account, algoHours }] }),
@@ -136,7 +98,7 @@ describe('Delegator e2e tests', () => {
 
     test('It should fail when adding more algohours to an existing period', async () => {
       const { testAccount } = localnet.context
-      const { adminSDK } = await deploy(testAccount)
+      const { adminSDK } = await deployDelegatorSimple(localnet, testAccount)
       await adminSDK.addAccountAlgoHours({ periodStart, accountAlgohours: [{ account, algoHours }] })
       await expect(
         adminSDK.addAccountAlgoHours({ periodStart, accountAlgohours: [{ account, algoHours }] }),
@@ -151,7 +113,7 @@ describe('Delegator e2e tests', () => {
 
     test('It should return account algo hours for period', async () => {
       const { testAccount } = localnet.context
-      const { adminSDK } = await deploy(testAccount)
+      const { adminSDK } = await deployDelegatorSimple(localnet, testAccount)
       await adminSDK.addAccountAlgoHours({ periodStart, accountAlgohours: [{ account, algoHours }] })
 
       const returnedAlgoHours = await adminSDK.getAccountAlgoHours({ periodStart, account })
@@ -160,7 +122,7 @@ describe('Delegator e2e tests', () => {
 
     test('It should return 0 if account has no algo hours for period', async () => {
       const { testAccount } = localnet.context
-      const { adminSDK } = await deploy(testAccount)
+      const { adminSDK } = await deployDelegatorSimple(localnet, testAccount)
 
       const returnedAlgoHours = await adminSDK.getAccountAlgoHours({ periodStart, account })
       expect(returnedAlgoHours).toBe(0n)
@@ -168,7 +130,7 @@ describe('Delegator e2e tests', () => {
 
     test('It should fail if periodStart is not aligned to 1M', async () => {
       const { testAccount } = localnet.context
-      const { adminSDK } = await deploy(testAccount)
+      const { adminSDK } = await deployDelegatorSimple(localnet, testAccount)
       const invalidPeriodStart = 1_000_001n
       await expect(adminSDK.getAccountAlgoHours({ periodStart: invalidPeriodStart, account })).rejects.toThrowError(
         /ERR:PS/,
@@ -185,7 +147,7 @@ describe('Delegator e2e tests', () => {
 
     test('It should return total algohours for period', async () => {
       const { testAccount } = localnet.context
-      const { adminSDK } = await deploy(testAccount)
+      const { adminSDK } = await deployDelegatorSimple(localnet, testAccount)
       await adminSDK.addAccountAlgoHours({
         periodStart,
         accountAlgohours: [{ account: account1, algoHours: algoHours1 }],
@@ -201,7 +163,7 @@ describe('Delegator e2e tests', () => {
 
     test('It should return zero for unknown period', async () => {
       const { testAccount } = localnet.context
-      const { adminSDK } = await deploy(testAccount)
+      const { adminSDK } = await deployDelegatorSimple(localnet, testAccount)
       await adminSDK.addAccountAlgoHours({
         periodStart,
         accountAlgohours: [{ account: account1, algoHours: algoHours1 }],
@@ -213,7 +175,7 @@ describe('Delegator e2e tests', () => {
 
     test('It should fail if periodStart is not aligned to 1M', async () => {
       const { testAccount } = localnet.context
-      const { adminSDK } = await deploy(testAccount)
+      const { adminSDK } = await deployDelegatorSimple(localnet, testAccount)
       await adminSDK.addAccountAlgoHours({
         periodStart,
         accountAlgohours: [{ account: account1, algoHours: algoHours1 }],

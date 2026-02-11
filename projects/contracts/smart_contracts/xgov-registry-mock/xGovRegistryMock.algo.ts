@@ -42,7 +42,7 @@ export class XGovRegistryMock extends AccountIdContract {
 
   // Mock methods
 
-  public createProposal() {
+  public createProposal(): uint64 {
     const proposalContract = compile(XGovProposalMock)
 
     const created = itxn
@@ -57,6 +57,8 @@ export class XGovRegistryMock extends AccountIdContract {
 
     const proposal = compileArc4(XGovProposalMock)
     proposal.call.setProposer({ appId, args: [Txn.sender] })
+
+    return appId
   }
 
   public setXGovBox(voterAddress: Account, value: XGovBoxValue): void {

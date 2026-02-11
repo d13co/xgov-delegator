@@ -4,7 +4,7 @@
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
     intcblock 0 1 6 32
-    bytecblock base64(C4EBQw==) "x"
+    bytecblock base64(C4EBQw==) "x" 0x151f7c75
     txn ApplicationID
     bnz main_after_if_else@2
     // smart_contracts/base/base.algo.ts:20
@@ -23,7 +23,7 @@ main_after_if_else@2:
     assert // OnCompletion must be NoOp
     txn ApplicationID
     assert
-    pushbytess 0x27630d65 0x8d2d9a33 0xdf3a667e 0x4118ecbf // method "get_xgov_box(address)((address,uint64,uint64,uint64),bool)", method "createProposal()void", method "setXGovBox(address,(address,uint64,uint64,uint64))void", method "increaseBudget(uint64)void"
+    pushbytess 0x27630d65 0xd69c3b18 0xdf3a667e 0x4118ecbf // method "get_xgov_box(address)((address,uint64,uint64,uint64),bool)", method "createProposal()uint64", method "setXGovBox(address,(address,uint64,uint64,uint64))void", method "increaseBudget(uint64)void"
     txna ApplicationArgs 0
     match getXGovBox createProposal setXGovBox increaseBudget
     err
@@ -80,7 +80,7 @@ getXGovBox_ternary_merge@4:
     concat
     // smart_contracts/xgov-registry-mock/xGovRegistryMock.algo.ts:26
     // @abimethod({ readonly: true, name: 'get_xgov_box' })
-    pushbytes 0x151f7c75
+    bytec_2 // 0x151f7c75
     swap
     concat
     log
@@ -157,6 +157,7 @@ createProposal:
     itxn_field ApplicationArgs
     intc_0 // 0
     itxn_field OnCompletion
+    dup
     itxn_field ApplicationID
     intc_2 // appl
     itxn_field TypeEnum
@@ -164,14 +165,19 @@ createProposal:
     itxn_field Fee
     itxn_submit
     // smart_contracts/xgov-registry-mock/xGovRegistryMock.algo.ts:45
-    // public createProposal() {
+    // public createProposal(): uint64 {
+    itob
+    bytec_2 // 0x151f7c75
+    swap
+    concat
+    log
     intc_1 // 1
     return
 
 
 // smart_contracts/xgov-registry-mock/xGovRegistryMock.algo.ts::XGovRegistryMock.setXGovBox[routing]() -> void:
 setXGovBox:
-    // smart_contracts/xgov-registry-mock/xGovRegistryMock.algo.ts:62
+    // smart_contracts/xgov-registry-mock/xGovRegistryMock.algo.ts:64
     // public setXGovBox(voterAddress: Account, value: XGovBoxValue): void {
     txna ApplicationArgs 1
     dup
@@ -209,11 +215,11 @@ setXGovBox_after_if_else@3:
     bytec_1 // "x"
     dig 2
     concat
-    // smart_contracts/xgov-registry-mock/xGovRegistryMock.algo.ts:64
+    // smart_contracts/xgov-registry-mock/xGovRegistryMock.algo.ts:66
     // this.xgovBox(voterAddress).value = clone(value)
     dig 1
     box_put
-    // smart_contracts/xgov-registry-mock/xGovRegistryMock.algo.ts:62
+    // smart_contracts/xgov-registry-mock/xGovRegistryMock.algo.ts:64
     // public setXGovBox(voterAddress: Account, value: XGovBoxValue): void {
     intc_1 // 1
     return

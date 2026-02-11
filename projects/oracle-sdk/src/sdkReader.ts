@@ -68,7 +68,7 @@ export class XGovCommitteesOracleReaderSDK {
    * @returns
    */
   @wrapErrors()
-  async fastGetCommittee(committeeId: CommitteeId): Promise<XGovCommitteeFile | null> {
+  async fastGetCommittee(committeeId: CommitteeId, { includeBoxOrder }: { includeBoxOrder?: boolean } = {}): Promise<XGovCommitteeFile & { xGovBoxOrder?: string[] } | null> {
     const firstPartialCommitteeDataPromise = this.fastGetPartialCommitteeData(committeeId, 0);
     const accountIdMapPromise = this.getAccountIdMap();
 
@@ -88,7 +88,8 @@ export class XGovCommitteesOracleReaderSDK {
     }
 
     const accountIdMap = await accountIdMapPromise;
-    const xGovs = this.convertStoredXGovsToXGovs(storedXGovs, accountIdMap);
+    const boxOrderedXGovs = this.convertStoredXGovsToXGovs(storedXGovs, accountIdMap)
+    const xGovs = [...boxOrderedXGovs].sort(this.sortXGovs)
 
     const params = await this.algorand.getSuggestedParams();
     const networkGenesisHash = Buffer.from(params.genesisHash!).toString("base64");
@@ -102,6 +103,7 @@ export class XGovCommitteesOracleReaderSDK {
       totalMembers: committeeMetadata.totalMembers,
       totalVotes: committeeMetadata.totalVotes,
       xGovs: xGovs.map(({ account, votes }) => ({ address: account.toString(), votes })).sort((a, b) => (a.address < b.address ? -1 : 1)),
+      ...(includeBoxOrder ? { xGovBoxOrder: boxOrderedXGovs.map(({ account }) => account.toString()) } : {}),
     };
   }
 
@@ -163,7 +165,7 @@ export class XGovCommitteesOracleReaderSDK {
 
   async getCommitteeXGovs(committeeId: CommitteeId): Promise<AccountWithVotes[]> {
     const [storedXGovs, accountMap] = await Promise.all([this.getCommitteeSuperboxData(committeeId), this.getAccountIdMap()]);
-    return this.convertStoredXGovsToXGovs(storedXGovs, accountMap);
+    return this.convertStoredXGovsToXGovs(storedXGovs, accountMap).sort(this.sortXGovs)
   }
 
   protected convertStoredXGovsToXGovs(storedXGovs: StoredXGov[], accountMap: Map<string, number>): AccountWithVotes[] {
@@ -177,7 +179,10 @@ export class XGovCommitteesOracleReaderSDK {
           votes,
         };
       })
-      .sort((a, b) => (a.account < b.account ? -1 : 1));
+  }
+
+  protected sortXGovs(a: AccountWithVotes, b: AccountWithVotes): number {
+    return a.account < b.account ? -1 : 1;
   }
 
   async getCommitteeMetadata(committeeId: CommitteeId, mustBeComplete: boolean = false): Promise<CommitteeMetadata | null> {

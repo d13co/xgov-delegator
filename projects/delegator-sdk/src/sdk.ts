@@ -111,10 +111,14 @@ export class XGovDelegatorSDK extends XGovDelegatorReaderSDK {
   }: Omit<
     DelegatorContractArgs["syncCommitteeMetadata(byte[32],(address,uint32)[])(uint32,uint32,uint32,(uint32,uint32)[])"],
     "delegatedAccounts" | "committeeId"
-  > & { committeeId: CommitteeId, delegatedAccountsWithOffsetHint: AccountWithOffsetHint[] } & CommonMethodBuilderArgs) {
+  > & { committeeId: CommitteeId; delegatedAccountsWithOffsetHint: AccountWithOffsetHint[] } & CommonMethodBuilderArgs) {
     builder = builder ?? this.writeClient!.newGroup();
     const delegatedAccounts = delegatedAccountsWithOffsetHint.map(accountWithOffsetHintToTuple);
-    builder = builder.syncCommitteeMetadata({ args: { committeeId: committeeIdToRaw(committeeId), delegatedAccounts } });
+    const inners = 1 + delegatedAccounts.length;
+    builder = builder.syncCommitteeMetadata({
+      args: { committeeId: committeeIdToRaw(committeeId), delegatedAccounts },
+      extraFee: (inners * 1000).microAlgo(),
+    });
     return builder;
   }
 
@@ -133,6 +137,7 @@ export class XGovDelegatorSDK extends XGovDelegatorReaderSDK {
   } & CommonMethodBuilderArgs) {
     builder = builder ?? this.writeClient!.newGroup();
     const accountAlgohourInputs = accountAlgohours.map(accountWithAlgoHoursToTuple);
+    // TODO count refs, chunk call
     builder = builder.addAccountAlgoHours({ args: { periodStart, accountAlgohourInputs } });
     return builder;
   }
@@ -152,6 +157,7 @@ export class XGovDelegatorSDK extends XGovDelegatorReaderSDK {
   } & CommonMethodBuilderArgs) {
     builder = builder ?? this.writeClient!.newGroup();
     const accountAlgohourInputs = accountAlgohours.map(accountWithAlgoHoursToTuple);
+    // TODO count refs, chunk call
     builder = builder.removeAccountAlgoHours({ args: { periodStart, accountAlgohourInputs } });
     return builder;
   }
@@ -162,7 +168,10 @@ export class XGovDelegatorSDK extends XGovDelegatorReaderSDK {
 
   @requireWriter()
   @wrapErrors()
-  makeSetVoteSubmitThreshold({ threshold, builder }: DelegatorContractArgs["setVoteSubmitThreshold(uint64)void"] & CommonMethodBuilderArgs) {
+  makeSetVoteSubmitThreshold({
+    threshold,
+    builder,
+  }: DelegatorContractArgs["setVoteSubmitThreshold(uint64)void"] & CommonMethodBuilderArgs) {
     builder = builder ?? this.writeClient!.newGroup();
     builder = builder.setVoteSubmitThreshold({ args: { threshold } });
     return builder;
@@ -186,7 +195,11 @@ export class XGovDelegatorSDK extends XGovDelegatorReaderSDK {
 
   @requireWriter()
   @wrapErrors()
-  makeSyncProposalMetadata({ proposalId, builder }: DelegatorContractArgs["syncProposalMetadata(uint64)(string,byte[32],uint32,uint32,uint32,(uint32,uint32)[],(uint32,uint32)[],uint32,uint64,uint64,uint64,uint64,uint64,uint64)"] & CommonMethodBuilderArgs) {
+  makeSyncProposalMetadata({
+    proposalId,
+    builder,
+  }: DelegatorContractArgs["syncProposalMetadata(uint64)(string,byte[32],uint32,uint32,uint32,(uint32,uint32)[],(uint32,uint32)[],uint32,uint64,uint64,uint64,uint64,uint64,uint64)"] &
+    CommonMethodBuilderArgs) {
     builder = builder ?? this.writeClient!.newGroup();
     builder = builder.syncProposalMetadata({ args: { proposalId } });
     return builder;
@@ -198,7 +211,12 @@ export class XGovDelegatorSDK extends XGovDelegatorReaderSDK {
 
   @requireWriter()
   @wrapErrors()
-  makeUpdateAlgoHourPeriodFinality({ periodStart, totalAlgohours, final, builder }: DelegatorContractArgs["updateAlgoHourPeriodFinality(uint64,uint64,bool)void"] & CommonMethodBuilderArgs) {
+  makeUpdateAlgoHourPeriodFinality({
+    periodStart,
+    totalAlgohours,
+    final,
+    builder,
+  }: DelegatorContractArgs["updateAlgoHourPeriodFinality(uint64,uint64,bool)void"] & CommonMethodBuilderArgs) {
     builder = builder ?? this.writeClient!.newGroup();
     builder = builder.updateAlgoHourPeriodFinality({ args: { periodStart, totalAlgohours, final } });
     return builder;

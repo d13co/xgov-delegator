@@ -1,16 +1,14 @@
 import { Config } from '@algorandfoundation/algokit-utils'
 import { registerDebugEventHandlers } from '@algorandfoundation/algokit-utils-debug'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
-import { Address } from 'algosdk'
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest'
 import {
-  XGovCommitteesOracleSDK,
   calculateCommitteeId,
   increaseBudgetBaseCost,
   increaseBudgetIncrementCost,
 } from 'xgov-committees-oracle-sdk'
-import { CommitteeOracleFactory } from '../artifacts/oracle/CommitteeOracleClient'
 import { committeesForTests } from './fixtures'
+import { deployOracle } from '../common-tests'
 
 describe('Oracle contract', () => {
   const localnet = algorandFixture()
@@ -23,32 +21,6 @@ describe('Oracle contract', () => {
   })
   beforeEach(localnet.newScope)
 
-  const deploy = async (account: Address) => {
-    const factory = localnet.algorand.client.getTypedAppFactory(CommitteeOracleFactory, {
-      defaultSender: account,
-    })
-
-    const { appClient } = await factory.deploy({
-      onUpdate: 'append',
-      onSchemaBreak: 'append',
-    })
-
-    await localnet.algorand.account.ensureFundedFromEnvironment(appClient.appAddress, (10).algos())
-
-    const sender = account
-    const signer = localnet.algorand.account.getSigner(sender)
-
-    return {
-      client: appClient,
-      sdk: new XGovCommitteesOracleSDK({
-        algorand: localnet.algorand,
-        oracleAppId: appClient.appId,
-        writerAccount: { sender, signer },
-        debug: false,
-      }),
-    }
-  }
-
   describe('increaseBudget opcode cost', () => {
     for (let i = 0; i < 3; i++) {
       test(`It should cost ${increaseBudgetBaseCost + i * increaseBudgetIncrementCost} with itxns=${i}`, async () => {
@@ -56,7 +28,7 @@ describe('Oracle contract', () => {
         const sender = testAccount.toString()
         const signer = testAccount.signer
 
-        const { sdk } = await deploy(testAccount)
+        const { sdk } = await deployOracle(localnet, testAccount)
 
         const {
           simulateResponse: {
@@ -75,7 +47,7 @@ describe('Oracle contract', () => {
   for (const [name, id, committeeFile] of committeesForTests) {
     test(`Uploads committee ${name}`, async () => {
       const { testAccount } = localnet.context
-      const { sdk } = await deploy(testAccount)
+      const { sdk } = await deployOracle(localnet, testAccount)
 
       const committeeId = calculateCommitteeId(JSON.stringify(committeeFile))
       expect(committeeId).toEqual(new Uint8Array(Buffer.from(id, 'base64')))
