@@ -35,6 +35,7 @@ export const errXGovProposalInvalidCreator = 'ERR:XGPC' // Proposal creator does
 export const errXGovProposalCommitteeMissing = 'ERR:XGPM' // Committee ID missing from proposal. This should never happen.
 export const errXGovProposalVoteOpenTsMissing = 'ERR:XGVOM' // Vote open timestamp missing from proposal. This should never happen.
 export const errXGovProposalVotingDurationMissing = 'ERR:XGVDM' // Voting duration missing from proposal. This should never happen.
+export const errXGovProposalStatusMissing = 'ERR:XGSM' // Status missing from proposal. This should never happen.
 
 export const errProposalExists = 'ERR:P_EX' // Proposal already exists in delegator
 export const errProposalNotExists = 'ERR:P_NX' // Proposal does not exist in delegator

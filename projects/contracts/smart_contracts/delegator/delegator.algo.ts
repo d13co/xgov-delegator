@@ -37,8 +37,7 @@ import {
   errUnauthorized,
   errXGovProposalCommitteeMissing,
   errXGovProposalInvalidCreator,
-  errXGovProposalVoteOpenTsMissing,
-  errXGovProposalVotingDurationMissing,
+  errXGovProposalStatusMissing,
   errXGovRegistryMissing,
 } from '../base/errors.algo'
 import {
@@ -57,8 +56,11 @@ import {
 import { ensure, ensureExtra, u32 } from '../base/utils.algo'
 import { CommitteeOracle, oracleXGovRegistryAppKey } from '../oracle/oracle.algo'
 import {
+  STATUS_SUBMITTED,
+  STATUS_VOTING,
   xGovProposalCommitteeIdKey,
   XGovProposalMock,
+  xGovProposalStatusKey,
   xGovProposalVoteOpenTsKey,
   xGovProposalVotingDurationKey,
 } from '../xgov-proposal-mock/xGovProposalMock.algo'
@@ -184,6 +186,7 @@ export class Delegator extends AccountIdContract {
 
     let totalAlgoHours: uint64 = 0
     // ensure all periods are final
+    // TODO should this be in committee sync instead?
     for (
       let period: uint64 = committeeMetadata.periodStart.asUint64();
       period < committeeMetadata.periodEnd.asUint64();
@@ -196,12 +199,15 @@ export class Delegator extends AccountIdContract {
       totalAlgoHours += periodTotalsBox.value.totalAlgohours
     }
 
-    // get vote end ts
-    // TODO get status
+    // get status and vote end ts
+    const [status, statusExists] = op.AppGlobal.getExUint64(proposalId, xGovProposalStatusKey)
     const [voteOpenTs, voteOpenTsExists] = op.AppGlobal.getExUint64(proposalId, xGovProposalVoteOpenTsKey)
     const [votingDuration, votingDurationExists] = op.AppGlobal.getExUint64(proposalId, xGovProposalVotingDurationKey)
-    ensure(voteOpenTsExists, errXGovProposalVoteOpenTsMissing)
-    ensure(votingDurationExists, errXGovProposalVotingDurationMissing)
+    ensure(statusExists, errXGovProposalStatusMissing)
+    // ensure(voteOpenTsExists, errXGovProposalVoteOpenTsMissing)
+    // ensure(votingDurationExists, errXGovProposalVotingDurationMissing)
+
+    ensure(status === STATUS_VOTING || (status === STATUS_SUBMITTED && voteOpenTs <= Global.latestTimestamp), errState)
     const voteEndTs: uint64 = voteOpenTs + votingDuration
 
     const proposalMetadata: DelegatorProposal = {

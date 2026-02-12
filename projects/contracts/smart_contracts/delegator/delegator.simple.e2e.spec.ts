@@ -3,14 +3,14 @@ import { registerDebugEventHandlers } from '@algorandfoundation/algokit-utils-de
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest'
 import { increaseBudgetBaseCost, increaseBudgetIncrementCost } from 'xgov-delegator-sdk'
-import { deployDelegatorSimple } from '../common-tests'
-
+import { errAlgoHoursExist, errPeriodStartInvalid, errUnauthorized } from '../base/errors.algo'
+import { deployDelegatorSimple, transformedError } from '../common-tests'
 
 describe('Delegator simple e2e tests', () => {
   const localnet = algorandFixture()
   beforeAll(() => {
     Config.configure({
-      debug: true,
+      // debug: true,
       // traceAll: true,
     })
     registerDebugEventHandlers()
@@ -56,7 +56,9 @@ describe('Delegator simple e2e tests', () => {
       const otherAccount = await localnet.context.generateAccount({ initialFunds: (1).algos() })
       const { userSDK } = await deployDelegatorSimple(localnet, testAccount, otherAccount)
 
-      await expect(userSDK!.setCommitteeOracleApp({ appId: 12345n })).rejects.toThrowError(/ERR:AUTH/)
+      await expect(userSDK!.setCommitteeOracleApp({ appId: 12345n })).rejects.toThrowError(
+        transformedError(errUnauthorized),
+      )
     })
   })
 
@@ -84,7 +86,7 @@ describe('Delegator simple e2e tests', () => {
       const { userSDK } = await deployDelegatorSimple(localnet, testAccount, otherAccount)
       await expect(
         userSDK!.addAccountAlgoHours({ periodStart, accountAlgohours: [{ account, algoHours }] }),
-      ).rejects.toThrowError(/ERR:AUTH/)
+      ).rejects.toThrowError(transformedError(errUnauthorized))
     })
 
     test('It should fail if periodStart is not aligned to 1M', async () => {
@@ -93,7 +95,7 @@ describe('Delegator simple e2e tests', () => {
       const invalidPeriodStart = 1_000_001n
       await expect(
         adminSDK.addAccountAlgoHours({ periodStart: invalidPeriodStart, accountAlgohours: [{ account, algoHours }] }),
-      ).rejects.toThrowError(/ERR:PS/)
+      ).rejects.toThrowError(transformedError(errPeriodStartInvalid))
     })
 
     test('It should fail when adding more algohours to an existing period', async () => {
@@ -102,7 +104,7 @@ describe('Delegator simple e2e tests', () => {
       await adminSDK.addAccountAlgoHours({ periodStart, accountAlgohours: [{ account, algoHours }] })
       await expect(
         adminSDK.addAccountAlgoHours({ periodStart, accountAlgohours: [{ account, algoHours }] }),
-      ).rejects.toThrowError(/ERR:AH_EX/)
+      ).rejects.toThrowError(transformedError(errAlgoHoursExist))
     })
   })
 
@@ -133,7 +135,7 @@ describe('Delegator simple e2e tests', () => {
       const { adminSDK } = await deployDelegatorSimple(localnet, testAccount)
       const invalidPeriodStart = 1_000_001n
       await expect(adminSDK.getAccountAlgoHours({ periodStart: invalidPeriodStart, account })).rejects.toThrowError(
-        /ERR:PS/,
+        transformedError(errPeriodStartInvalid),
       )
     })
   })
@@ -181,7 +183,9 @@ describe('Delegator simple e2e tests', () => {
         accountAlgohours: [{ account: account1, algoHours: algoHours1 }],
       })
 
-      await expect(adminSDK.getAlgoHourPeriodTotals({ periodStart: 2_000_001n })).rejects.toThrowError(/ERR:PS/)
+      await expect(adminSDK.getAlgoHourPeriodTotals({ periodStart: 2_000_001n })).rejects.toThrowError(
+        transformedError(errPeriodStartInvalid),
+      )
     })
   })
 })

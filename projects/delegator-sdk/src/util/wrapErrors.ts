@@ -4,15 +4,18 @@ import { ErrorMessages } from "../generated/errors";
 /**
  * Map of error codes to human-readable error messages
  */
-export const errorMap: Record<string, string> = ErrorMessages;
+export const errorMap = ErrorMessages;
 
 export const errorTransformer: ErrorTransformer = async (ogError) => {
   const [errCode] = /ERR:[^" ]+/.exec(ogError.message) ?? [];
   if (errCode) {
     const humanMessage = errorMap[errCode] ?? "Unknown error";
-    ogError.stack = `${errCode.replace("ERR:", "Error: ")}: ${humanMessage}\n    ${ogError.stack}`;
+    const message = `${errCode.replace("ERR:", "Error ")}: ${humanMessage}`
+
+    ogError.stack = `${message}\n    ${ogError.message}\n${ogError.stack}`;
+    ogError.message = message;
     (ogError as any).code = errCode;
-    (ogError as any).humanMessage = humanMessage;
+    (ogError as any).description = humanMessage;
     return ogError;
   }
   return ogError;

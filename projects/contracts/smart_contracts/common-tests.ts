@@ -1,11 +1,34 @@
+import { AlgorandClient } from '@algorandfoundation/algokit-utils'
 import { TransactionSignerAccount } from '@algorandfoundation/algokit-utils/types/account'
 import { AlgorandFixture } from '@algorandfoundation/algokit-utils/types/testing'
-import { Address, Account } from 'algosdk'
-import { CommitteeOracleFactory, XGovCommitteeFile, XGovCommitteesOracleSDK } from 'xgov-committees-oracle-sdk'
-import { DelegatorFactory, XGovDelegatorSDK } from 'xgov-delegator-sdk'
-import { XGovRegistryMockFactory } from './artifacts/xgov-registry-mock/XGovRegistryMockClient'
+import { Account, Address } from 'algosdk'
+import {
+  calculateCommitteeId,
+  CommitteeOracleFactory,
+  XGovCommitteeFile,
+  XGovCommitteesOracleSDK,
+} from 'xgov-committees-oracle-sdk'
+import { XGovDelegatorSDK } from 'xgov-delegator-sdk'
 import committeeTemplate from '../../common/committee-files/template.json'
-import { XGovProposalMockClient } from './artifacts/xgov-proposal-mock/XGovProposalMockClient'
+import { DelegatorFactory } from './artifacts/delegator/DelegatorClient'
+import { XGovProposalMockClient, XGovProposalMockComposer } from './artifacts/xgov-proposal-mock/XGovProposalMockClient'
+import { XGovRegistryMockFactory } from './artifacts/xgov-registry-mock/XGovRegistryMockClient'
+import { STATUS_SUBMITTED } from './xgov-proposal-mock/xGovProposalMock.algo'
+
+async function lastBlockTimestamp(algorand: AlgorandClient): Promise<number> {
+  const { algod } = algorand.client
+  const { lastRound } = await algod.status().do()
+  const {
+    block: {
+      header: { timestamp },
+    },
+  } = await algod.block(lastRound).headerOnly(true).do()
+  return Number(timestamp)
+}
+
+export function transformedError(errCode: string) {
+  return errCode.replace('ERR:', 'Error ')
+}
 
 export const deployOracle = async (localnet: AlgorandFixture, account: Address) => {
   const factory = localnet.algorand.client.getTypedAppFactory(CommitteeOracleFactory, {
@@ -56,6 +79,34 @@ async function createCommittee(
   return { committee, xGovs }
 }
 
+export async function configureProposal(args: {
+  proposalAppClient: XGovProposalMockClient
+  committee?: XGovCommitteeFile
+  status?: number
+  voteOpenTs?: number
+  votingDuration?: number
+}) {
+  const { proposalAppClient, ...rest } = args
+  const { committee, status, voteOpenTs, votingDuration } = rest
+  console.log('Configuring proposal', rest)
+  const builder: XGovProposalMockComposer<any> = proposalAppClient.newGroup()
+  if (committee !== undefined) {
+    builder.setCommitteeId({
+      args: { committeeId: calculateCommitteeId(JSON.stringify(committee)) },
+    })
+  }
+  if (status !== undefined) {
+    builder.setStatus({ args: { status } })
+  }
+  if (voteOpenTs !== undefined) {
+    builder.setVoteOpenTs({ args: { voteOpenTs } })
+  }
+  if (votingDuration !== undefined) {
+    builder.setVotingDuration({ args: { votingDuration } })
+  }
+  await builder.send()
+}
+
 export const deployRegistryAndOracle = async (localnet: AlgorandFixture, adminAccount: Address, numXGovs: number) => {
   const factory = localnet.algorand.client.getTypedAppFactory(XGovRegistryMockFactory, {
     defaultSender: adminAccount,
@@ -79,10 +130,18 @@ export const deployRegistryAndOracle = async (localnet: AlgorandFixture, adminAc
   })
 
   const { committee, xGovs } = await createCommittee(localnet, registryAppClient.appId, numXGovs, 1)
+  const proposalConfigPromise = configureProposal({
+    proposalAppClient,
+    committee,
+    status: STATUS_SUBMITTED,
+    voteOpenTs: await lastBlockTimestamp(localnet.algorand),
+    votingDuration: 3600, // 1 hour
+  })
 
   const { sdk: oracleSDK } = await deployOracle(localnet, adminAccount)
   await oracleSDK.uploadCommitteeFile(committee)
   await oracleSDK.setXGovRegistryApp({ appId: registryAppClient.appId })
+  await proposalConfigPromise
 
   return { registryAppClient, proposalAppClient, oracleSDK, committee, xGovs }
 }

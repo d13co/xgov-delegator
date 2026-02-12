@@ -44,7 +44,7 @@ export class XGovDelegatorSDK extends XGovDelegatorReaderSDK {
     returnTransformer?: (result: SendResult) => R;
     sendParams?: SendParams;
   }) => {
-    return async (args: Parameters<T>[0]): Promise<R> => {
+    return async (args: Omit<Parameters<T>[0], "builder">): Promise<R> => {
       if (!this.writerAccount) {
         throw new Error(`writerAccount not set on the SDK instance`);
       }

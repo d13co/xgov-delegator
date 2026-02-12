@@ -1,5 +1,13 @@
 import { CommitteeOracleClient, CommitteeOracleComposer } from "./generated/CommitteeOracleClient";
-import { ConstructorArgs, AccountWithVotes, SenderWithSigner, XGovCommitteeFile, CommonMethodBuilderArgs, SendResult, OracleContractArgs } from "./types";
+import {
+  ConstructorArgs,
+  AccountWithVotes,
+  SenderWithSigner,
+  XGovCommitteeFile,
+  CommonMethodBuilderArgs,
+  SendResult,
+  OracleContractArgs,
+} from "./types";
 import { requireWriter } from "./util/requiresSender";
 import { calculateCommitteeId } from "./util/comitteeId";
 import { xGovToTuple } from "./util/types";
@@ -82,7 +90,7 @@ export class XGovCommitteesOracleSDK extends XGovCommitteesOracleReaderSDK {
     returnTransformer?: (result: SendResult) => R;
     sendParams?: SendParams;
   }) => {
-    return async (args: Parameters<T>[0]): Promise<R> => {
+    return async (args: Omit<Parameters<T>[0], "builder">): Promise<R> => {
       if (!this.writerAccount) {
         throw new Error(`writerAccount not set on the SDK instance`);
       }
@@ -138,7 +146,9 @@ export class XGovCommitteesOracleSDK extends XGovCommitteesOracleReaderSDK {
     totalVotes,
     xGovRegistryId,
     builder,
-  }: Omit<OracleContractArgs["registerCommittee(byte[32],uint32,uint32,uint32,uint32,uint64)void"], "committeeId"> & { committeeId: string | Uint8Array } & CommonMethodBuilderArgs) {
+  }: Omit<OracleContractArgs["registerCommittee(byte[32],uint32,uint32,uint32,uint32,uint64)void"], "committeeId"> & {
+    committeeId: string | Uint8Array;
+  } & CommonMethodBuilderArgs) {
     committeeId = typeof committeeId === "string" ? Buffer.from(committeeId, "base64") : committeeId;
     const { sender, signer } = this.writerAccount!;
     builder = builder ?? this.writeClient!.newGroup();
@@ -215,7 +225,9 @@ export class XGovCommitteesOracleSDK extends XGovCommitteesOracleReaderSDK {
     committeeId,
     numXGovs,
     builder,
-  }: Omit<OracleContractArgs["uningestXGovs(byte[32],uint64)void"], "committeeId"> & { committeeId: string | Uint8Array } & CommonMethodBuilderArgs) {
+  }: Omit<OracleContractArgs["uningestXGovs(byte[32],uint64)void"], "committeeId"> & {
+    committeeId: string | Uint8Array;
+  } & CommonMethodBuilderArgs) {
     const { sender, signer } = this.writerAccount!;
     committeeId = typeof committeeId === "string" ? Buffer.from(committeeId, "base64") : committeeId;
     builder = builder ?? this.writeClient!.newGroup();
