@@ -1,21 +1,30 @@
 import { Account, uint64 } from '@algorandfoundation/algorand-typescript'
-import { StaticBytes, Uint32 } from '@algorandfoundation/algorand-typescript/arc4'
-import { u32 } from './utils.algo'
+import { StaticBytes, Uint16, Uint32 } from '@algorandfoundation/algorand-typescript/arc4'
+import { u16, u32 } from './utils.algo'
 
 export type CommitteeId = StaticBytes<32>
+
+export type OracleAccount = {
+  /** Account ID */
+  accountId: Uint32
+  /** Committee superbox offsets for the account */
+  committeeOffsets: [Uint16, Uint16][] // [committee numeric id, account offset]
+}
 
 /**
  * Committee Metadata
  */
 export type CommitteeMetadata = {
+  numericId: Uint16
   periodStart: Uint32
   periodEnd: Uint32 // exclusive
   totalMembers: Uint32
   totalVotes: Uint32
   xGovRegistryId: uint64
   ingestedVotes: Uint32
-  superboxPrefix: string
 }
+
+export type CommitteeNumIdAccountId = [Uint16, Uint16] // [committee numeric id, accountId]
 
 export function getEmptyCommitteeMetadata(): CommitteeMetadata {
   return {
@@ -25,7 +34,7 @@ export function getEmptyCommitteeMetadata(): CommitteeMetadata {
     totalVotes: u32(0),
     xGovRegistryId: 0,
     ingestedVotes: u32(0),
-    superboxPrefix: '',
+    numericId: u16(0),
   }
 }
 

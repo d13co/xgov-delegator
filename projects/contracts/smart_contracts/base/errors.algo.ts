@@ -16,8 +16,12 @@ export const errCommitteeIncomplete = 'ERR:C_NC' // Committee is incomplete - no
 // Account errors
 export const errAccountExists = 'ERR:A_EX' // Account already exists
 export const errAccountNotExists = 'ERR:A_NX' // Account does not exist
-export const errAccountHintMismatch = 'ERR:AH' // Account hint mismatch - provided offset does not match account
 export const errAccountIdMismatch = 'ERR:ID' // Account ID mismatch
+
+// Account offset errors
+export const errAccountOffsetExists = 'ERR:AO_EX' // Account offset already exists
+export const errAccountOffsetNotExists = 'ERR:AO_NX' // Account offset does not exist
+export const errAccountOffsetMismatch = 'ERR:AO_MM' // Account offset mismatch
 
 // Algohour errors
 export const errAlgoHoursExist = 'ERR:AH_EX' // Algohour account entry already exists

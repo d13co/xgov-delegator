@@ -14,10 +14,9 @@ import { abimethod, decodeArc4, encodeArc4, Uint32 } from '@algorandfoundation/a
 import { sbAppend, sbCreate, sbDeleteIndex, sbDeleteSuperbox, sbGetData } from '@d13co/superbox'
 import { SuperboxMeta } from '@d13co/superbox/smart_contracts/superbox/lib/types.algo'
 import { itoa, sbMetaBox } from '@d13co/superbox/smart_contracts/superbox/lib/utils.algo'
-import { AccountIdContract } from '../base/base.algo'
 import {
-  errAccountHintMismatch,
   errAccountNotExists,
+  errAccountOffsetMismatch,
   errCommitteeExists,
   errCommitteeIncomplete,
   errCommitteeNotExists,
@@ -37,7 +36,8 @@ import {
   CommitteeMetadata,
   getEmptyCommitteeMetadata,
 } from '../base/types.algo'
-import { ensure, ensureExtra, u32 } from '../base/utils.algo'
+import { ensure, ensureExtra, u16, u32 } from '../base/utils.algo'
+import { OracleAccountContract } from './oracle-account.algo'
 
 /**
  * Count total xGovs stored in committee superbox
@@ -48,13 +48,13 @@ function getCommitteeSBXGovs(sbMeta: Box<SuperboxMeta>): uint64 {
 
 export const oracleXGovRegistryAppKey = Bytes`xGovRegistryApp`
 
-export class CommitteeOracle extends AccountIdContract {
+export class CommitteeOracleContract extends OracleAccountContract {
   /** xGov registry application ID */
   xGovRegistryApp = GlobalState<Application>({ key: oracleXGovRegistryAppKey })
   /** Committee metadata box map */
   committees = BoxMap<CommitteeId, CommitteeMetadata>({ keyPrefix: 'c' })
-  /** Incrementing superbox prefix for committees */
-  lastSuperboxPrefix = GlobalState<uint64>({ initialValue: 0 })
+  /** Last committee numeric ID; superbox prefix for committees */
+  lastCommitteeId = GlobalState<uint64>({ initialValue: 0 })
 
   /**
    * Register a committee
@@ -84,10 +84,10 @@ export class CommitteeOracle extends AccountIdContract {
       totalVotes,
       xGovRegistryId,
       ingestedVotes: u32(0),
-      superboxPrefix: 'S' + this.lastSuperboxPrefix.value.toString(),
+      numericId: u16(this.lastCommitteeId.value),
     }
     sbCreate(this.getCommitteeSBPrefix(committeeId), 2048, ACCOUNT_ID_WITH_VOTES_STORED_SIZE, '[uint32,uint32]')
-    this.lastSuperboxPrefix.value = this.lastSuperboxPrefix.value + 1
+    this.lastCommitteeId.value = this.lastCommitteeId.value + 1
   }
 
   /**
@@ -126,10 +126,12 @@ export class CommitteeOracle extends AccountIdContract {
       lastAccountId = lastXGov.accountId
     }
 
+    let ingestedAccountCtr = ingestedAccounts
     let ingestedVotes = committee.ingestedVotes.asUint64()
     let writeBuffer = Bytes``
     for (const xGov of clone(xGovs)) {
-      const accountId = this.getOrCreateAccountId(xGov.account)
+      const oracleAccount = this.getOrCreateAccount(xGov.account)
+      const accountId = oracleAccount.accountId
       // ensure xGovs are added in ascending order
       ensure(accountId.asUint64() > lastAccountId.asUint64(), errOutOfOrder)
       // store variant removes account
@@ -139,6 +141,7 @@ export class CommitteeOracle extends AccountIdContract {
       }
       // append to write buffer, write to superbox once
       writeBuffer = writeBuffer.concat(encodeArc4(xGovStored))
+      this.addCommitteeAccountOffsetHint(committee.numericId, xGov.account, oracleAccount, u16(ingestedAccountCtr++))
       lastAccountId = accountId
       ingestedVotes += xGov.votes.asUint64()
     }
@@ -159,21 +162,26 @@ export class CommitteeOracle extends AccountIdContract {
   /**
    * Uningest last N xGovs from committee
    * @param committeeId committee ID
-   * @param numXGovs number of xGovs to uningest
+   * @param numXGovs xGovs to uningest, strictly descending order
    */
-  public uningestXGovs(committeeId: CommitteeId, numXGovs: uint64): void {
+  public uningestXGovs(committeeId: CommitteeId, xGovs: Account[]): void {
     this.ensureCallerIsAdmin()
-
     const committee = this.mustGetCommitteeMetadata(committeeId)
     const superboxName = this.getCommitteeSBPrefix(committeeId)
     const sbMeta = sbMetaBox(superboxName)
     const totalXGovs = getCommitteeSBXGovs(sbMeta)
-    ensure(numXGovs <= totalXGovs, errNumXGovsExceeded)
+    ensure(xGovs.length <= totalXGovs, errNumXGovsExceeded)
     let ingestedVotes = committee.ingestedVotes.asUint64()
-    for (let i: uint64 = totalXGovs - 1; i >= totalXGovs - numXGovs; i--) {
-      const xGovStored = this.getStoredXGovAt(superboxName, i)
+    let expectedXGovOffset = totalXGovs
+    for (const account of clone(xGovs)) {
+      expectedXGovOffset--
+      const oracleAccount = this.mustGetAccount(account)
+      const offset = this.getCommitteeAccountOffsetHint(committee.numericId, oracleAccount)
+      ensureExtra(expectedXGovOffset === offset, errOutOfOrder, account.bytes)
+      const xGovStored = this.getStoredXGovAt(superboxName, offset)
+      this.removeCommitteeAccountOffsetHint(committee.numericId, account, oracleAccount)
+      sbDeleteIndex(superboxName, offset)
       ingestedVotes -= xGovStored.votes.asUint64()
-      sbDeleteIndex(superboxName, i)
     }
     committee.ingestedVotes = u32(ingestedVotes)
     this.committees(committeeId).value = clone(committee)
@@ -191,28 +199,6 @@ export class CommitteeOracle extends AccountIdContract {
   /*
    * Read methods
    */
-
-  /**
-   * Get account ID if exists, else return 0
-   * @param account account to look up
-   * @returns account ID or 0 if not found
-   */
-  @abimethod({ readonly: true })
-  public getAccountId(account: Account): Uint32 {
-    return this.getAccountIdIfExists(account)
-  }
-
-  /**
-   * Log multiple accounts' IDs (or zero if not found)
-   * Used to fetch account>ID quickly off-chain
-   * @param accounts accounts to log
-   */
-  @abimethod({ readonly: true })
-  public logAccountIds(accounts: Account[]): void {
-    for (const account of accounts) {
-      log(this.getAccountIdIfExists(account).bytes)
-    }
-  }
 
   /**
    * Get committee metadata
@@ -300,21 +286,21 @@ export class CommitteeOracle extends AccountIdContract {
   }
 
   /**
-   * Get xGov voting power, with required account offset hint (for opcode savings)
+   * Get xGov voting power
    * @param committeeId Committee ID
    * @param account xGov account
-   * @param accountOffsetHint Offset of account in committee superbox
    * @returns xGov voting power
    */
   @abimethod({ readonly: true })
-  public getXGovVotingPower(committeeId: CommitteeId, account: Account, accountOffsetHint: Uint32): Uint32 {
-    this.mustGetCommitteeMetadata(committeeId)
+  public getXGovVotingPower(committeeId: CommitteeId, account: Account): Uint32 {
+    const committeeMetadata = this.mustGetCommitteeMetadata(committeeId)
 
-    const accountId = this.getAccountIdIfExists(account)
-    ensure(accountId.asUint64() !== 0, errAccountNotExists)
+    const oracleAccount = this.getAccountIfExists(account)
+    ensure(oracleAccount.accountId.asUint64() !== 0, errAccountNotExists)
 
-    const xGov = this.getStoredXGovAt(this.getCommitteeSBPrefix(committeeId), accountOffsetHint.asUint64())
-    ensureExtra(xGov.accountId === accountId, errAccountHintMismatch, accountId.bytes)
+    const accountOffset = this.getCommitteeAccountOffsetHint(committeeMetadata.numericId, oracleAccount)
+    const xGov = this.getStoredXGovAt(this.getCommitteeSBPrefix(committeeId), accountOffset)
+    ensureExtra(xGov.accountId === oracleAccount.accountId, errAccountOffsetMismatch, oracleAccount.accountId.bytes)
 
     return xGov.votes
   }
@@ -336,7 +322,7 @@ export class CommitteeOracle extends AccountIdContract {
    * @returns committee superbox prefix
    */
   private getCommitteeSBPrefix(committeeId: CommitteeId): string {
-    return this.mustGetCommitteeMetadata(committeeId).superboxPrefix
+    return 'S' + this.mustGetCommitteeMetadata(committeeId).numericId.asUint64().toString()
   }
 
   /**

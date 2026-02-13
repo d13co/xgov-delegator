@@ -7,7 +7,7 @@ main:
     bytecblock base64(C4EBQw==) "x" 0x151f7c75
     txn ApplicationID
     bnz main_after_if_else@2
-    // smart_contracts/base/base.algo.ts:20
+    // smart_contracts/base/base.algo.ts:48
     // lastAccountId = GlobalState<uint64>({ initialValue: 0 })
     pushbytes "lastAccountId"
     intc_0 // 0
@@ -191,21 +191,21 @@ setXGovBox:
     pushint 56 // 56
     ==
     assert // invalid number of bytes for smart_contracts/xgov-registry-mock/xGovRegistryMock.algo.ts::XGovBoxValue
-    // smart_contracts/base/base.algo.ts:80
+    // smart_contracts/base/base.algo.ts:25
     // ensure(Txn.sender === Global.creatorAddress, errUnauthorized)
     txn Sender
     global CreatorAddress
     ==
-    // smart_contracts/base/utils.algo.ts:9
+    // smart_contracts/base/utils.algo.ts:33
     // if (!cond) {
     bnz setXGovBox_after_if_else@3
-    // smart_contracts/base/base.algo.ts:80
+    // smart_contracts/base/base.algo.ts:25
     // ensure(Txn.sender === Global.creatorAddress, errUnauthorized)
     pushbytes "ERR:AUTH"
-    // smart_contracts/base/utils.algo.ts:10
+    // smart_contracts/base/utils.algo.ts:34
     // log(code)
     log
-    // smart_contracts/base/utils.algo.ts:11
+    // smart_contracts/base/utils.algo.ts:35
     // err()
     err
 
@@ -225,24 +225,24 @@ setXGovBox_after_if_else@3:
     return
 
 
-// smart_contracts/base/base.algo.ts::AccountIdContract.increaseBudget[routing]() -> void:
+// smart_contracts/base/base.algo.ts::Base.increaseBudget[routing]() -> void:
 increaseBudget:
-    // smart_contracts/base/base.algo.ts:87
+    // smart_contracts/base/base.algo.ts:32
     // @abimethod({ validateEncoding: 'unsafe-disabled' })
     txna ApplicationArgs 1
     btoi
-    // smart_contracts/base/base.algo.ts:90
+    // smart_contracts/base/base.algo.ts:35
     // for (let i: uint64 = 0; i < itxns; i++) {
     intc_0 // 0
 
 increaseBudget_while_top@2:
-    // smart_contracts/base/base.algo.ts:90
+    // smart_contracts/base/base.algo.ts:35
     // for (let i: uint64 = 0; i < itxns; i++) {
     dup
     dig 2
     <
     bz increaseBudget_after_while@5
-    // smart_contracts/base/base.algo.ts:91-97
+    // smart_contracts/base/base.algo.ts:36-42
     // itxn
     //   .applicationCall({
     //     approvalProgram: empty.clearStateProgram, // intentionally using clear state program for "return true"
@@ -251,17 +251,17 @@ increaseBudget_while_top@2:
     //   })
     //   .submit()
     itxn_begin
-    // smart_contracts/base/base.algo.ts:95
+    // smart_contracts/base/base.algo.ts:40
     // onCompletion: OnCompleteAction.DeleteApplication,
     pushint 5 // 5
     itxn_field OnCompletion
-    // smart_contracts/base/base.algo.ts:89
+    // smart_contracts/base/base.algo.ts:34
     // const empty = compile(EmptyContract)
     bytec_0 // base64(C4EBQw==)
     itxn_field ClearStateProgramPages
     bytec_0 // base64(C4EBQw==)
     itxn_field ApprovalProgramPages
-    // smart_contracts/base/base.algo.ts:91-96
+    // smart_contracts/base/base.algo.ts:36-41
     // itxn
     //   .applicationCall({
     //     approvalProgram: empty.clearStateProgram, // intentionally using clear state program for "return true"
@@ -272,7 +272,7 @@ increaseBudget_while_top@2:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/base/base.algo.ts:91-97
+    // smart_contracts/base/base.algo.ts:36-42
     // itxn
     //   .applicationCall({
     //     approvalProgram: empty.clearStateProgram, // intentionally using clear state program for "return true"
@@ -281,7 +281,7 @@ increaseBudget_while_top@2:
     //   })
     //   .submit()
     itxn_submit
-    // smart_contracts/base/base.algo.ts:90
+    // smart_contracts/base/base.algo.ts:35
     // for (let i: uint64 = 0; i < itxns; i++) {
     dup
     intc_1 // 1
@@ -290,7 +290,7 @@ increaseBudget_while_top@2:
     b increaseBudget_while_top@2
 
 increaseBudget_after_while@5:
-    // smart_contracts/base/base.algo.ts:87
+    // smart_contracts/base/base.algo.ts:32
     // @abimethod({ validateEncoding: 'unsafe-disabled' })
     intc_1 // 1
     return

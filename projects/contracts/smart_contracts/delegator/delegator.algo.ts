@@ -12,7 +12,7 @@ import {
   uint64,
 } from '@algorandfoundation/algorand-typescript'
 import { compileArc4, encodeArc4, StaticBytes, Uint32 } from '@algorandfoundation/algorand-typescript/arc4'
-import { AccountIdContract } from '../base/base.algo'
+import { AccountIdContract } from '../base/account-id.algo'
 import {
   errAccountIdMismatch,
   errAccountNumMismatch,
@@ -43,7 +43,6 @@ import {
 import {
   AccountAlgohourInput,
   AccountIdWithVotes,
-  AccountWithOffsetHint,
   AlgohourAccountKey,
   AlgohourPeriodTotals,
   CommitteeId,
@@ -54,7 +53,7 @@ import {
   getEmptyDelegatorProposal,
 } from '../base/types.algo'
 import { ensure, ensureExtra, u32 } from '../base/utils.algo'
-import { CommitteeOracle, oracleXGovRegistryAppKey } from '../oracle/oracle.algo'
+import { CommitteeOracleContract, oracleXGovRegistryAppKey } from '../oracle/oracle.algo'
 import {
   STATUS_SUBMITTED,
   STATUS_VOTING,
@@ -123,12 +122,12 @@ export class Delegator extends AccountIdContract {
    * @param committeeId Committee ID to sync
    * @param delegatedAccounts Accounts delegated to this contract
    */
-  public syncCommitteeMetadata(committeeId: CommitteeId, delegatedAccounts: AccountWithOffsetHint[]) {
+  public syncCommitteeMetadata(committeeId: CommitteeId, delegatedAccounts: Account[]) {
     this.ensureCallerIsAdmin()
     const committeeBox = this.committees(committeeId)
     ensure(!committeeBox.exists, errCommitteeExists)
 
-    const oracleApp = compileArc4(CommitteeOracle)
+    const oracleApp = compileArc4(CommitteeOracleContract)
     const remoteCommittee = oracleApp.call.getCommitteeMetadata({
       appId: this.committeeOracleApp.value,
       args: [committeeId, true],
@@ -142,11 +141,11 @@ export class Delegator extends AccountIdContract {
     }
 
     let extDelegatedVotes: uint64 = 0
-    for (const { account, offsetHint } of clone(delegatedAccounts)) {
+    for (const account of delegatedAccounts) {
       const localAccountId = this.getOrCreateAccountId(account)
       const remoteVotes = oracleApp.call.getXGovVotingPower({
         appId: this.committeeOracleApp.value,
-        args: [committeeId, account, offsetHint],
+        args: [committeeId, account],
       }).returnValue
       ensureExtra(remoteVotes.asUint64() > 0, errNoVotingPower, account.bytes)
       // TODO verify that this account has delegated to our escrow on xGov registry

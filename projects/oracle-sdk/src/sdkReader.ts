@@ -207,10 +207,18 @@ export class XGovCommitteesOracleReaderSDK {
     ]);
     const numPages = Math.ceil(Number(meta.totalByteLength) / Number(meta.maxBoxSize));
     const pages = Array.from({ length: numPages }, (_, i) => i);
-    const pageData = await pMap(pages, (page) => this.getSuperboxAsStoredXGovs(`${commmitteeMetadata?.superboxPrefix}${page}`), {
+    const pageData = await pMap(pages, (page) => this.getSuperboxAsStoredXGovs(this.getCommitteeSuperboxPageKey(commmitteeMetadata!, page)), {
       concurrency: this.concurrency,
     });
     return pageData.flat();
+  }
+
+  getCommitteeSuperboxPrefix(committeeMetadata: CommitteeMetadata): string {
+    return `S${committeeMetadata.numericId}`;
+  }
+
+  getCommitteeSuperboxPageKey(committeeMetadata: CommitteeMetadata, page: number): string {
+    return `${this.getCommitteeSuperboxPrefix(committeeMetadata)}${page}`;
   }
 
   async getCommitteeSuperboxDataLast(committeeId: CommitteeId): Promise<{ last?: StoredXGov; total: number }> {
@@ -223,7 +231,7 @@ export class XGovCommitteesOracleReaderSDK {
       return { total: 0 };
     }
     const numPages = Math.ceil(Number(meta.totalByteLength) / Number(meta.maxBoxSize));
-    const superboxKey = `${commmitteeMetadata?.superboxPrefix}${numPages - 1}`;
+    const superboxKey =  this.getCommitteeSuperboxPageKey(commmitteeMetadata!, numPages - 1);
     const lastPage = await this.getSuperboxAsStoredXGovs(superboxKey);
     return { last: lastPage[lastPage.length - 1], total: numXGovs };
   }

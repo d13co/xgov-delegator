@@ -10,7 +10,7 @@ import {
   uint64,
 } from '@algorandfoundation/algorand-typescript'
 import { compileArc4 } from '@algorandfoundation/algorand-typescript/arc4'
-import { AccountIdContract } from '../base/base.algo'
+import { AccountIdContract } from '../base/account-id.algo'
 import { XGovProposalMock } from '../xgov-proposal-mock/xGovProposalMock.algo'
 
 export type XGovBoxValue = {
