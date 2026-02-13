@@ -223,16 +223,16 @@ export class XGovCommitteesOracleSDK extends XGovCommitteesOracleReaderSDK {
   @wrapErrors()
   makeUningestXGovsTxns({
     committeeId,
-    numXGovs,
+    xGovs,
     builder,
-  }: Omit<OracleContractArgs["uningestXGovs(byte[32],uint64)void"], "committeeId"> & {
+  }: Omit<OracleContractArgs["uningestXGovs(byte[32],address[])void"], "committeeId"> & {
     committeeId: string | Uint8Array;
   } & CommonMethodBuilderArgs) {
     const { sender, signer } = this.writerAccount!;
     committeeId = typeof committeeId === "string" ? Buffer.from(committeeId, "base64") : committeeId;
     builder = builder ?? this.writeClient!.newGroup();
     return builder.uningestXGovs({
-      args: { committeeId, numXGovs },
+      args: { committeeId, xGovs },
       sender,
       signer,
     });
@@ -241,4 +241,42 @@ export class XGovCommitteesOracleSDK extends XGovCommitteesOracleReaderSDK {
   uningestXGovs = this.makeTxnExecutor({
     maker: this.makeUningestXGovsTxns,
   });
+
+  /**
+   * Uningest xGovs from a committee in reverse ingestion order.
+   * Looks up each account's committee offset, sorts descending, and sends sequentially.
+   * @param committeeId Committee ID
+   * @param accounts Accounts to uningest (in any order - will be sorted internally)
+   */
+  @requireWriter()
+  @wrapErrors()
+  async uningestCommitteeXGovs({ committeeId, accounts }: { committeeId: string | Uint8Array; accounts: string[] }): Promise<void> {
+    const metadata = await this.getCommitteeMetadata(committeeId);
+    if (!metadata) throw new Error("Committee not found");
+    const numericId = metadata.numericId;
+
+    const oracleAccountsMap = await this.getOracleAccountsMap(accounts);
+
+    // sort by committee offset descending (reverse ingestion order)
+    const sorted = accounts
+      .map((address) => {
+        const oracleAccount = oracleAccountsMap.get(address);
+        if (!oracleAccount || oracleAccount.accountId === 0) {
+          throw new Error(`Account ${address} not found in oracle`);
+        }
+        const offsetEntry = oracleAccount.committeeOffsets.find(([cId]) => cId === numericId);
+        if (!offsetEntry) {
+          throw new Error(`Account ${address} has no offset for committee numericId ${numericId}`);
+        }
+        return { address, offset: offsetEntry[1] };
+      })
+      .sort((a, b) => b.offset - a.offset);
+
+    // send sequentially in chunks - strict reverse order required
+    const chunks = chunk(sorted, 8);
+    for (const accountsChunk of chunks) {
+      await this.uningestXGovs({ committeeId, xGovs: accountsChunk.map(({ address }) => address) });
+      this.debug && console.log("Uningest chunk:", accountsChunk.map(({ address }) => address.slice(0, 8) + "..").join(" "));
+    }
+  }
 }

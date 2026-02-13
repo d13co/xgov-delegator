@@ -3,7 +3,6 @@ import { DelegatorClient, DelegatorComposer } from "./generated/DelegatorClient"
 import { XGovDelegatorReaderSDK } from "./sdkReader";
 import {
   AccountWithAlgoHours,
-  AccountWithOffsetHint,
   CommitteeId,
   CommonMethodBuilderArgs,
   ConstructorArgs,
@@ -14,7 +13,7 @@ import {
 import { getIncreaseBudgetBuilder } from "./util/increaseBudget";
 import { requireWriter } from "./util/requiresSender";
 import { wrapErrors, wrapErrorsInternal } from "./util/wrapErrors";
-import { accountWithAlgoHoursToTuple, accountWithOffsetHintToTuple } from "./util/types";
+import { accountWithAlgoHoursToTuple } from "./util/types";
 import { committeeIdToRaw } from "./util/comitteeId";
 
 export class XGovDelegatorSDK extends XGovDelegatorReaderSDK {
@@ -106,14 +105,13 @@ export class XGovDelegatorSDK extends XGovDelegatorReaderSDK {
   @wrapErrors()
   makeSyncCommitteeMetadata({
     committeeId,
-    delegatedAccountsWithOffsetHint,
+    delegatedAccounts,
     builder,
   }: Omit<
-    DelegatorContractArgs["syncCommitteeMetadata(byte[32],(address,uint32)[])(uint32,uint32,uint32,(uint32,uint32)[])"],
-    "delegatedAccounts" | "committeeId"
-  > & { committeeId: CommitteeId; delegatedAccountsWithOffsetHint: AccountWithOffsetHint[] } & CommonMethodBuilderArgs) {
+    DelegatorContractArgs["syncCommitteeMetadata(byte[32],address[])(uint32,uint32,uint32,(uint32,uint32)[])"],
+    "committeeId"
+  > & { committeeId: CommitteeId } & CommonMethodBuilderArgs) {
     builder = builder ?? this.writeClient!.newGroup();
-    const delegatedAccounts = delegatedAccountsWithOffsetHint.map(accountWithOffsetHintToTuple);
     const inners = 1 + delegatedAccounts.length;
     builder = builder.syncCommitteeMetadata({
       args: { committeeId: committeeIdToRaw(committeeId), delegatedAccounts },

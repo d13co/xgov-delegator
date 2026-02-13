@@ -146,6 +146,63 @@ export const deployRegistryAndOracle = async (localnet: AlgorandFixture, adminAc
   return { registryAppClient, proposalAppClient, oracleSDK, committee, xGovs }
 }
 
+export const deployOracleWithCommittee = async (localnet: AlgorandFixture, numXGovs = 3, votesPerMember = 10) => {
+  const { testAccount } = localnet.context
+  const xGovAccounts = await Promise.all(
+    Array.from({ length: numXGovs }, () => localnet.context.generateAccount({ initialFunds: (1).algos() })),
+  )
+  const committeeFile: XGovCommitteeFile = {
+    ...committeeTemplate,
+    totalMembers: numXGovs,
+    totalVotes: numXGovs * votesPerMember,
+    registryId: 0,
+    xGovs: xGovAccounts.map((a) => ({
+      address: a.toString(),
+      votes: votesPerMember,
+    })),
+  }
+  const { sdk } = await deployOracle(localnet, testAccount)
+  const committeeId = await sdk.uploadCommitteeFile(committeeFile)
+  // get sorted order by account ID (ingestion order)
+  const accountIdMap = await sdk.getAccountIdMap(xGovAccounts.map((a) => a.toString()))
+  const sorted = Array.from(accountIdMap.entries())
+    .map(([address, id]) => ({ address, id }))
+    .sort((a, b) => a.id - b.id)
+  return { sdk, committeeId, committeeFile, xGovAccounts, sorted }
+}
+
+export const deployOracleWithTwoCommittees = async (localnet: AlgorandFixture, votesPerMember = 10) => {
+  const { testAccount } = localnet.context
+  // 3 accounts: A, B, C. Committee 1 has A+B, committee 2 has B+C. B is shared.
+  const xGovAccounts = await Promise.all(
+    Array.from({ length: 3 }, () => localnet.context.generateAccount({ initialFunds: (1).algos() })),
+  )
+  const [accountA, accountB, accountC] = xGovAccounts
+
+  const committee1File: XGovCommitteeFile = {
+    ...committeeTemplate,
+    totalMembers: 2,
+    totalVotes: 2 * votesPerMember,
+    registryId: 0,
+    xGovs: [accountA, accountB].map((a) => ({ address: a.toString(), votes: votesPerMember })),
+  }
+  const committee2File: XGovCommitteeFile = {
+    ...committeeTemplate,
+    periodStart: committeeTemplate.periodStart + 3_000_000,
+    periodEnd: committeeTemplate.periodEnd + 3_000_000,
+    totalMembers: 2,
+    totalVotes: 2 * votesPerMember,
+    registryId: 0,
+    xGovs: [accountB, accountC].map((a) => ({ address: a.toString(), votes: votesPerMember })),
+  }
+
+  const { sdk } = await deployOracle(localnet, testAccount)
+  const committeeId1 = await sdk.uploadCommitteeFile(committee1File)
+  const committeeId2 = await sdk.uploadCommitteeFile(committee2File)
+
+  return { sdk, committeeId1, committeeId2, committee1File, committee2File, accountA, accountB, accountC }
+}
+
 export const deployDelegatorFull = async (
   localnet: AlgorandFixture,
   adminAccount: Address,

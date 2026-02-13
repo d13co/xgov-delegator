@@ -12,6 +12,10 @@ export const errTotalVotesMismatch = 'ERR:TV_MM' // Total votes mismatch - inges
 export const errNumXGovsExceeded = 'ERR:NX_XC' // Number of xGovs to uningest exceeds total xGovs
 export const errOutOfOrder = 'ERR:OOO' // xGovs must be added in ascending order by account ID
 export const errCommitteeIncomplete = 'ERR:C_NC' // Committee is incomplete - not all votes have been ingested
+export const errTotalMembersZero = 'ERR:TM_Z' // Total members must be greater than zero
+export const errTotalVotesZero = 'ERR:TV_Z' // Total votes must be greater than zero
+export const errTotalMembersOverflow = 'ERR:TM_OV' // Total members exceeds maximum (65535)
+export const errCommitteeIdOverflow = 'ERR:CI_OV' // Committee numeric ID exceeds maximum (65535)
 
 // Account errors
 export const errAccountExists = 'ERR:A_EX' // Account already exists

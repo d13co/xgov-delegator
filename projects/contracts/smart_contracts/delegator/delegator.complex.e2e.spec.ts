@@ -43,11 +43,8 @@ describe('Delegator complex e2e tests', () => {
     async function syncCommitteeMetadata() {
       const committeeId = calculateCommitteeId(JSON.stringify(committee))
       const committeeWithOffsets = await oracleSDK.fastGetCommittee(committeeId, { includeBoxOrder: true })
-      const delegatedAccountsWithOffsetHint = committeeWithOffsets!.xGovBoxOrder!.map((xGovAddress, index) => ({
-        account: xGovAddress,
-        oracleSuperboxOffset: index,
-      }))
-      await delegatorAdminSDK.syncCommitteeMetadata({ committeeId, delegatedAccountsWithOffsetHint })
+      const delegatedAccounts = committeeWithOffsets!.xGovBoxOrder!
+      await delegatorAdminSDK.syncCommitteeMetadata({ committeeId, delegatedAccounts })
       console.log('Synced committee metadata')
     }
 

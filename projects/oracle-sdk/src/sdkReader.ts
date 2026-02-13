@@ -2,7 +2,7 @@ import { AlgorandClient } from "@algorandfoundation/algokit-utils";
 import { getABIDecodedValue } from "@algorandfoundation/algokit-utils/types/app-arc56";
 import { ALGORAND_ZERO_ADDRESS_STRING, encodeAddress, makeEmptyTransactionSigner } from "algosdk";
 import pMap from "p-map";
-import { CommitteeMetadata, CommitteeOracleClient, CommitteeOracleComposer, SuperboxMeta } from "./generated/CommitteeOracleClient";
+import { CommitteeMetadata, CommitteeOracleClient, CommitteeOracleComposer, OracleAccount, SuperboxMeta } from "./generated/CommitteeOracleClient";
 import { getConstructorConfig } from "./networkConfig";
 import { CommitteeId, AccountWithVotes, ReaderConstructorArgs, STORED_XGOV_BYTE_LENGTH, StoredXGov, XGovCommitteeFile } from "./types";
 import { chunk } from "./util/chunk";
@@ -256,25 +256,28 @@ export class XGovCommitteesOracleReaderSDK {
 
   async getAccountIdMap(accounts?: string[]): Promise<Map<string, number>> {
     accounts = accounts ?? (await this.getAccounts());
-    const accountIds = await this._getAccountIdChunked(accounts);
-    return new Map(accounts.map((account, index) => [account, accountIds[index]]));
+    const oracleAccounts = await this._getOracleAccountsChunked(accounts);
+    return new Map(accounts.map((account, index) => [account, oracleAccounts[index].accountId]));
+  }
+
+  async getOracleAccountsMap(accounts?: string[]): Promise<Map<string, OracleAccount>> {
+    accounts = accounts ?? (await this.getAccounts());
+    const oracleAccounts = await this._getOracleAccountsChunked(accounts);
+    return new Map(accounts.map((account, index) => [account, oracleAccounts[index]]));
   }
 
   @chunked(128)
-  private async _getAccountIdChunked(accounts: string[]): Promise<number[]> {
+  private async _getOracleAccountsChunked(accounts: string[]): Promise<OracleAccount[]> {
     if (accounts.length === 0) return [];
-    const retData: number[] = [];
-    const retTypeStr = "uint32";
     const accountArgs = chunk(accounts, 63);
     let builder: CommitteeOracleComposer<any> = this.readClient.newGroup();
     for (const accountChunk of accountArgs) {
-      builder = builder.logAccountIds({ args: { accounts: accountChunk } });
+      builder = builder.logAccounts({ args: { accounts: accountChunk } });
     }
     const { confirmations } = await builder.simulate(SIMULATE_PARAMS);
     const logs = confirmations.flatMap(({ logs }) => logs);
-    for (let i = 0; i < logs.length; i++) {
-      retData.push(getABIDecodedValue(new Uint8Array(logs[i]!), retTypeStr, {}) as number);
-    }
-    return retData;
+    return logs.map((log) =>
+      getABIDecodedValue(new Uint8Array(log!), "OracleAccount", this.readClient.appSpec.structs) as OracleAccount,
+    );
   }
 }

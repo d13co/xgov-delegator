@@ -6,6 +6,7 @@ import {
   bytes,
   Bytes,
   clone,
+  contract,
   GlobalState,
   log,
   uint64,
@@ -18,14 +19,18 @@ import {
   errAccountNotExists,
   errAccountOffsetMismatch,
   errCommitteeExists,
+  errCommitteeIdOverflow,
   errCommitteeIncomplete,
   errCommitteeNotExists,
   errIngestedVotesNotZero,
   errNumXGovsExceeded,
   errOutOfOrder,
   errPeriodEndLessThanStart,
+  errTotalMembersOverflow,
+  errTotalMembersZero,
   errTotalVotesExceeded,
   errTotalVotesMismatch,
+  errTotalVotesZero,
   errTotalXGovsExceeded,
 } from '../base/errors.algo'
 import {
@@ -48,6 +53,7 @@ function getCommitteeSBXGovs(sbMeta: Box<SuperboxMeta>): uint64 {
 
 export const oracleXGovRegistryAppKey = Bytes`xGovRegistryApp`
 
+@contract({ name: 'CommitteeOracle' })
 export class CommitteeOracleContract extends OracleAccountContract {
   /** xGov registry application ID */
   xGovRegistryApp = GlobalState<Application>({ key: oracleXGovRegistryAppKey })
@@ -77,6 +83,10 @@ export class CommitteeOracleContract extends OracleAccountContract {
     const committeeBox = this.committees(committeeId)
     ensure(!committeeBox.exists, errCommitteeExists)
     ensure(periodEnd.asUint64() > periodStart.asUint64(), errPeriodEndLessThanStart)
+    ensure(totalMembers.asUint64() > 0, errTotalMembersZero)
+    ensure(totalVotes.asUint64() > 0, errTotalVotesZero)
+    ensure(totalMembers.asUint64() <= 65535, errTotalMembersOverflow)
+    ensure(this.lastCommitteeId.value <= 65535, errCommitteeIdOverflow)
     committeeBox.value = {
       periodStart,
       periodEnd,
@@ -100,8 +110,8 @@ export class CommitteeOracleContract extends OracleAccountContract {
     const committeeBox = this.committees(committeeId)
     ensure(committeeBox.exists, errCommitteeNotExists)
     ensure(committeeBox.value.ingestedVotes === u32(0), errIngestedVotesNotZero)
-    committeeBox.delete()
     sbDeleteSuperbox(this.getCommitteeSBPrefix(committeeId))
+    committeeBox.delete()
   }
 
   /**
@@ -113,7 +123,7 @@ export class CommitteeOracleContract extends OracleAccountContract {
     this.ensureCallerIsAdmin()
 
     const committee = this.mustGetCommitteeMetadata(committeeId)
-    const superboxName = this.getCommitteeSBPrefix(committeeId)
+    const superboxName = this.getMetadataSBPrefix(committee)
     const sbMeta = sbMetaBox(superboxName)
     // figure out ingested accounts from superbox size
     const ingestedAccounts: uint64 = getCommitteeSBXGovs(sbMeta)
@@ -167,7 +177,7 @@ export class CommitteeOracleContract extends OracleAccountContract {
   public uningestXGovs(committeeId: CommitteeId, xGovs: Account[]): void {
     this.ensureCallerIsAdmin()
     const committee = this.mustGetCommitteeMetadata(committeeId)
-    const superboxName = this.getCommitteeSBPrefix(committeeId)
+    const superboxName = this.getMetadataSBPrefix(committee)
     const sbMeta = sbMetaBox(superboxName)
     const totalXGovs = getCommitteeSBXGovs(sbMeta)
     ensure(xGovs.length <= totalXGovs, errNumXGovsExceeded)
@@ -251,12 +261,12 @@ export class CommitteeOracleContract extends OracleAccountContract {
     dataPageLength: uint64,
   ): void {
     // log metadata and superbox meta on first page
-    const superboxPrefix = this.getCommitteeSBPrefix(committeeId)
+    const committeeMetadata = this.mustGetCommitteeMetadata(committeeId)
+    const superboxPrefix = this.getMetadataSBPrefix(committeeMetadata)
     const sbMetaBoxRef = sbMetaBox(superboxPrefix)
     ensure(sbMetaBoxRef.exists, errCommitteeNotExists)
     const sbMeta = clone(sbMetaBoxRef.value)
     if (logMetadata) {
-      const committeeMetadata = this.mustGetCommitteeMetadata(committeeId) // ensure committee exists
       log(encodeArc4(committeeMetadata))
       log(encodeArc4(sbMeta))
     }
@@ -299,7 +309,7 @@ export class CommitteeOracleContract extends OracleAccountContract {
     ensure(oracleAccount.accountId.asUint64() !== 0, errAccountNotExists)
 
     const accountOffset = this.getCommitteeAccountOffsetHint(committeeMetadata.numericId, oracleAccount)
-    const xGov = this.getStoredXGovAt(this.getCommitteeSBPrefix(committeeId), accountOffset)
+    const xGov = this.getStoredXGovAt(this.getMetadataSBPrefix(committeeMetadata), accountOffset)
     ensureExtra(xGov.accountId === oracleAccount.accountId, errAccountOffsetMismatch, oracleAccount.accountId.bytes)
 
     return xGov.votes
@@ -322,7 +332,15 @@ export class CommitteeOracleContract extends OracleAccountContract {
    * @returns committee superbox prefix
    */
   private getCommitteeSBPrefix(committeeId: CommitteeId): string {
-    return 'S' + this.mustGetCommitteeMetadata(committeeId).numericId.asUint64().toString()
+    return this.getMetadataSBPrefix(this.mustGetCommitteeMetadata(committeeId))
+  }
+
+  /**
+   * Get superbox prefix from already-loaded committee metadata
+   * Avoids redundant box reads when metadata is already available
+   */
+  private getMetadataSBPrefix(metadata: CommitteeMetadata): string {
+    return 'S' + metadata.numericId.asUint64().toString()
   }
 
   /**

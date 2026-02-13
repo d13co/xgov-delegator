@@ -7,15 +7,15 @@ main:
     bytecblock base64(C4EBQw==)
     txn ApplicationID
     bnz main_after_if_else@2
-    // smart_contracts/oracle/oracle.algo.ts:57
+    // smart_contracts/oracle/oracle-account.algo.ts:15
     // lastAccountId = GlobalState<uint64>({ initialValue: 0 })
     pushbytes "lastAccountId"
     intc_1 // 0
     app_global_put
 
 main_after_if_else@2:
-    // smart_contracts/oracle/oracle.algo.ts:56
-    // export class OracleAccountContract extends Base {
+    // smart_contracts/oracle/oracle-account.algo.ts:13
+    // export class OracleAccountContract extends BaseContract {
     txn NumAppArgs
     bz main___algots__.defaultCreate@12
     txn OnCompletion
@@ -29,8 +29,8 @@ main_after_if_else@2:
     err
 
 main___algots__.defaultCreate@12:
-    // smart_contracts/oracle/oracle.algo.ts:56
-    // export class OracleAccountContract extends Base {
+    // smart_contracts/oracle/oracle-account.algo.ts:13
+    // export class OracleAccountContract extends BaseContract {
     txn OnCompletion
     !
     txn ApplicationID
@@ -41,9 +41,9 @@ main___algots__.defaultCreate@12:
     return
 
 
-// smart_contracts/oracle/oracle.algo.ts::OracleAccountContract.getAccount[routing]() -> void:
+// smart_contracts/oracle/oracle-account.algo.ts::OracleAccountContract.getAccount[routing]() -> void:
 getAccount:
-    // smart_contracts/oracle/oracle.algo.ts:167
+    // smart_contracts/oracle/oracle-account.algo.ts:127
     // @abimethod({ readonly: true })
     txna ApplicationArgs 1
     dup
@@ -51,10 +51,10 @@ getAccount:
     intc_2 // 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    // smart_contracts/oracle/oracle.algo.ts:169
+    // smart_contracts/oracle/oracle-account.algo.ts:129
     // return this.getAccountIfExists(account)
     callsub getAccountIfExists
-    // smart_contracts/oracle/oracle.algo.ts:167
+    // smart_contracts/oracle/oracle-account.algo.ts:127
     // @abimethod({ readonly: true })
     pushbytes 0x151f7c75
     swap
@@ -64,9 +64,9 @@ getAccount:
     return
 
 
-// smart_contracts/oracle/oracle.algo.ts::OracleAccountContract.logAccounts[routing]() -> void:
+// smart_contracts/oracle/oracle-account.algo.ts::OracleAccountContract.logAccounts[routing]() -> void:
 logAccounts:
-    // smart_contracts/oracle/oracle.algo.ts:177
+    // smart_contracts/oracle/oracle-account.algo.ts:137
     // @abimethod({ readonly: true })
     txna ApplicationArgs 1
     dupn 2
@@ -85,7 +85,7 @@ logAccounts:
     intc_1 // 0
 
 logAccounts_for_header@2:
-    // smart_contracts/oracle/oracle.algo.ts:179
+    // smart_contracts/oracle/oracle-account.algo.ts:139
     // for (const account of accounts) {
     dup
     dig 2
@@ -100,7 +100,7 @@ logAccounts_for_header@2:
     *
     intc_2 // 32
     extract3 // on error: index access is out of bounds
-    // smart_contracts/oracle/oracle.algo.ts:180
+    // smart_contracts/oracle/oracle-account.algo.ts:140
     // log(encodeArc4(this.getAccountIfExists(account)))
     callsub getAccountIfExists
     log
@@ -110,30 +110,30 @@ logAccounts_for_header@2:
     b logAccounts_for_header@2
 
 logAccounts_after_for@5:
-    // smart_contracts/oracle/oracle.algo.ts:177
+    // smart_contracts/oracle/oracle-account.algo.ts:137
     // @abimethod({ readonly: true })
     intc_0 // 1
     return
 
 
-// smart_contracts/base/base.algo.ts::Base.increaseBudget[routing]() -> void:
+// smart_contracts/base/base.algo.ts::BaseContract.increaseBudget[routing]() -> void:
 increaseBudget:
-    // smart_contracts/base/base.algo.ts:32
+    // smart_contracts/base/base.algo.ts:21
     // @abimethod({ validateEncoding: 'unsafe-disabled' })
     txna ApplicationArgs 1
     btoi
-    // smart_contracts/base/base.algo.ts:35
+    // smart_contracts/base/base.algo.ts:24
     // for (let i: uint64 = 0; i < itxns; i++) {
     intc_1 // 0
 
 increaseBudget_while_top@2:
-    // smart_contracts/base/base.algo.ts:35
+    // smart_contracts/base/base.algo.ts:24
     // for (let i: uint64 = 0; i < itxns; i++) {
     dup
     dig 2
     <
     bz increaseBudget_after_while@5
-    // smart_contracts/base/base.algo.ts:36-42
+    // smart_contracts/base/base.algo.ts:25-31
     // itxn
     //   .applicationCall({
     //     approvalProgram: empty.clearStateProgram, // intentionally using clear state program for "return true"
@@ -142,17 +142,17 @@ increaseBudget_while_top@2:
     //   })
     //   .submit()
     itxn_begin
-    // smart_contracts/base/base.algo.ts:40
+    // smart_contracts/base/base.algo.ts:29
     // onCompletion: OnCompleteAction.DeleteApplication,
     pushint 5 // 5
     itxn_field OnCompletion
-    // smart_contracts/base/base.algo.ts:34
+    // smart_contracts/base/base.algo.ts:23
     // const empty = compile(EmptyContract)
     bytec_0 // base64(C4EBQw==)
     itxn_field ClearStateProgramPages
     bytec_0 // base64(C4EBQw==)
     itxn_field ApprovalProgramPages
-    // smart_contracts/base/base.algo.ts:36-41
+    // smart_contracts/base/base.algo.ts:25-30
     // itxn
     //   .applicationCall({
     //     approvalProgram: empty.clearStateProgram, // intentionally using clear state program for "return true"
@@ -163,7 +163,7 @@ increaseBudget_while_top@2:
     itxn_field TypeEnum
     intc_1 // 0
     itxn_field Fee
-    // smart_contracts/base/base.algo.ts:36-42
+    // smart_contracts/base/base.algo.ts:25-31
     // itxn
     //   .applicationCall({
     //     approvalProgram: empty.clearStateProgram, // intentionally using clear state program for "return true"
@@ -172,7 +172,7 @@ increaseBudget_while_top@2:
     //   })
     //   .submit()
     itxn_submit
-    // smart_contracts/base/base.algo.ts:35
+    // smart_contracts/base/base.algo.ts:24
     // for (let i: uint64 = 0; i < itxns; i++) {
     dup
     intc_0 // 1
@@ -181,24 +181,24 @@ increaseBudget_while_top@2:
     b increaseBudget_while_top@2
 
 increaseBudget_after_while@5:
-    // smart_contracts/base/base.algo.ts:32
+    // smart_contracts/base/base.algo.ts:21
     // @abimethod({ validateEncoding: 'unsafe-disabled' })
     intc_0 // 1
     return
 
 
-// smart_contracts/oracle/oracle.algo.ts::OracleAccountContract.getAccountIfExists(account: bytes) -> bytes:
+// smart_contracts/oracle/oracle-account.algo.ts::OracleAccountContract.getAccountIfExists(account: bytes) -> bytes:
 getAccountIfExists:
-    // smart_contracts/oracle/oracle.algo.ts:80
+    // smart_contracts/oracle/oracle-account.algo.ts:39
     // protected getAccountIfExists(account: Account): OracleAccount {
     proto 1 1
-    // smart_contracts/oracle/oracle.algo.ts:58
+    // smart_contracts/oracle/oracle-account.algo.ts:17
     // accounts = BoxMap<Account, OracleAccount>({ keyPrefix: 'a' })
     pushbytes "a"
     frame_dig -1
     concat
     dup
-    // smart_contracts/oracle/oracle.algo.ts:82
+    // smart_contracts/oracle/oracle-account.algo.ts:41
     // if (box.exists) return box.value
     box_len
     bury 1
@@ -210,10 +210,10 @@ getAccountIfExists:
     retsub
 
 getAccountIfExists_else_body@2:
-    // smart_contracts/oracle/oracle.algo.ts:87
+    // smart_contracts/oracle/oracle-account.algo.ts:47
     // return { accountId: accountId, committeeOffsets: [] }
     pushbytes 0x0000000000060000
-    // smart_contracts/oracle/oracle.algo.ts:83
+    // smart_contracts/oracle/oracle-account.algo.ts:42
     // else return this.getEmptyOracleAccount(u32(0))
     swap
     retsub

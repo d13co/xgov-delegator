@@ -8,6 +8,3 @@ artifacts = "src/"
 
 [project.run]
 build = { commands = ['pnpm run build'], description = 'Build SDK' }
-test = { commands = [
-  'pnpm run test',
-], description = 'Run smart contract tests using vitest' }

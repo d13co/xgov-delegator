@@ -44,9 +44,4 @@ export type AccountWithAlgoHours = {
   algoHours: bigint;
 };
 
-export type AccountWithOffsetHint = {
-  account: Address | string;
-  oracleSuperboxOffset: number;
-};
-
 export type CommitteeId = Uint8Array | Buffer | string

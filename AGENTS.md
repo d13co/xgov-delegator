@@ -123,7 +123,6 @@ algokit localnet start          # Start local network
 algokit project run build       # Compile contracts, generate clients
 algokit project run test        # Run integration tests
 algokit project deploy localnet # Deploy to localnet
-tsc --noEmit                    # Typecheck typescript. Avoid "npx tsc"
 ```
 
 </commands>
@@ -140,3 +139,13 @@ tsc --noEmit                    # Typecheck typescript. Avoid "npx tsc"
 | Puya compiler errors | Load `algorand-typescript` skill |
 
 </troubleshooting>
+
+<project_summary>
+
+## Project Summary
+
+See [PROJECT_SUMMARY.md](./PROJECT_SUMMARY.md) for a complete overview of the monorepo structure, contracts, SDKs, frontend, build pipeline, and key patterns.
+
+**Keep it updated** when the project structure changes significantly (new contracts, new packages, renamed modules, changed build pipeline, etc.).
+
+</project_summary>
