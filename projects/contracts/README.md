@@ -69,7 +69,7 @@ Smart contract to delegate xGov voting power for pooled and liquid staking syste
 - `voteSubmitThreshold`: uint64 (10800) - time in seconds before external vote end to submit votes (default: 3 hours)
 - `absenteeMode`: string ('strict') - absentee mode: 'strict' or 'scaled'
 
-### Account boxes (keyPrefix: 'A')
+### Account boxes (keyPrefix: 'a')
 
 key: address
 
@@ -112,30 +112,32 @@ value: DelegatorCommittee struct
 key: proposal_id (Application)
 
 value: DelegatorProposal struct
-- `status`: string - 'WAIT' | 'VOTD' | 'CANC'
+- `status`: string - 'WAIT' | 'VOTE' | 'VOTD' | 'CANC'
 - `committeeId`: byte[32]
+- `extVoteStartTime`: uint32
 - `extVoteEndTime`: uint32
 - `extTotalVotingPower`: uint32 (not dupe - committee member may have been removed for absenteeism)
 - `extAccountsPendingVotes`: [accountId uint32, votes uint32][] - added when synced, removed when vote is cast
 - `extAccountsVoted`: [accountId uint32, votes uint32][] - accounts that have voted
-- `intVoteEndTime`: uint64 - set earlier than external to allow for vote submission before xGov proposal voting ends
+- `intVoteEndTime`: uint32 - set earlier than external to allow for vote submission before xGov proposal voting ends
 - `intTotalAlgohours`: uint64 - sum of algohour period totals for committee periods
 - `intVotedAlgohours`: uint64
 - `intVotesYesAlgohours`: uint64
 - `intVotesNoAlgohours`: uint64
+- `intVotesAbstainAlgohours`: uint64
 - `intVotesBoycottAlgohours`: uint64
 
-### Vote Receipts (not yet implemented)
+### Vote Records (keyPrefix: 'V')
 
-key: [account id][proposal_id]
+key: [proposal_id (Application), account_id (uint32)]
 
-value: empty # if no changing vote allowed
+value: DelegatorVote struct
+- `yesVotes`: uint64
+- `noVotes`: uint64
+- `abstainVotes`: uint64
+- `boycottVotes`: uint64
 
-value: [votes_yes,votes_no] # if changing vote is allowed
-
-receipt to ensure each subdelegator votes once
-
-changing votes could be allowed, subtract previous votes_yes / votes_no and add new ones
+Tracks each participant's vote per proposal. Votes can be changed — previous votes are subtracted and new votes added.
 
 ## Methods
 
@@ -150,13 +152,20 @@ changing votes could be allowed, subtract previous votes_yes / votes_no and add 
 
 ### Sync Methods
 
-- `syncCommitteeMetadata(committeeId: byte[32], delegatedAccounts: [account, offsetHint][])` - Sync committee metadata and delegated accounts from CommitteeOracle
+- `syncCommitteeMetadata(committeeId: byte[32], delegatedAccounts: Account[])` - Sync committee metadata and delegated accounts from CommitteeOracle
 - `syncProposalMetadata(proposalId: Application)` - Sync proposal metadata from xGov registry
+
+### Voting Methods
+
+- `voteInternal(proposalId: Application, voterAccount: Account, vote: DelegatorVote)` - Cast internal vote for a proposal. Voter must be the account that earned the algohours. Votes can be changed.
+- `voteExternal(proposalId: Application, extAccounts: Account[])` - Submit aggregated votes to the xGov proposal contract for each external account
 
 ### Read Methods
 
 - `getAlgoHourPeriodTotals(periodStart: uint64)` - Get total algohours and finality for period
 - `getAccountAlgoHours(periodStart: uint64, account: Account)` - Get account algohours for period
+- `logCommitteeMetadata(committeeIds: CommitteeId[])` - Log committee metadata for multiple committees
+- `logProposalMetadata(proposalIds: Application[])` - Log proposal metadata for multiple proposals
 
 # xgov-committee-oracle
 
@@ -164,30 +173,32 @@ Store basic committee info and xgov voting power on chain
 
 ## Global State
 
-- `last_account_id`: uint32 (0) - incrementing account ID counter
-- `lastSuperboxPrefix`: uint64 (0) - incrementing superbox prefix for committees
+- `lastAccountId`: uint64 (0) - incrementing account ID counter
+- `lastCommitteeId`: uint64 (0) - incrementing numeric ID for committees (used as superbox prefix)
 - `xGovRegistryApp`: Application - xGov registry application ID
 
 ## Boxes
 
-### Account (keyPrefix: 'A')
+### Account (keyPrefix: 'a')
 
 key: address
 
-value: uint32 incrementing ID
+value: OracleAccount struct
+- `accountId`: uint32 - incrementing ID
+- `committeeOffsets`: [committeeNumId uint16, accountOffset uint16][] - superbox offset hints per committee
 
 ### Committee (keyPrefix: 'c')
 
 Key: committee_id (byte[32])
 
 Value: CommitteeMetadata struct
+- `numericId`: uint16 - incrementing numeric ID, used to derive superbox prefix ('S' + numericId)
 - `periodStart`: uint32
 - `periodEnd`: uint32 (exclusive)
 - `totalMembers`: uint32
 - `totalVotes`: uint32
 - `xGovRegistryId`: uint64
 - `ingestedVotes`: uint32 - keep track of ingested voting power for verification
-- `superboxPrefix`: string
 
 ### Committee > xGov voting power
 
@@ -207,8 +218,8 @@ value: Array of tuples [accountId uint32, votes uint32]
 ensure committee not exists
 ensure period_end > period_start
 create committee box
-create superbox with prefix 'S' + lastSuperboxPrefix
-increment lastSuperboxPrefix
+create superbox with prefix 'S' + lastCommitteeId
+increment lastCommitteeId
 ```
 
 - `unregisterCommittee(committeeId)` - Delete committee. Must not have any ingested votes
@@ -235,17 +246,20 @@ ensure(ingested_accounts + xGovs.length <= committee.total_members)
 write_chunk: bytes of shape [id, votes][]
 // iterate xGovs
 foreach xGov in xGovs:
-  // get or create account id
-  account_id = getOrCreateAccountId(account)
+  // get or create oracle account
+  oracleAccount = getOrCreateAccount(account)
+  account_id = oracleAccount.accountId
   // assert ascending ID ingestion for dedupe/uniqueness enforcement
   assert account_id > last_ingested_id
+  // store committee offset hint on oracle account
+  addCommitteeAccountOffsetHint(committee.numericId, account, oracleAccount, ingestedAccountCtr++)
   // keep track of ingested votes
-  committee.ingested_votes += votes
-  // assert not going over available votes
-  assert committee.ingested_votes <= committee.total_votes
+  ingested_votes += votes
   // increase counter
   last_ingested_id = account_id
   write_chunk += [account_id, votes]
+// assert not going over available votes
+ensure ingested_votes <= committee.total_votes
 // write to superbox once
 sbAppend(superbox_name, write_chunk)
 // if finished, ensure total votes match
@@ -253,24 +267,25 @@ if ingested_accounts + xGovs.length === committee.total_members
   ensure committee.ingested_votes === committee.total_votes
 ```
 
-- `uningestXGovs(committeeId, numXGovs)` - Delete last N xGovs from committee superbox
+- `uningestXGovs(committeeId, xGovs: Account[])` - Delete xGovs from committee superbox (strictly descending order)
 - `setXGovRegistryApp(appId: Application)` - Set the xGov Registry Application ID
 
 ### Read Methods
 
-- `getAccountId(account)` -> uint32 - Get account ID if exists, else return 0
-- `logAccountIds(accounts[])` - Log multiple accounts' IDs for quick fetching with simulate
+- `getAccount(account)` -> OracleAccount - Get account (with ID and committee offsets) if exists, else return empty
+- `logAccounts(accounts[])` - Log multiple accounts' OracleAccount data for quick fetching with simulate
 - `getCommitteeMetadata(committeeId, mustBeComplete: boolean)` -> CommitteeMetadata - Get committee metadata
 - `logCommitteeMetadata(committeeIds[])` - Log committee metadata for multiple committees
 - `logCommitteePages(committeeId, logMetadata, startDataPage, dataPageLength)` - Facilitates fetching committee in "one shot" / parallel queries. Logs metadata, superbox meta, and data pages
 - `getCommitteeSuperboxMeta(committeeId)` -> SuperboxMeta - Get committee superbox metadata
-- `getXGovVotingPower(committeeId, account, accountOffsetHint)` -> uint32 - Get xGov voting power with required account offset hint (for opcode savings)
+- `getXGovVotingPower(committeeId, account)` -> uint32 - Get xGov voting power (offset looked up from account's committeeOffsets)
 
 ```
 ensure committee exists
-account_id = getAccountIdIfExists(account)
-ensure account_id !== 0
-xGov = get superbox xGov at offset account_offset_hint
-ensure xGov.account_id === account_id
+oracleAccount = getAccountIfExists(account)
+ensure oracleAccount.accountId !== 0
+offset = lookup from oracleAccount.committeeOffsets by committee numericId
+xGov = get superbox xGov at offset
+ensure xGov.accountId === oracleAccount.accountId
 return xGov.votes
 ```
