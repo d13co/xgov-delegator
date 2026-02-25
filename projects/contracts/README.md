@@ -1,5 +1,41 @@
 # xgov-delegator and [xgov-committee-oracle](#xgov-committee-oracle)
 
+## What is this?
+
+When you stake ALGO through pooled or liquid staking protocols (Reti, xALGO, tALGO, etc.), the protocol's smart contract holds your ALGO and is credited with your xGov voting power.
+
+**xgov-delegator** is a system of smart contracts and SDKs that lets staking protocols delegate xGov voting power to their individual participants, proportional to their stake. Participants vote internally on xGov proposals, and the system submits the aggregated result on-chain before the xGov deadline.
+
+The system has two parts:
+
+- **xgov-committee-oracle** - Stores xGov committee membership and voting power on-chain as a shared data source.
+- **xgov-delegator** - Tracks internal voting power (via algohours), runs proposal votes among participants, and submits the final tally to the xGov registry.
+
+Both contracts, TypeScript SDKs, and a React frontend are included in this monorepo. See [PROJECT_SUMMARY.md](./PROJECT_SUMMARY.md) for the full architecture.
+
+## Internal voting power: algohours
+
+The delegator needs a fair way to split voting power among participants whose stake changes over time. It uses **algohours** - 1 algohour equals 1 ALGO staked for 1 hour.
+
+A participant who stakes 100 ALGO for 30 days earns more voting power than one who stakes 1000 ALGO for the last hour before a vote. This rewards sustained commitment rather than last-minute capital.
+
+Algohours are stored on-chain in **1M-round timeslices** (~30 days at ~2.6s rounds). Each timeslice tracks a per-account algohour value and a period total. When a proposal vote is synced, the contract sums all timeslices that fall within the committee period to determine each participant's share of the total internal voting power.
+
+The flow:
+
+1. An off-chain process computes algohours per account for each timeslice from staking data.
+2. An admin uploads these to the contract via `addAccountAlgoHours`.
+3. Once a timeslice is complete, it is marked as `final` - locking the data.
+4. When a participant votes on a proposal, the contract aggregates their algohours across all relevant timeslices to determine their voting weight.
+5. On vote submission, internal algohour votes are translated proportionally into external xGov votes.
+
+Two **absentee modes** control how non-voters are handled:
+
+- **strict** - Non-voters count against approval. The denominator is total algohours, so abstention is effectively a "no."
+- **scaled** - Only votes cast are counted. The denominator is voted algohours, so the result reflects the will of active participants only.
+
+---
+
 # xgov-delegator
 
 Smart contract to delegate xGov voting power for pooled and liquid staking systems.
